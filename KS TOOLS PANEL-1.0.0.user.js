@@ -30,7 +30,7 @@
     ⚪ &#9898; (Beyaz daire)
     ⚫ &#9899; (Siyah daire) */
     // Status Paneli
-    const domainRegex = /otohasar|sahibinden|sigorta|sbm|whatsapp/;
+    const domainRegex = /otohasar|sahibinden|sigorta|sbm/;
     if (!domainRegex.test(window.location.hostname)) return;
     // 1. PANEL AYARLARI (Boyutlar ve Durum)
     let config = {
@@ -38,6 +38,7 @@
         width: '270px',
         collapsedWidth: '270px',
         themeColor: '#00ff88',
+        Color: 'white',
         isCollapsed: false
     };
     // 2. STİL ENJEKSİYONU
@@ -352,7 +353,7 @@
             <hr style="border:0; border-top:1px solid #444; margin:2px 0;">
             <div style ="text-align:center; margin-bottom:8px; font-size:11px;"></div>
 
-            <div class="ks-tooltip-container onmouseover="handleHover(this)">
+            <div class="ks-tooltip-container" onmouseover="handleHover(this)">
                 <button id="autoSelectBtn" class="ks-btn" style="width:100%;">
                     ⚡Ön Giriş - Otomatik Seçim
                 </button>
@@ -1850,51 +1851,42 @@
         <img id="tutanak" alt="Tutanak Resimleri" src="listShowTutanakResimleri.sbm?randQ=94b8386c067592d6f106f287b592157e" oncontextmenu="return false;" height="728" width="970" style="transform: rotate(0deg) scale(1, 1); position: relative; top: -8.73e-05px; left: 0.0001089px;">
         */
     }
-    // Whatsapp çift tıklama resim indirme
-    if (location.href.includes("web.whatsapp.com")) {
-        function downloadBlobImage(img) {
-            // 1. Tarih Oluştur (YYYY-MM-DD)
+    // WhatsApp Resim İndirici (Alt + Tıklama Versiyonu)
+    /*if (location.href.includes("web.whatsapp.com")) {
+
+        function downloadBlobImage(imgSrc) {
             const now = new Date();
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            const datePart = `${year}-${month}-${day}`;
-            // 2. Kısa Kod (Resmin Blob ID'sinden ilk 6 hane)
-            // Bu kod resim aynı olduğu sürece değişmez.
-            const shortId = img.src.split('/').pop().slice(0, 6);
-            // 3. Dosya İsmi: WhatsApp Image 2026-01-20 at 123456.jpg benzeri ama sabit kodlu
-            const fileName = `WhatsApp Image ${datePart} at ${shortId}.jpg`;
-            // İndirme İşlemi
-            const xhr = new XMLHttpRequest();
-            xhr.open('GET', img.src, true);
-            xhr.responseType = 'blob';
-            xhr.onload = function () {
-                if (xhr.status === 200) {
-                    const url = URL.createObjectURL(xhr.response);
+            const fileName = `WA_Download_${now.getHours()}${now.getMinutes()}${now.getSeconds()}.jpg`;
+
+            fetch(imgSrc)
+                .then(res => res.blob())
+                .then(blob => {
+                    const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
                     a.download = fileName;
                     document.body.appendChild(a);
                     a.click();
-                    setTimeout(() => {
-                        URL.revokeObjectURL(url);
-                        a.remove();
-                    }, 100);
-                }
-            };
-            xhr.send();
+                    URL.revokeObjectURL(url);
+                    a.remove();
+                }).catch(err => console.error("KS Tools: İndirme hatası", err));
         }
-        // Çift Tıklama Dinleyici
-        document.addEventListener('dblclick', function (e) {
-            const img = e.target;
-            // WhatsApp görsel sınıfı (_ao3e) ve blob kontrolü
-            if (img.tagName === 'IMG' && img.src.startsWith('blob:') && img.classList.contains('_ao3e')) {
+
+        // "click" olayını yakalıyoruz
+        document.addEventListener('click', function (e) {
+            // Alt tuşu basılı mı ve tıklanan resim bizim hedef resim mi?
+            if (e.altKey && e.target.tagName === 'IMG' && e.target.classList.contains('_ao3e')) {
+
+                // WhatsApp'ın kapatma işlemini engelle
                 e.preventDefault();
+                e.stopPropagation();
                 e.stopImmediatePropagation();
-                downloadBlobImage(img);
+
+                downloadBlobImage(e.target.src);
+                console.log("KS Tools: Alt + Tıklama ile resim indiriliyor.");
             }
         }, true);
-    }
+    }*/
     // Sahibinden Ortalama KM Piyasa sorgusu
     if (location.href.includes("sahibinden.com")) {
         injectStyles();
