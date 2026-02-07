@@ -522,6 +522,28 @@
                                 ${rucuStatus}
                             </td>
                          </tr>`;
+                // 1. PERT Durum Kontrolü (ID'yi küçük harf 'pert' yaparak eşitledik)
+                const pertElement = document.getElementById('pert');
+                const pertVar = pertElement ? pertElement.checked : false;
+
+                // 2. Renk ve Metin Belirleme
+                let pertStatus = "";
+
+                if (pertVar) {
+                    // İşaretliyse
+                    pertStatus = `<span style="color:#e74c3c; font-weight:bold; font-size:13px;">Var 🔴</span>`;
+                } else {
+                    // İşaretli değilse
+                    pertStatus = `<span style="color:#2ecc71; font-weight:bold;">Yok 🟢</span>`;
+                }
+
+                // 3. Panele Ekleme
+                html += `<tr>
+                            <td style="color:white; padding: 4px 0;">Pert Durumu:</td>
+                            <td style="text-align:right; font-size:11px;">
+                                ${pertStatus}
+                            </td>
+                         </tr>`;
 
                 const ihbarElement = document.getElementById('KAZA_IHBAR_TURU');
                 if (ihbarElement) {
@@ -1257,6 +1279,10 @@
             };
             // Genel Onarım********************************************/////
             $("b5").onclick = async () => {
+                const fiyat = refs.fiyat.value.replace(",", ".");
+                if ($("BIRIM_FIYAT_GERCEK")) $("BIRIM_FIYAT_GERCEK").value = fiyat;
+                if ($("BIRIM_FIYAT_TALEP")) $("BIRIM_FIYAT_TALEP").value = fiyat;
+
                 await selectValue("GRUP_ID", "6");
                 await selectValue("ANA_GRUP", "495");
                 submitForm();
