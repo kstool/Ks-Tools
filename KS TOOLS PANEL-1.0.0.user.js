@@ -363,6 +363,7 @@
                     Ekspertiz şekli (Yerinde), Ehliyet sınıfı (B) gibi seçimler kontrol edilmelidir!
                 </div>
             </div>
+            <div style="display: none; position: fixed;">
                     <hr style="border:0; border-top:1px solid #444; margin:2px 0;">
                     <div id="shb-res-box">Piyasa kontrolü bekleniyor...</div>
                     <div style="display: flex; flex-direction: row; width: 100%; gap: 4%; justify-content: space-between;">
@@ -724,10 +725,7 @@
 
                     // --- TEMİZLİK ---
                     // Model adındaki parantezleri ve tarihli kısımları temizle
-                    m = m.replace(/\d{2}\/\d{2}\/\d{4}.*/g, '') // Tarih varsa sil
-                        .replace(/\(\s*\d+\s*\)/g, '') // ID'leri sil
-                        .replace(/\s+/g, ' ')
-                        .trim();
+                    m = m.replace(/\d{2}\/\d{2}\/\d{4}.*/g, '').replace(/\(\s*\d+\s*\)/g, '').replace(/\s+/g, ' ').trim();
 
                     const y = extractYear(yRaw);
 
