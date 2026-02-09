@@ -2280,68 +2280,91 @@
         document.head.appendChild(style);
         }
 
-        // TELEFON DOLDURMA FONKSİYONU
-       function fillPhoneField(input) {
-            // 1. Odaklan ve imleci parantezin ilk hanesine (pozisyon 3) taşı
-            // Format: 0 ( _ _ _ ) -> '0', ' ', '(' karakterlerinden sonra 3. indeks
-            input.focus();
-
-            // 2. Önce alanı temizle
-            input.value = "";
-
-            // 3. İmleci parantez içine sabitle
-            setTimeout(() => {
-                input.setSelectionRange(3, 3); // 0 ( kısmını atla, direkt parantez içine git
-
-                // 4. 10 haneli veriyi gönder
-                const dataTransfer = new DataTransfer();
-                dataTransfer.setData('text', '1111111111');
-
-                const pasteEvent = new ClipboardEvent('paste', {
-                    clipboardData: dataTransfer,
-                    bubbles: true,
-                    cancelable: true
-                });
-
-                input.dispatchEvent(pasteEvent);
-
-                // 5. Kaydetme tetikleyicileri
-                setTimeout(() => {
-                    input.dispatchEvent(new Event('input', { bubbles: true }));
-                    input.dispatchEvent(new Event('change', { bubbles: true }));
-                }, 10);
-            }, 10);
+        // GENEL DEĞER ATAMA
+        // 1. ZORLAYICI DEĞER ATAMA FONKSİYONU
+        function forceUpdateValue(input, value) {
+            if (!input) return;
+            const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
+            nativeInputValueSetter.call(input, value);
+            ['input', 'change', 'blur'].forEach(name => {
+                input.dispatchEvent(new Event(name, { bubbles: true }));
+            });
         }
 
-        // Observer içindeki imleç dostu kısım
-        const observer = new MutationObserver(() => {
-            // Sayfadaki tüm dx-inputları bul
-            const allInputs = document.querySelectorAll('input.dx-texteditor-input');
+        function handleMagicFill(input) {
+            if (!input || input.tagName !== 'INPUT') return;
 
-            allInputs.forEach(input => {
-                if (!input.dataset.handlerAdded) {
-                    input.addEventListener('mousedown', (e) => {
-                        const target = e.target;
+            const id = (input.id || "").toLowerCase();
+            const name = (input.name || "").toLowerCase();
+            const html = (input.outerHTML || "").toLowerCase();
 
-                        // Kapsamı genişletildi: Hem Phone hem de Gsm kelimelerini kontrol eder
-                        const isPhoneField = target.name?.toLowerCase().includes('phone') ||
-                                             target.id?.toLowerCase().includes('phone') ||
-                                             target.name?.toLowerCase().includes('gsm') ||
-                                             target.id?.toLowerCase().includes('gsm') ||
-                                             target.outerHTML.toLowerCase().includes('phone') ||
-                                             target.outerHTML.toLowerCase().includes('gsm');
+            // --- HARİÇ TUTULACAKLAR (Yazılmayacak Alanlar) ---
+            // serviceTel ve servicePhone alanlarını burada engelliyoruz
+            const excludedTerms = ["servicetel", "servicephone"];
+            const isExcluded = excludedTerms.some(term => id.includes(term) || name.includes(term));
 
-                        if (isPhoneField && (target.value.includes('_') || target.value.trim() === "")) {
-                            fillPhoneField(target);
-                        }
+            if (isExcluded) {
+                console.log("Servis telefonu tespit edildi, pas geçiliyor...");
+                return;
+            }
+
+            // --- TELEFON / GSM KONTROLÜ ---
+            const isPhoneField = id.includes("gsm") || name.includes("gsm") || html.includes("gsm") ||
+                                 id.includes("phone") || name.includes("phone") || html.includes("phone") ||
+                                 id.includes("tel") || name.includes("tel");
+
+            if (isPhoneField && (input.value.includes('_') || input.value.trim() === "" || input.value.length < 5)) {
+                const telNo = "1111111111";
+
+                input.focus();
+                forceUpdateValue(input, "");
+
+                setTimeout(() => {
+                    const dt = new DataTransfer();
+                    dt.setData('text', telNo);
+                    const pasteEvt = new ClipboardEvent('paste', {
+                        clipboardData: dt,
+                        bubbles: true,
+                        cancelable: true
                     });
-                    input.dataset.handlerAdded = "true";
-                }
-            });
-        });
+                    input.dispatchEvent(pasteEvt);
 
-        // Sadece 'childList' dinlemek imleç kaymasını büyük oranda engeller
-        observer.observe(document.body, { childList: true, subtree: true });
+                    setTimeout(() => {
+                        input.dispatchEvent(new Event('change', { bubbles: true }));
+                        input.blur();
+                    }, 100);
+                }, 100);
+                return;
+            }
+
+            // --- ARAÇ SAHİBİ (İsim + Soyisim) ---
+            const isOwnerField = id.includes("carownername") || html.includes("carownername");
+
+            if (isOwnerField && input.value.trim() === "") {
+                const fName = document.querySelector('input[id*="Name"], input[name*="Name"]')?.value || "";
+                const lName = document.querySelector('input[id*="Surname"], input[name*="Surname"]')?.value || "";
+                const fullName = (fName + " " + lName).trim();
+
+                if (fullName.length > 1) {
+                    forceUpdateValue(input, fullName);
+                }
+            }
+        }
+
+        // GLOBAL DİNLEYİCİ
+        function initGlobalListener() {
+            const events = ['mousedown', 'focusin'];
+            events.forEach(evtType => {
+                document.addEventListener(evtType, (e) => {
+                    if (e.target.classList.contains('dx-texteditor-input')) {
+                        setTimeout(() => handleMagicFill(e.target), 250);
+                    }
+                }, true);
+            });
+        }
+
+        initGlobalListener();
+
         setInterval(() => {
             applyModernStyles();
         if (document.querySelector('.osem-tab-btn') && !document.getElementById('ts-modern-styles')) {
