@@ -870,7 +870,7 @@
 
 
             /* ===== 5. OTOMATİK SEÇİM BUTONU ===== */
-            document.getElementById('unlockSelectBtn').addEventListener('click', (e) => {
+            document.getElementById('autoSelectBtn').addEventListener('click', (e) => {
                             const setVal = (id, val) => {
                                 const el = $(id);
                                 if (el) {
@@ -913,7 +913,7 @@
                             console.log('✅ Otomatik seçimler tamamlandı.');
                         });
                          /* ===== 5. OTOMATİK SEÇİM BUTONU ===== */
-                        document.getElementById('autoSelectBtn').addEventListener('click', (e) => {
+           document.getElementById('unlockSelectBtn').addEventListener('click', (e) => {
                     // 1. Disabled attribute'una sahip tüm elementleri bul
                     const disabledElements = document.querySelectorAll('[disabled], .disabled');
 
@@ -1041,6 +1041,59 @@
             // Butonları ekle
             contentArea.appendChild(btnPaste);
             contentArea.appendChild(btnCopy);
+        }
+    }
+        // Hızlı Referans açma Otohasar
+    if (window.location.href.includes('otohasar') && location.href.includes("eks_hasar_yp_list.php")) {
+        injectStyles();
+        initPanel();
+        config.bottom = "22px";
+        config.width = "250px"; // İki buton yan yana sığsın diye genişliği artırdık
+        config.collapsedWidth = "250px";
+
+        const panel = document.getElementById('ks-master-panel');
+        const panelContent = panel ? panel.querySelector('.ks-content') : null;
+        if (panel && panelContent) {
+            // Başlığı güncellemek isterseniz:
+            const headerTitle = panel.querySelector('.ks-header h4');
+            if (headerTitle) headerTitle.innerText = "Excell Panel";
+        }
+
+        const contentArea = document.querySelector('.ks-content');
+        if (contentArea) {
+            contentArea.innerHTML = `
+                        <div class="ks-tooltip-container" onmouseover="handleHover(this)">
+                <button id="unlockSelectBtn" class="ks-btn" style="width:100%;">
+                    🔓 Her Şeyi Aktif Et
+                </button>
+                <div class="ks-tooltip-box">
+                    <strong>⚠️ Dikkat ⚠️</strong>
+                    Zorunda kalmadıkça bu buton özelliğini kullanmayınız.
+                    Site üzerindeki tüm etkileşimleri aktifleştirir (Buton, yazı kutusu, liste kutusu vs...).
+                </div>
+            </div>`;
+
+            document.getElementById('unlockSelectBtn').addEventListener('click', (e) => {
+                    // 1. Disabled attribute'una sahip tüm elementleri bul
+                    const disabledElements = document.querySelectorAll('[disabled], .disabled');
+
+                    disabledElements.forEach(el => {
+                        el.disabled = false;
+                        el.removeAttribute('disabled');
+                        el.classList.remove('disabled');
+                        // Bazı siteler pointer-events: none kullanır, onu da çözelim:
+                        el.style.pointerEvents = 'auto';
+                        el.style.opacity = '1';
+                    });
+
+                    // 2. Readonly olanları düzenlenebilir yap
+                    const readOnlyElements = document.querySelectorAll('[readonly]');
+                    readOnlyElements.forEach(el => {
+                        el.readOnly = false;
+                        el.removeAttribute('readonly');
+                    });
+
+            });
         }
     }
     // Hızlı Manuel Parça girişi
