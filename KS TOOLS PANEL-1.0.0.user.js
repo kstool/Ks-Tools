@@ -363,23 +363,33 @@
                     Ekspertiz şekli (Yerinde), Ehliyet sınıfı (B) gibi seçimler kontrol edilmelidir!
                 </div>
             </div>
+            <div class="ks-tooltip-container" onmouseover="handleHover(this)">
+                <button id="unlockSelectBtn" class="ks-btn" style="width:100%;">
+                    🔓 Her Şeyi Aktif Et
+                </button>
+                <div class="ks-tooltip-box">
+            <strong>⚠️ Dikkat ⚠️</strong>
+                    Zorunda kalmadıkça bu buton özelliğini kullanmayınız.
+                    Site üzerindeki tüm etkileşimleri aktifleştirir (Buton, yazı kutusu, liste kutusu vs...).
+                </div>
+            </div>
             <div style="display: none; position: fixed;">
-                    <hr style="border:0; border-top:1px solid #444; margin:2px 0;">
-                    <div id="shb-res-box">Piyasa kontrolü bekleniyor...</div>
-                    <div style="display: flex; flex-direction: row; width: 100%; gap: 4%; justify-content: space-between;">
-                        <div class="ks-tooltip-container" onmouseover="handleHover(this)" style="width: 48%;">
-                            <button id="btn-auto-analiz" class="ks-btn" style="width: 100%;">Piyasa hesapla</button>
-                            <div class="ks-tooltip-box">
-                                Piyasayı otomatik olarak panel arayüzü üzerinde gösterir.
-                            </div>
-                        </div>
-                        <div class="ks-tooltip-container" onmouseover="handleHover(this)" style="width: 48%;">
-                            <button id="btn-auto-look" class="ks-btn" style="width: 100%;">Siteye yönel</button>
-                            <div class="ks-tooltip-box" style="transform: translateX(-50%); transition: opacity 0.5s ease, transform 0.5s ease, visibility 0.5s;">
-                                Site üzerindeki piyasa verilerine hızlıca odaklanır.
-                            </div>
+                <hr style="border:0; border-top:1px solid #444; margin:2px 0;">
+                <div id="shb-res-box">Piyasa kontrolü bekleniyor...</div>
+                <div style="display: flex; flex-direction: row; width: 100%; gap: 4%; justify-content: space-between;">
+                    <div class="ks-tooltip-container" onmouseover="handleHover(this)" style="width: 48%;">
+                        <button id="btn-auto-analiz" class="ks-btn" style="width: 100%;">Piyasa hesapla</button>
+                        <div class="ks-tooltip-box">
+                            Piyasayı otomatik olarak panel arayüzü üzerinde gösterir.
                         </div>
                     </div>
+                    <div class="ks-tooltip-container" onmouseover="handleHover(this)" style="width: 48%;">
+                        <button id="btn-auto-look" class="ks-btn" style="width: 100%;">Siteye yönel</button>
+                        <div class="ks-tooltip-box" style="transform: translateX(-50%); transition: opacity 0.5s ease, transform 0.5s ease, visibility 0.5s;">
+                            Site üzerindeki piyasa verilerine hızlıca odaklanır.
+                        </div>
+                    </div>
+                </div>
             </div>
             `;
 
@@ -427,6 +437,15 @@
                     const kmEl = document.getElementById('HAS_KM') || document.getElementsByName('HAS_KM')[0];
                     const kmTd = kmEl?.closest('td');
                     if (kmTd) kmTd.style.backgroundColor = km < 1 ? WARNING_COLOR : '';
+
+                    // HASAR_SEKLI Kontrolü
+                    const hasarSekliEl = document.getElementById('HASAR_SEKLI') || document.getElementsByName('HASAR_SEKLI')[0];
+                    const hasarSekliTd = hasarSekliEl?.closest('td');
+                    // 2. HASAR_SEKLI Renklendirme (Yeni talep: -1 ise renklendir)
+                    if (hasarSekliTd) {
+                        // Değer "-1" ise WARNING_COLOR yap, değilse temizle
+                        hasarSekliTd.style.backgroundColor = (hasarSekliEl && hasarSekliEl.value === "-1") ? WARNING_COLOR : '';
+                    }
 
                     // Piyasa Kontrolü
                     const piyasa = parseNum('HAS_PIYASA');
@@ -480,21 +499,24 @@
                 html += `<tr><td colspan="2"><hr style="border:0; border-top:1px solid #444; margin:2px 0;"></td></tr>`;
 
                 const sigortaElement = document.getElementById('SIGORTA_SEKLI');
+                let dynamicLabel = 'Sigortalı/Kaskolu Araç'; // Varsayılan etiket
+
                 if (sigortaElement) {
-                    // 1. Seçili olan metni (Text) alıyoruz (Örn: "TRAFİK")
                     const selectedText = sigortaElement.options[sigortaElement.selectedIndex]?.text || "";
-                    // 2. Renk Belirleme Mantığı
-                    let sigortaColor = "#ff9500"; // Varsayılan: Turuncu (Diğer her şey için)
-                    if (selectedText.includes("TRAFİK") || selectedText.includes("Trafik")) {
-                        sigortaColor = "#00d4ff"; // Trafik: Mavi
-                    } else if (selectedText.includes("KASKO") || selectedText.includes("Kasko")) {
-                        sigortaColor = "#9c88ff"; // Kasko: Mor
+                    let sigortaColor = "#ff9500";
+
+                    if (selectedText.toUpperCase().includes("TRAFİK")) {
+                        sigortaColor = "#00d4ff";
+                        dynamicLabel = 'Sigortalı Araç'; // Trafik ise sadece Sigortalı
+                    } else if (selectedText.toUpperCase().includes("KASKO")) {
+                        sigortaColor = "#9c88ff";
+                        dynamicLabel = 'Kaskolu Araç'; // Kasko ise sadece Kaskolu
                     }
 
                     const sigortaSpan = `<span style="color:${sigortaColor}; font-weight:bold;">${selectedText}</span>`;
-                    // 3. Panele Ekleme
+
                     html += `<tr>
-                                <td style="color:white;">Sigorta Şekli:</td>
+                                <td style="color:white;">Sigorta Şekli</td>
                                 <td style="text-align:right; font-size:11px;">
                                     ${sigortaSpan}
                                 </td>
@@ -518,7 +540,7 @@
 
                 // 3. Panele Ekleme
                 html += `<tr>
-                            <td style="color:white; padding: 4px 0;">Rücu Durumu:</td>
+                            <td style="color:white; padding: 4px 0;">Rücu Durumu</td>
                             <td style="text-align:right; font-size:11px;">
                                 ${rucuStatus}
                             </td>
@@ -540,7 +562,7 @@
 
                 // 3. Panele Ekleme
                 html += `<tr>
-                            <td style="color:white; padding: 4px 0;">Pert Durumu:</td>
+                            <td style="color:white; padding: 4px 0;">Pert Durumu</td>
                             <td style="text-align:right; font-size:11px;">
                                 ${pertStatus}
                             </td>
@@ -580,7 +602,7 @@
                     const ihbarSpan = `<span style="color:${ihbarColor}; font-weight:bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">${selectedText}</span>`;
 
                     html += `<tr>
-                                <td style="color:white; padding: 4px 0;">İhbar Türü:</td>
+                                <td style="color:white; padding: 4px 0;">İhbar Türü</td>
                                 <td style="text-align:right; font-size:11px; padding: 4px 0;">
                                     ${ihbarSpan}
                                 </td>
@@ -597,7 +619,7 @@
                     const anlasmaSpan = isAnlasmali ? `<span style="color:#00d4ff; font-weight:bold;">Anlaşmalı</span>` : `<span style="color:#ff9500; font-weight:bold;">Anlaşmasız</span>`;
                     // 3. Panele Ekleme (Yan yana ve ayraçlı)
                     html += `<tr>
-                                <td style="color:white;">Servis:</td>
+                                <td style="color:white;">Servis Tipi</td>
                                 <td style="text-align:right; font-size:11px;">
                                     ${turSpan} <span style="color:#666">|</span> ${anlasmaSpan}
                                 </td>
@@ -623,7 +645,7 @@
                 const fields = [
                     { label: 'Tramer', id: "TRAMER_IHBAR_NO" },
                     { label: 'Sigortalı', id: "HAS_ARAC_SAHIBI" },
-                    { label: 'Sigortalı/Kaskolu Araç', id: "HAS_MODEL_ADI" },
+                    { label: dynamicLabel, id: "HAS_MODEL_ADI" },
                     { label: 'Servis', id: "SERVIS_ADI" },
                     { label: 'Piyasa', id: "HAS_PIYASA" }
                 ];
@@ -658,7 +680,7 @@
                     }
 
                     html += `<tr>
-                                <td style="color:white; padding: 4px 0; white-space:nowrap;">${f.label}:</td>
+                                <td style="color:white; padding: 4px 0; white-space:nowrap;">${f.label}</td>
                                 <td style="text-align:right; color:${color}; font-weight:bold;">${valStr}<span style="margin-left:5px;">${status}</span></td>
                              </tr>`;
                 });
@@ -848,47 +870,69 @@
 
 
             /* ===== 5. OTOMATİK SEÇİM BUTONU ===== */
-            document.getElementById('autoSelectBtn').addEventListener('click', (e) => {
-                const setVal = (id, val) => {
-                    const el = $(id);
-                    if (el) {
-                        el.value = val;
-                        el.dispatchEvent(new Event('change',
-                            {
-                                bubbles: true
-                            }));
-                    }
-                };
-                const clickCb = (id) => {
-                    const el = $(id);
-                    if (el) {
-                        el.checked = false;
-                        el.click();
-                    }
-                };
-                ['SURUCU_BELGE_TIPI1', 'SURUCU_BELGESI0', 'RUHSAT_ASLI1', 'TESPIT_SEKLI0', 'SURUCU_BELGESI_GORULDU1', 'EHLIYET_YETERLI1', 'ALKOL_DURUMU2'].forEach(clickCb);
-                setVal('HAS_ARAC_SAHIBI', getValue('SB_SIGORTALI_ADI_C'));
-                setVal('MILLI_R_NO', getValue('IHBAR_TARIHI_YIL'));
-                setVal('ONARIM_SURESI', '10');
-                setVal('EKSPERTIZ_SURESI', '1');
-                setVal('KUSUR_ORANI', '100');
-                setVal('UZAKTAN_EKSPERTIZ', '2');
-                setVal('EHLIYET_SINIFI', 'B');
-                const setSelectText = (id, txt) => {
-                    const el = $(id);
-                    if (!el) return;
-                    const opt = [...el.options].find(o => o.text.includes(txt));
-                    if (opt) {
-                        el.value = opt.value;
-                        el.dispatchEvent(new Event('change',
-                            {
-                                bubbles: true
-                            }));
-                    }
-                };
-                setSelectText('KAZA_IHBAR_TURU', 'ANLAŞMALI KAZA');
-                setSelectText('KANAAT', 'OLUMLUDUR');
-                console.log('✅ Otomatik seçimler tamamlandı.');
+            document.getElementById('unlockSelectBtn').addEventListener('click', (e) => {
+                            const setVal = (id, val) => {
+                                const el = $(id);
+                                if (el) {
+                                    el.value = val;
+                                    el.dispatchEvent(new Event('change',
+                                        {
+                                            bubbles: true
+                                        }));
+                                }
+                            };
+                            const clickCb = (id) => {
+                                const el = $(id);
+                                if (el) {
+                                    el.checked = false;
+                                    el.click();
+                                }
+                            };
+                            ['SURUCU_BELGE_TIPI1', 'SURUCU_BELGESI0', 'RUHSAT_ASLI1', 'TESPIT_SEKLI0', 'SURUCU_BELGESI_GORULDU1', 'EHLIYET_YETERLI1', 'ALKOL_DURUMU2'].forEach(clickCb);
+                            setVal('HAS_ARAC_SAHIBI', getValue('SB_SIGORTALI_ADI_C'));
+                            setVal('MILLI_R_NO', getValue('IHBAR_TARIHI_YIL'));
+                            setVal('ONARIM_SURESI', '10');
+                            setVal('EKSPERTIZ_SURESI', '1');
+                            setVal('KUSUR_ORANI', '100');
+                            setVal('UZAKTAN_EKSPERTIZ', '2');
+                            setVal('EHLIYET_SINIFI', 'B');
+                            const setSelectText = (id, txt) => {
+                                const el = $(id);
+                                if (!el) return;
+                                const opt = [...el.options].find(o => o.text.includes(txt));
+                                if (opt) {
+                                    el.value = opt.value;
+                                    el.dispatchEvent(new Event('change',
+                                        {
+                                            bubbles: true
+                                        }));
+                                }
+                            };
+                            setSelectText('KAZA_IHBAR_TURU', 'ANLAŞMALI KAZA');
+                            setSelectText('KANAAT', 'OLUMLUDUR');
+                            console.log('✅ Otomatik seçimler tamamlandı.');
+                        });
+                         /* ===== 5. OTOMATİK SEÇİM BUTONU ===== */
+                        document.getElementById('autoSelectBtn').addEventListener('click', (e) => {
+                    // 1. Disabled attribute'una sahip tüm elementleri bul
+                    const disabledElements = document.querySelectorAll('[disabled], .disabled');
+
+                    disabledElements.forEach(el => {
+                        el.disabled = false;
+                        el.removeAttribute('disabled');
+                        el.classList.remove('disabled');
+                        // Bazı siteler pointer-events: none kullanır, onu da çözelim:
+                        el.style.pointerEvents = 'auto';
+                        el.style.opacity = '1';
+                    });
+
+                    // 2. Readonly olanları düzenlenebilir yap
+                    const readOnlyElements = document.querySelectorAll('[readonly]');
+                    readOnlyElements.forEach(el => {
+                        el.readOnly = false;
+                        el.removeAttribute('readonly');
+                    });
+
             });
             setInterval(highlightFields, 1500);
             setInterval(updatePanel, 2000);
