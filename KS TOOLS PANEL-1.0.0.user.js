@@ -37,193 +37,277 @@
         bottom: '22px',
         width: '270px',
         collapsedWidth: '270px',
-        themeColor: '#00ff88',
+        themeColor: '#1ccd5a',
         Color: 'white',
         isCollapsed: false
     };
     // 2. STİL ENJEKSİYONU
-    const injectStyles = () => {
+     const injectStyles = () => {
         const style = document.createElement('style');
         style.id = 'ks-dynamic-styles';
         style.innerHTML = `
-            .ks-draggable-panel {
-                position: fixed !important;
-                bottom: ${config.bottom};
-                right: 0px;
-                width: ${config.width};
-                background: rgba(25, 25, 27, 0.75);
-                backdrop-filter: blur(15px);
-                WebkitBackdropFilter: blur(16px) saturate(180%);
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                border-radius: 4px;
-                box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-                z-index: 2147483647;
-                color: white;
-                /* Düzeltilen Kısım: font-family ve tırnaklar */
-                font-family: 'Inter', 'Roboto', 'Segoe UI', sans-serif;
-                overflow: hidden;
-                /* Sünmeyi engellemek için geçişleri buraya bağla */
-                transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), height 0.3s ease;
-                user-select: none;
-                display: flex;
-                flex-direction: column;
-                min-height: min-content; /* İçerik kadar küçülsün */
-                max-height: 90vh; /* Ekranın dışına taşmasın */
+                .ks-draggable-panel {
+                    position: fixed !important;
+                    bottom: ${config.bottom};
+                    right: 0px;
+                    width: ${config.width};
+                    background: rgba(25, 25, 27, 0.75);
+                    backdrop-filter: blur(15px);
+                    WebkitBackdropFilter: blur(16px) saturate(180%);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 4px;
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+                    z-index: 3169999;
+                    color: white;
+                    /* Düzeltilen Kısım: font-family ve tırnaklar */
+                    font-family: 'Inter', 'Roboto', 'Segoe UI', sans-serif;
+                    overflow: hidden;
+                    /* Sünmeyi engellemek için geçişleri buraya bağla */
+                    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), height 0.3s ease;
+                    user-select: none;
+                    display: flex;
+                    flex-direction: column;
+                    min-height: min-content; /* İçerik kadar küçülsün */
+                    max-height: 90vh; /* Ekranın dışına taşmasın */
+                }
+
+                /* SÜRÜKLEME ANINDA TRANSITION'I ÖLDÜR (En Kritik Nokta) */
+                .ks-dragging {
+                    transition: none !important;
+                }
+
+                /* Küçülmüş Mod (Collapsed) */
+                .ks-draggable-panel.collapsed {
+                    width: ${config.collapsedWidth} !important;
+                    height: 40px !important;
+                    min-height: 40px !important; /* Yüksekliğin zorla daralmasını sağlar */
+                    max-height: 40px !important;
+                    overflow: hidden !important; /* İçeriğin taşmasını kesin engelle */
+                }
+
+               /* Başlık Alanı (Sürükleme ve Tıklama Alanı) */
+               .ks-header {
+                   padding: 8px 15px; /* Biraz daha dikey boşluk kaliteyi artırır */
+                   background: rgba(255, 255, 255, 0.03); /* Çok hafif şeffaflık */
+                   cursor: move;
+                   display: flex;
+                   justify-content: space-between;
+                   align-items: center;
+
+                   /* Header altına ince bir neon çizgi */
+                   border-bottom: 1px solid ${config.themeColor}44; /* 44 kodu şeffaflık ekler */
+
+                   /* Hafif bir iç parlama efekti */
+                   box-shadow: inset 0 1px 10px rgba(0, 0, 0, 0.2);
+                   transition: background 0.3s ease;
+               }
+
+               .ks-header:hover {
+                   background: rgba(255, 255, 255, 0.1);
+
+                   /* Yazının kendisini belirgin tutmak için renk ataması */
+                   color: #ffffff;
+
+                   /* Strateji: İçerideki parlamayı azalt, dışarıdaki yayılımı artır */
+                   text-shadow:
+                       0 0 2px #fff,                          /* Harf kenarlarını keskinleştirir */
+                       0 0 10px ${config.themeColor},         /* Ana neon rengi (orta şiddet) */
+                       0 0 25px ${config.themeColor}99,       /* Dışa doğru yayılan ışık */
+                       0 0 45px ${config.themeColor}66;       /* Arka plana düşen soft ışık */
+
+                   /* Yazının netliğini korumak için hafif bir kontrast */
+                   filter: brightness(1.2);
+               }
+
+               .ks-header h4 {
+                   margin: 0;
+                   font-size: 12px;
+                   color: ${config.themeColor};
+                   pointer-events: none;
+                   font-weight: 800; /* Biraz daha kalın yazı */
+                   text-transform: uppercase; /* Modern bir görünüm için */
+                   letter-spacing: 1px; /* Harf arası boşluk profesyonel gösterir */
+
+               }
+                /* İçerik Alanı */
+                .ks-content {
+                    padding: 10px;
+                    display: flex;
+                    flex-direction: column;
+                    color: ${config.Color};
+                    gap: 10px;
+                    transition: opacity 0.2s;
+                }
+
+                .ks-draggable-panel.collapsed .ks-content {
+                    opacity: 0;
+                    pointer-events: none;
+                }
+
+                /* Modern Butonlar */
+                .ks-btn {
+                    background: ${config.themeColor};
+                    color: white !important;
+                    border: none;
+                    padding: 6px;
+                    border-radius: 10px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    font-size: 12px;
+                    transition: 0.2s;
+                }
+                .ks-btn:hover { filter: brightness(1.1);
+                    transform: translateY(-2px); /* Hafif yukarı kalkma efekti */
+
+                    /* Neon Glow Efekti */
+                    /* Tema rengini kullanarak dışa doğru yayılan parlama */
+                    box-shadow: 0 0 10px ${config.themeColor},
+                                0 0 20px ${config.themeColor};
+
+                    /* Yazı rengini de parlatmak istersen (isteğe bağlı) */
+                    text-shadow: 0 0 5px rgba(0,0,0,0.2); }
+                .ks-btn:active {
+                    transform: translateY(1px); /* Tıklayınca basılma hissi */
+                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                }
+                /* Kırmızı Neon Buton */
+                .ks-btn-danger {
+                    border: none;
+                    padding: 6px;
+                    border-radius: 10px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    font-size: 12px;
+                    transition: 0.2s;
+                    background: #ff4d4d !important; /* Canlı kırmızı */
+                    color: white !important;
+                    box-shadow: 0 0 5px #ff4d4d;
+                }
+
+                .ks-btn-danger:hover {
+                    filter: brightness(1.2);
+                    /* Kırmızı Neon Glow Efekti */
+                    box-shadow: 0 0 10px #ff4d4d,
+                                0 0 20px #ff4d4d,
+                                0 0 30px #ff1a1a !important;
+                    text-shadow: 0 0 5px rgba(255,255,255,0.5);
+                }
+                .ks-btn-danger:active {
+                    transform: translateY(1px); /* Tıklayınca basılma hissi */
+                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                }
+                 #shb-res-box { font-size: 13px; color: white; margin: 2px 0 2px 0; text-align: center; }
+
+                /* Sürekli yanıp sönen (Breath) efekti */
+                @keyframes neonPulse {
+                    0% { box-shadow: 0 0 5px ${config.themeColor}66, inset 0 0 2px ${config.themeColor}44; }
+                    50% { box-shadow: 0 0 15px ${config.themeColor}AA, inset 0 0 5px ${config.themeColor}66; }
+                    100% { box-shadow: 0 0 5px ${config.themeColor}66, inset 0 0 2px ${config.themeColor}44; }
+                }
+
+                .ks-tooltip-container {
+                    position: relative;
+                    display: inline-block; /* Yan yana gelmelerine izin verir */
+                    width: 100%;
+                }
+
+                .ks-tooltip-box {
+                    visibility: hidden;
+                    width: 230px;
+                    background: rgba(25, 25, 27, 0.85);
+                    color: #e0e0e0;
+                    text-align: left;
+                    border-radius: 8px;
+                    padding: 10px;
+                    bottom: calc(100% + 20px); /* Butonun tam üzerinden 15px yukarıda başlar */
+
+                    /*display: block !important;*/
+                    position: absolute !important; /* Panelden tamamen koparır */
+                    z-index: 3179999 !important; /* Panelden daha büyük bir değer */
+
+                    /* Konumlandırma */
+                    transform: translateX(50%);
+                    opacity: 0;
+
+                    /* Yavaşça belirme ve kaybolma (Transition) */
+                    transition: opacity 0.5s ease, transform 0.5s ease, visibility 0.5s;
+
+                    /* Dinamik Renklendirme */
+                    border: 1.5px solid ${config.themeColor};
+                    animation: neonPulse 2s infinite ease-in-out; /* Sürekli ışıma efekti */
+
+                    font-size: 11px;
+                    line-height: 1.5;
+                    pointer-events: none;
+                }
+
+                /* Hover durumunda yumuşak geçiş */
+                .ks-tooltip-container:hover .ks-tooltip-box {
+                    visibility: visible;
+                    opacity: 1;
+                    transform: translate(0%); /* Hafif yukarı süzülme */
+                }
+
+                /* Başlık Renklendirme */
+                .ks-tooltip-box strong {
+                    color: ${config.themeColor}; /* config'den gelen ana renk */
+                    text-shadow: 0 0 8px ${config.themeColor}88; /* Yazıda da hafif neon */
+                    font-size: 12px;
+                    display: block;
+                    margin-bottom: 5px;
+                    text-transform: uppercase;
+                }
+
+                #ks-dynamic-tooltip {
+                    width: 230px;
+                    background: rgba(25, 25, 27, 0.85);
+                    color: #e0e0e0;
+                    text-align: left;
+                    border-radius: 8px;
+                    padding: 10px;
+                    font-size: 11px;
+                    line-height: 1.5;
+                    width: 230px;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+
+                    /* Yavaşça belirme ve kaybolma (Transition) */
+                    transition: opacity 0.5s ease, transform 0.5s ease, visibility 0.5s;
+
+                    /* Dinamik Renklendirme */
+                    border: 1.5px solid ${config.themeColor};
+                    animation: neonPulse 1s infinite ease-in-out; /* Sürekli ışıma efekti */
+
+                    font-size: 11px;
+                    line-height: 1.5;
+                    pointer-events: none;
+
+
+                    /* Animasyon ve Geçişler */
+                    position: fixed;
+                    z-index: 3179999;
+                    pointer-events: none;
+                    display: none;
+                    opacity: 0;
+                    transform: translateY(10px);
             }
 
-            /* SÜRÜKLEME ANINDA TRANSITION'I ÖLDÜR (En Kritik Nokta) */
-            .ks-dragging {
-                transition: none !important;
-            }
-
-            /* Küçülmüş Mod (Collapsed) */
-            .ks-draggable-panel.collapsed {
-                width: ${config.collapsedWidth} !important;
-                height: 40px !important;
-                min-height: 40px !important; /* Yüksekliğin zorla daralmasını sağlar */
-                max-height: 40px !important;
-                overflow: hidden !important; /* İçeriğin taşmasını kesin engelle */
-            }
-
-           /* Başlık Alanı (Sürükleme ve Tıklama Alanı) */
-           .ks-header {
-               padding: 8px 15px; /* Biraz daha dikey boşluk kaliteyi artırır */
-               background: rgba(255, 255, 255, 0.03); /* Çok hafif şeffaflık */
-               cursor: move;
-               display: flex;
-               justify-content: space-between;
-               align-items: center;
-
-               /* Header altına ince bir neon çizgi */
-               border-bottom: 1px solid ${config.themeColor}44; /* 44 kodu şeffaflık ekler */
-
-               /* Hafif bir iç parlama efekti */
-               box-shadow: inset 0 1px 10px rgba(0, 0, 0, 0.2);
-               transition: background 0.3s ease;
-           }
-
-           .ks-header:hover {
-               /* Fare üzerine geldiğinde alanın hafifçe aydınlanması */
-               background: rgba(255, 255, 255, 0.08);
-
-               /* Yazı için Neon Parlama Efekti */
-               text-shadow: 0 0 8px ${config.themeColor}88,
-                            0 0 15px ${config.themeColor}44;
-           }
-
-           .ks-header h4 {
-               margin: 0;
-               font-size: 12px;
-               color: ${config.themeColor};
-               pointer-events: none;
-               font-weight: 800; /* Biraz daha kalın yazı */
-               text-transform: uppercase; /* Modern bir görünüm için */
-               letter-spacing: 1px; /* Harf arası boşluk profesyonel gösterir */
-
-           }
-            /* İçerik Alanı */
-            .ks-content {
-                padding: 10px;
-                display: flex;
-                flex-direction: column;
-                color: ${config.Color};
-                gap: 10px;
-                transition: opacity 0.2s;
-            }
-
-            .ks-draggable-panel.collapsed .ks-content {
-                opacity: 0;
-                pointer-events: none;
-            }
-
-            /* Modern Butonlar */
-            .ks-btn {
-                background: ${config.themeColor};
-                color: black;
-                border: none;
-                padding: 6px;
-                border-radius: 10px;
-                font-weight: bold;
-                cursor: pointer;
-                font-size: 12px;
-                transition: 0.2s;
-            }
-            .ks-btn:hover { filter: brightness(1.1);
-                transform: translateY(-2px); /* Hafif yukarı kalkma efekti */
-
-                /* Neon Glow Efekti */
-                /* Tema rengini kullanarak dışa doğru yayılan parlama */
-                box-shadow: 0 0 10px ${config.themeColor},
-                            0 0 20px ${config.themeColor};
-
-                /* Yazı rengini de parlatmak istersen (isteğe bağlı) */
-                text-shadow: 0 0 5px rgba(0,0,0,0.2); }
-            .ks-btn:active {
-            transform: translateY(1px); /* Tıklayınca basılma hissi */
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            }
-             #shb-res-box { font-size: 13px; color: white; margin: 2px 0 2px 0; text-align: center; }
-
-            /* Sürekli yanıp sönen (Breath) efekti */
-            @keyframes neonPulse {
-                0% { box-shadow: 0 0 5px ${config.themeColor}66, inset 0 0 2px ${config.themeColor}44; }
-                50% { box-shadow: 0 0 15px ${config.themeColor}AA, inset 0 0 5px ${config.themeColor}66; }
-                100% { box-shadow: 0 0 5px ${config.themeColor}66, inset 0 0 2px ${config.themeColor}44; }
-            }
-
-            .ks-tooltip-container {
-                position: relative;
-                display: inline-block; /* Yan yana gelmelerine izin verir */
-                width: 100%;
-            }
-
-            .ks-tooltip-box {
-                visibility: hidden;
-                width: 230px;
-                background: rgba(25, 25, 27, 0.85);
-                color: #e0e0e0;
-                text-align: left;
-                border-radius: 8px;
-                padding: 10px;
-                bottom: calc(100% + 20px); /* Butonun tam üzerinden 15px yukarıda başlar */
-
-                /*display: block !important;*/
-                position: absolute !important; /* Panelden tamamen koparır */
-                z-index: 999999999 !important; /* Panelden daha büyük bir değer */
-
-                /* Konumlandırma */
-                transform: translateX(50%);
-                opacity: 0;
-
-                /* Yavaşça belirme ve kaybolma (Transition) */
-                transition: opacity 0.5s ease, transform 0.5s ease, visibility 0.5s;
-
-                /* Dinamik Renklendirme */
-                border: 1.5px solid ${config.themeColor};
-                animation: neonPulse 2s infinite ease-in-out; /* Sürekli ışıma efekti */
-
-                font-size: 11px;
-                line-height: 1.5;
-                pointer-events: none;
-            }
-
-            /* Hover durumunda yumuşak geçiş */
-            .ks-tooltip-container:hover .ks-tooltip-box {
-                visibility: visible;
+            #ks-dynamic-tooltip.visible {
+                display: block;
                 opacity: 1;
-                transform: translate(0%); /* Hafif yukarı süzülme */
+                transform: translateY(0);
             }
 
-            /* Başlık Renklendirme */
-            .ks-tooltip-box strong {
+            #ks-dynamic-tooltip strong {
                 color: ${config.themeColor}; /* config'den gelen ana renk */
                 text-shadow: 0 0 8px ${config.themeColor}88; /* Yazıda da hafif neon */
                 font-size: 12px;
-                display: block;
                 margin-bottom: 5px;
                 text-transform: uppercase;
             }
-        `;
+
+            /* Sayfadaki orijinal kutuları gizle ki çakışmasın */
+            .ks-tooltip-box { display: none !important; }
+            `;
         document.head.appendChild(style);
     };
     // 3. PANEL OLUŞTURMA VE MANTIK
@@ -268,6 +352,66 @@
         });
     };
 
+    // 2. Dinamik Panel Elementi
+    const tooltip = document.createElement('div');
+    tooltip.id = 'ks-dynamic-tooltip';
+    document.body.appendChild(tooltip);
+
+    // 3. Mantık
+    document.addEventListener('mouseover', function(e) {
+        const container = e.target.closest('.ks-tooltip-container');
+        if (container) {
+            const boxContent = container.querySelector('.ks-tooltip-box');
+            if (boxContent) {
+                tooltip.innerHTML = boxContent.innerHTML;
+                tooltip.classList.add('visible');
+                // Tema rengini CSS'ten çekip uygulama (Eğer dinamikse)
+                const borderColor = getComputedStyle(boxContent).borderColor;
+                tooltip.style.borderColor = borderColor;
+                if (tooltip.querySelector('strong')) {
+                    tooltip.querySelector('strong').style.color = borderColor;
+                }
+            }
+        }
+    });
+
+    document.addEventListener('mousemove', function(e) {
+        if (tooltip.classList.contains('visible')) {
+            const gap = 15;
+            let x = e.clientX;
+            let y = e.clientY;
+
+            const tw = tooltip.offsetWidth;
+            const th = tooltip.offsetHeight;
+
+            let left = x - (tw / 2);
+            let top = y - th - gap;
+
+            // --- Akıllı Kenar Kontrolleri ---
+
+            // Sol/Sağ taşma kontrolü
+            if (left < 10) left = 10;
+            if (left + tw > window.innerWidth - 10) left = window.innerWidth - tw - 10;
+
+            // Üst taşma kontrolü (Eğer üstte yer yoksa altına açılır)
+            if (top < 10) {
+                top = y + gap + 20;
+                tooltip.style.transform = 'translateY(-10px)'; // Alttan gelişi ayarla
+            } else {
+                tooltip.style.transform = 'translateY(0)';
+            }
+
+            tooltip.style.left = left + 'px';
+            tooltip.style.top = top + 'px';
+        }
+    });
+
+    document.addEventListener('mouseout', function(e) {
+        if (e.target.closest('.ks-tooltip-container')) {
+            tooltip.classList.remove('visible');
+        }
+    });
+
     const WARNING_COLOR = '#ff7e7e';
     const SUCCESS_COLOR = '#00ff88';
     // Aktiflik kontrolü
@@ -289,7 +433,7 @@
                 font-size: 11px !important;
                 font-weight: bold !important;
                 font-family: monospace !important;
-                z-index: 2147483647 !important;
+                z-index: 3169999 !important;
                 border-top: 2px solid rgba(0, 255, 136, 0.6) !important;
                 border-left: 2px solid rgba(0, 255, 136, 0.6) !important;
                 pointer-events: auto !important;
@@ -353,26 +497,33 @@
             <hr style="border:0; border-top:1px solid #444; margin:2px 0;">
             <div style ="text-align:center; margin-bottom:8px; font-size:11px;"></div>
 
-            <div class="ks-tooltip-container" onmouseover="handleHover(this)">
-                <button id="autoSelectBtn" class="ks-btn" style="width:100%;">
-                    ⚡Ön Giriş - Otomatik Seçim
-                </button>
-                <div class="ks-tooltip-box">
-            <strong>⚠️ Dikkat ⚠️</strong>
-                    Kaza şekli (Anlaşmalı Tutanak), Eksper Kanaati (Olumlu), Alkol durumu (Bilinmiyor),
-                    Ekspertiz şekli (Yerinde), Ehliyet sınıfı (B) gibi seçimler kontrol edilmelidir!
+            <div class="ks-grid-container" style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; width: 100%;">
+
+                <div class="ks-tooltip-container" onmouseover="handleHover(this)">
+                    <button id="autoSelectBtn" class="ks-btn" style="width:100%; height: 100%;">
+                        ⚡ Ön Giriş - Otomatik Seçim
+                    </button>
+                    <div class="ks-tooltip-box">
+                        <strong>⚠️ Kontrol Listesi</strong><br>
+                        Kaza şekli, Eksper, Alkol durumu ve Ehliyet sınıfını doğrulamayı unutmayın.
+                    </div>
+                </div>
+
+                    <button id="btnKaydetYeni" class="ks-btn-danger" style="width:100%; height: 100%;" onclick="c('kaydet();')">
+                        💾 KAYDET
+                    </button>
+
+                <div class="ks-tooltip-container" style="grid-column: span 2;" onmouseover="handleHover(this)">
+                    <button id="unlockSelectBtn" class="ks-btn" style="width:100%;">
+                        🔓 Her Şeyi Aktif Et
+                    </button>
+                    <div class="ks-tooltip-box">
+                        <strong>⚠️ Kritik İşlem</strong><br>
+                        Site üzerindeki tüm etkileşimleri (buton, liste, kutu) aktifleştirir.
+                    </div>
                 </div>
             </div>
-            <div class="ks-tooltip-container" onmouseover="handleHover(this)">
-                <button id="unlockSelectBtn" class="ks-btn" style="width:100%;">
-                    🔓 Her Şeyi Aktif Et
-                </button>
-                <div class="ks-tooltip-box">
-            <strong>⚠️ Dikkat ⚠️</strong>
-                    Zorunda kalmadıkça bu buton özelliğini kullanmayınız.
-                    Site üzerindeki tüm etkileşimleri aktifleştirir (Buton, yazı kutusu, liste kutusu vs...).
-                </div>
-            </div>
+
             <div style="display: none; position: fixed;">
                 <hr style="border:0; border-top:1px solid #444; margin:2px 0;">
                 <div id="shb-res-box">Piyasa kontrolü bekleniyor...</div>
@@ -1106,7 +1257,7 @@
             #tm-panel {
                 position: fixed; top: 0; left: 0; width: 100%;
                 background: rgba(25, 25, 25, 0.85); color: #fff;
-                z-index: 9999999; padding: 5px;
+                z-index: 3169999; padding: 5px;
                 display: flex; justify-content: center; align-items: center;
                 gap: 5px; font-family: Arial, sans-serif;
                 box-shadow: 0 2px 5px rgba(0,0,0,.5);
@@ -1418,7 +1569,7 @@
         const style = document.createElement('style');
         style.innerHTML = `
         #multi-action-panel {
-            position: fixed; bottom: 22px; right: 0; z-index: 99999;
+            position: fixed; bottom: 22px; right: 0; z-index: 3169999;
             background: rgba(0,0,0,0.75); padding: 10px; border-radius: 2px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.4); display: flex; flex-direction: column; gap: 4px;
         }
@@ -1769,7 +1920,7 @@
             panel.id = 'donanim-panel';
             panel.style.cssText = `
     position: fixed; top: 0; right: 0;
-                z-index: 2147483647;
+                z-index: 3169999;
                 display: flex; gap: 1px;
                 padding: 1px;
                 background: #000;
