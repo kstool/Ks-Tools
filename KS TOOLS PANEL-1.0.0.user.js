@@ -238,6 +238,7 @@
                     border: 1.5px solid ${config.themeColor};
                     animation: neonPulse 2s infinite ease-in-out; /* Sürekli ışıma efekti */
 
+                    font-family: 'Inter', 'Roboto', 'Segoe UI', sans-serif;
                     font-size: 11px;
                     line-height: 1.5;
                     pointer-events: none;
@@ -254,6 +255,7 @@
                 .ks-tooltip-box strong {
                     color: ${config.themeColor}; /* config'den gelen ana renk */
                     text-shadow: 0 0 8px ${config.themeColor}88; /* Yazıda da hafif neon */
+                    font-family: 'Inter', 'Roboto', 'Segoe UI', sans-serif;
                     font-size: 12px;
                     display: block;
                     margin-bottom: 5px;
@@ -267,6 +269,7 @@
                     text-align: left;
                     border-radius: 8px;
                     padding: 10px;
+                    font-family: 'Inter', 'Roboto', 'Segoe UI', sans-serif;
                     font-size: 11px;
                     line-height: 1.5;
                     width: 230px;
@@ -637,7 +640,7 @@
                     bas.setHours(0, 0, 0, 0);
                     bitis.setHours(0, 0, 0, 0);
 
-                    html += `<tr><td colspan="2" style="text-align:center; padding:10px; border-radius:5px;">`;
+                    html += `<tr><td colspan="2" style="text-align:center; padding:10px;">`;
 
                     // 1. DURUM: POLİÇE VADESİ İÇİNDE
                     if (hasar >= bas && hasar <= bitis) {
@@ -2560,15 +2563,11 @@
             const name = (input.name || "").toLowerCase();
             const html = (input.outerHTML || "").toLowerCase();
 
-            // --- HARİÇ TUTULACAKLAR (Yazılmayacak Alanlar) ---
-            // serviceTel ve servicePhone alanlarını burada engelliyoruz
+            // --- HARİÇ TUTULACAKLAR ---
             const excludedTerms = ["servicetel", "servicephone"];
             const isExcluded = excludedTerms.some(term => id.includes(term) || name.includes(term));
 
-            if (isExcluded) {
-                console.log("Servis telefonu tespit edildi, pas geçiliyor...");
-                return;
-            }
+            if (isExcluded) return;
 
             // --- TELEFON / GSM KONTROLÜ ---
             const isPhoneField = id.includes("gsm") || name.includes("gsm") || html.includes("gsm") ||
@@ -2577,7 +2576,6 @@
 
             if (isPhoneField && (input.value.includes('_') || input.value.trim() === "" || input.value.length < 5)) {
                 const telNo = "1111111111";
-
                 input.focus();
                 forceUpdateValue(input, "");
 
@@ -2600,11 +2598,29 @@
             }
 
             // --- ARAÇ SAHİBİ (İsim + Soyisim) ---
+
+            // 1. MAĞDUR (VICTIM) KONTROLÜ
+            const isVictimOwnerField = id.includes("victimcarownername") || name.includes("victimcarownername");
+
+            if (isVictimOwnerField && input.value.trim() === "") {
+                // Özellikle victimName ve victimSurname içeren inputları seçiyoruz
+                const vName = document.querySelector('input[name*="victimName"]')?.value || "";
+                const vSurname = document.querySelector('input[name*="victimSurname"]')?.value || "";
+                const fullVictimName = (vName + " " + vSurname).trim();
+
+                if (fullVictimName.length > 1) {
+                    forceUpdateValue(input, fullVictimName);
+                    return; // Mağdur işlemi bittiyse fonksiyondan çık
+                }
+            }
+
+            // 2. GENEL / SİGORTALI KONTROLÜ (Eskisi gibi çalışmaya devam eder)
             const isOwnerField = id.includes("carownername") || html.includes("carownername");
 
             if (isOwnerField && input.value.trim() === "") {
-                const fName = document.querySelector('input[id*="Name"], input[name*="Name"]')?.value || "";
-                const lName = document.querySelector('input[id*="Surname"], input[name*="Surname"]')?.value || "";
+                // Mağdur olmayan genel Name/Surname alanlarını bulur
+                const fName = document.querySelector('input[id*="Name"]:not([id*="victim"]), input[name*="Name"]:not([name*="victim"])')?.value || "";
+                const lName = document.querySelector('input[id*="Surname"]:not([id*="victim"]), input[name*="Surname"]:not([name*="victim"])')?.value || "";
                 const fullName = (fName + " " + lName).trim();
 
                 if (fullName.length > 1) {
