@@ -2,7 +2,7 @@
 // @name         KS TOOLS PANEL
 // @namespace    KS_TOOLS_PANEL
 // @version      1.0.0
-// @description  OtoHasar Form Panel // Parça - Manuel ve Çoklu ekleme //  Donanim Panel // SBM Tramer no ayırma // Whatsapp indirici
+// @description  OtoHasar Form Panel // Parça - Manuel ve Çoklu ekleme //  Donanim Panel // SBM Tramer no bölümleme ve resim indirme
 // @match        *://*/*
 // @run-at       document-end
 // @grant        none
