@@ -2,7 +2,7 @@
 // @name         KS TOOLS PANEL
 // @namespace    KS_TOOLS_PANEL
 // @version      1.0.0
-// @description  OtoHasar Form Panel // Parça - Manuel ve Çoklu ekleme //  Donanim Panel // SBM Tramer no bölümleme ve resim indirme
+// @description  OtoHasar Form Panel // Parça - Manuel ve Çoklu ekleme //  Donanim Panel // SBM Tramer no ayırma // Whatsapp indirici
 // @match        *://*/*
 // @run-at       document-end
 // @grant        none
@@ -16,7 +16,7 @@
 // ==/UserScript==
 (function () {
     'use strict';
-    /*deneme
+    /*
     ✅ :white_check_mark: (Yeşil onay kutusu)
     ✔️ &#10004; (Kalın onay işareti)
     ❌ &#10060; (Kırmızı çarpı kutusu)
@@ -37,6 +37,7 @@
     // 1. PANEL AYARLARI (Boyutlar ve Durum)
     let config = {
         bottom: '22px',
+        right:'0px',
         width: '270px',
         collapsedWidth: '270px',
         themeColor: '#1ccd5a',
@@ -91,7 +92,7 @@
                .ks-header {
                    padding: 8px 15px; /* Biraz daha dikey boşluk kaliteyi artırır */
                    background: rgba(255, 255, 255, 0.03); /* Çok hafif şeffaflık */
-                   cursor: move;
+                   cursor: s-resize;
                    display: flex;
                    justify-content: space-between;
                    align-items: center;
@@ -325,36 +326,73 @@
                 <h4>PANEL</h4>
                 <span style="font-size: 10px; opacity: 0.5;">▼</span>
             </div>
-            <div class="ks-content">Loading...</div>
+            <div class="ks-content" id="ks-content">Loading...</div>
         `;
         document.body.appendChild(panel);
         const header = document.getElementById('ks-header');
         // --- A. KÜÇÜLTME/BÜYÜTME MANTIĞI ---
-        header.addEventListener('dblclick', () => {
+        header.addEventListener('click', (e) => {
+            // Çift tıklama ile çakışmaması için küçük bir kontrol gerekebilir
+            // ama dblclick genelde ayrı çalışır.
             panel.classList.toggle('collapsed');
-            config.isCollapsed = panel.classList.contains('collapsed');
         });
-        // --- B. SÜRÜKLEME MANTIĞI ---
+
+        // --- B. SÜRÜKLEME MANTIĞI --- (Mevcut kodun devamı)
         let isDragging = false;
         let offsetX, offsetY;
-        header.addEventListener('mousedown', (e) => {
+
+        const middlenigga = document.getElementById('ks-content');
+        middlenigga.addEventListener('mousedown', (e) => {
             isDragging = true;
             offsetX = e.clientX - panel.getBoundingClientRect().left;
             offsetY = e.clientY - panel.getBoundingClientRect().top;
-            panel.style.transition = 'none'; // Sürüklerken animasyonu kapat
+            panel.style.transition = 'none';
         });
+
         document.addEventListener('mousemove', (e) => {
             if (!isDragging) return;
             panel.style.left = (e.clientX - offsetX) + 'px';
             panel.style.top = (e.clientY - offsetY) + 'px';
-            panel.style.right = 'auto'; // Sağ yapışıklığı iptal et
+            panel.style.right = 'auto';
         });
+
         document.addEventListener('mouseup', () => {
             if (isDragging) {
                 isDragging = false;
                 panel.style.transition = 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1), height 0.3s ease';
             }
         });
+        panel.addEventListener('dblclick', () => {
+          // 1. Panelin şu anki konumunu piksel olarak al
+          const rect = panel.getBoundingClientRect();
+          const currentTop = rect.top;
+          const currentLeft = rect.left;
+
+          // 2. Paneli olduğu yerde sabitle (auto'dan kurtar)
+          panel.style.transition = 'none'; // Hesaplama yaparken zıplamasın
+          panel.style.top = currentTop + 'px';
+          panel.style.left = currentLeft + 'px';
+          panel.style.bottom = 'auto';
+          panel.style.right = 'auto';
+
+          // 3. Tarayıcının değişikliği anlaması için minik bir duraksama (Reflow)
+          requestAnimationFrame(() => {
+              panel.style.transition = 'all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+
+              // 4. Hedeflenen konuma gönder
+              panel.style.top = 'calc(100% - ' + (panel.offsetHeight + parseInt(config.bottom)) + 'px)';
+              panel.style.left = 'calc(100% - ' + (panel.offsetWidth + parseInt(config.right)) + 'px)';
+
+              // 5. Animasyon bittiğinde temizlik yap (Opsiyonel ama önerilir)
+              setTimeout(() => {
+                  panel.style.transition = 'none';
+                  panel.style.top = 'auto';
+                  panel.style.left = 'auto';
+                  panel.style.bottom = config.bottom;
+                  panel.style.right = config.right;
+              }, 500);
+          });
+      });
     };
 
     // 2. Dinamik Panel Elementi
