@@ -540,26 +540,20 @@
             <hr style="border:0; border-top:1px solid #444; margin:2px 0;">
             <div style ="text-align:center; margin-bottom:8px; font-size:11px;"></div>
 
-            <div class="ks-grid-container" style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; width: 100%;">
+            <div class="ks-grid-container" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; width: 100%;">
 
                 <div class="ks-tooltip-container" onmouseover="handleHover(this)">
-                    <button id="autoSelectBtn" class="ks-btn" style="width:100%; height: 100%;">
-                        ⚡ Ön Giriş - Otomatik Seçim
-                    </button>
+                    <button id="autoSelectBtn" class="ks-btn" style="width:100%; height: 100%;">⚡ Ön Giriş</button>
                     <div class="ks-tooltip-box">
-                        <strong>⚠️ Kontrol Listesi</strong><br>
+                        <strong>⚠️ Otomatik Giriş</strong><br>
                         Kaza ihbar türü, Eksper, Alkol durumu ve Ehliyet sınıfını doğrulamayı unutmayın.
                     </div>
                 </div>
 
-                    <button id="btnKaydetYeni" class="ks-btn-danger" style="width:100%; height: 100%;" onclick="c('kaydet();')">
-                        💾 KAYDET
-                    </button>
+                <button id="btnKaydetYeni" class="ks-btn-danger" style="width:100%; height: 100%;" onclick="c('kaydet();')">💾 KAYDET</button>
 
-                <div class="ks-tooltip-container" style="grid-column: span 2;" onmouseover="handleHover(this)">
-                    <button id="unlockSelectBtn" class="ks-btn" style="width:100%;">
-                        🔓 Her Şeyi Aktif Et
-                    </button>
+                <div class="ks-tooltip-container" onmouseover="handleHover(this)">
+                    <button id="unlockSelectBtn" class="ks-btn" style="width:100%; height: 100%;">🔓 Kilit Aç</button>
                     <div class="ks-tooltip-box">
                         <strong>⚠️ Kritik İşlem</strong><br>
                         Site üzerindeki tüm etkileşimleri (buton, liste, kutu) aktifleştirir.
@@ -1209,6 +1203,418 @@
             setInterval(updatePanel, 2000);
         }
     }
+    if (location.href.includes("otohasar") && location.href.includes("eks_hasar_magdur.php")) {
+        /* ===== 1. PANEL VE STİL ===== */
+        injectStyles();
+        initPanel();
+        config.bottom = "22px";
+        config.width = "270px";
+        config.collapsedWidth = "270px";
+        // Globalde veya üst kapsamda oluşturduğumuz panel elementini seçiyoruz
+        const panel = document.getElementById('ks-master-panel');
+        const panelContent = panel ? panel.querySelector('.ks-content') : null;
+        if (panel && panelContent) {
+            // Başlığı güncellemek isterseniz:
+            const headerTitle = panel.querySelector('.ks-header h4');
+            if (headerTitle) headerTitle.innerText = "Giriş Kontrol Paneli";
+            // İçerik kısmını yeni HTML ile dolduruyoruz
+            panelContent.innerHTML = `
+            <div id="panelContent" style ="color:#ffffff; text-align:center;"></div>
+            <div style ="text-align:center; margin-bottom:8px; font-size:11px;"></div>
+
+            <div class="ks-grid-container" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; width: 100%;">
+
+                <div class="ks-tooltip-container" onmouseover="handleHover(this)">
+                    <button id="autoSelectBtn" class="ks-btn" style="width:100%; height: 100%;">⚡ Ön Giriş</button>
+                    <div class="ks-tooltip-box">
+                        <strong>⚠️ Başlık</strong><br>
+                        Açıklama düzenlenecek
+                    </div>
+                </div>
+
+                <button id="btnKaydetYeni" class="ks-btn-danger" style="width:100%; height: 100%;" onclick="javascript:sb_ederken();">💾 KAYDET</button>
+
+                <div class="ks-tooltip-container" onmouseover="handleHover(this)">
+                    <button id="unlockSelectBtn" class="ks-btn" style="width:100%; height: 100%;">🔓 Kilit Aç</button>
+                    <div class="ks-tooltip-box">
+                        <strong>⚠️ Kritik İşlem</strong><br>
+                        Site üzerindeki tüm etkileşimleri aktifleştirir.
+                    </div>
+                </div>
+
+            </div>
+
+            <div style="display: none; position: fixed;">
+                <hr style="border:0; border-top:1px solid #444; margin:2px 0;">
+                <div id="shb-res-box">Piyasa kontrolü bekleniyor...</div>
+                <div style="display: flex; flex-direction: row; width: 100%; gap: 4%; justify-content: space-between;">
+                    <div class="ks-tooltip-container" onmouseover="handleHover(this)" style="width: 48%;">
+                        <button id="btn-auto-analiz" class="ks-btn" style="width: 100%;">Piyasa hesapla</button>
+                        <div class="ks-tooltip-box">
+                            Piyasayı otomatik olarak panel arayüzü üzerinde gösterir.
+                        </div>
+                    </div>
+                    <div class="ks-tooltip-container" onmouseover="handleHover(this)" style="width: 48%;">
+                        <button id="btn-auto-look" class="ks-btn" style="width: 100%;">Siteye yönel</button>
+                        <div class="ks-tooltip-box" style="transform: translateX(-50%); transition: opacity 0.5s ease, transform 0.5s ease, visibility 0.5s;">
+                            Site üzerindeki piyasa verilerine hızlıca odaklanır.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="custom-page-notes-container" style="width: 100%; dashed #444; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+                <div style="color: #bbb; font-size: 11px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
+                    <span>NOT</span>
+                    <span id="note-status" style="font-size: 10px; opacity: 0.6;">Otomatik Kaydediliyor...</span>
+                </div>
+                <textarea id="page-note-input" style="width: 100%; height: 40px; background: #252525; color: #efefef; border: 1px solid #333; border-radius: 4px; padding: 8px; font-size: 13px; line-height: 1.4; resize: vertical; outline: none; box-sizing: border-box; display: block;"
+                    placeholder="Buraya notunu bırakabilirsin..."></textarea>
+            </div>
+            `;
+
+            /* ===== 2. YARDIMCI FONKSİYONLAR ===== */
+            const $ = (id) => document.getElementById(id) || document.querySelector(`[name="${id}"]`);
+            const getValue = (id) => ($(id)?.value || $(id)?.textContent || '').trim();
+            const parseNum = (id) => {
+                const val = getValue(id).replace(/,/g, '');
+                return val === '' ? 0 : Number(val);
+            };
+            const getDate = (prefix) => {
+                const [g, a, y] = [getValue(prefix + '_GUN'), getValue(prefix + '_AY'), getValue(prefix + '_YIL')];
+                if (!g || !a || !y) return null;
+                return new Date(y, a - 1, g);
+            };
+
+            // --- Not Sistemi Ayarları ---
+            const storageKey = "page_note_" + window.location.href;
+            const textarea = document.getElementById('page-note-input');
+            const status = document.getElementById('note-status');
+
+            // Notu Kaydetme Fonksiyonu
+            function savePageNote() {
+                if (textarea) {
+                    localStorage.setItem(storageKey, textarea.value);
+                    if (status) {
+                        status.innerText = "Not Kaydedildi ✔";
+                        setTimeout(() => { status.innerText = "Otomatik Kaydediliyor..."; }, 2000);
+                    }
+                }
+            }
+
+            // Sayfa açıldığında eski notu yükle
+            if (textarea) {
+                const savedNote = localStorage.getItem(storageKey);
+                if (savedNote) {
+                    textarea.value = savedNote;
+                }
+
+                // Otomatik Kayıt (Yazarken)
+                let saveTimeout;
+                textarea.addEventListener('input', () => {
+                    if (status) status.innerText = "Yazılıyor...";
+                    clearTimeout(saveTimeout);
+                    saveTimeout = setTimeout(savePageNote, 1000);
+                });
+            }
+
+            // Butona ekleme yapıyoruz
+            const kaydetButonu = document.getElementById('btnKaydetYeni');
+            if (kaydetButonu) {
+                kaydetButonu.addEventListener('click', () => {
+                    savePageNote(); // Bizim notu kaydet
+                });
+            }
+            /* ===== 3. KONTROL VE HIGHLIGHT ===== */
+            function highlightFields() {
+                // 1. Tahmini Hasar değerini güvenli bir şekilde alalım
+                const tahminiHasarEl = document.getElementById('TAHMINI_HASAR') || document.getElementsByName('TAHMINI_HASAR')[0];
+
+                // Değeri sayıya çevirme: Nokta ve virgülleri temizleyip float'a çeviriyoruz
+                let rawHasar = tahminiHasarEl ? tahminiHasarEl.value : "0";
+                let cleanHasar = parseFloat(rawHasar.replace(/\./g, '').replace(',', '.')) || 0;
+
+                // 2. Kontrol edilecek alan listeleri
+                const watchFields = ['SURUCU_EHLIYET_NO', 'EHLIYET_NO', 'EHLIYET_TARIHI_YIL'];
+                const selectFields = ['MARKA_ID'];
+
+                // 3. Şart Kontrolü: 1000'den küçükse boya
+                if (cleanHasar < 1000) {
+
+                    // Input ve Metin Alanları
+                    watchFields.forEach(id => {
+                        const el = document.getElementById(id) || document.getElementsByName(id)[0];
+                        const td = el?.closest('td');
+                        if (td) {
+                            // getValue fonksiyonunun doğru çalıştığından emin olun,
+                            // alternatifi: el.value.trim() === ''
+                            td.style.backgroundColor = (getValue(id) === '') ? WARNING_COLOR : '';
+                        }
+                    });
+
+                    // KM Kontrolü
+                    const km = parseNum('KM');
+                    const kmEl = document.getElementById('KM') || document.getElementsByName('KM')[0];
+                    const kmTd = kmEl?.closest('td');
+                    if (kmTd) kmTd.style.backgroundColor = km < 1 ? WARNING_COLOR : '';
+
+                    // Piyasa Kontrolü
+                    const piyasa = parseNum('PIYASA');
+                    const piyasaEl = document.getElementById('PIYASA') || document.getElementsByName('PIYASA')[0];
+                    const piyasaTd = piyasaEl?.closest('td');
+                    if (piyasaTd) piyasaTd.style.backgroundColor = piyasa < 1000 ? WARNING_COLOR : '';
+
+                    // Select Alanları
+                    selectFields.forEach(id => {
+                        const el = document.getElementById(id) || document.getElementsByName(id)[0];
+                        const td = el?.closest('td');
+                        if (td) td.style.backgroundColor = getValue(id) === '-1' ? WARNING_COLOR : '';
+                    });
+
+                } else {
+                    // Hasar 1000 veya üzerindeyse tüm renkleri temizle
+                    const allFields = [...watchFields, ...selectFields, 'KM', 'PIYASA'];
+                    allFields.forEach(id => {
+                        const el = document.getElementById(id) || document.getElementsByName(id)[0];
+                        const td = el?.closest('td');
+                        if (td) td.style.backgroundColor = '';
+                    });
+                }
+            }
+
+            let generatedUrl = "";
+            /* ===== 4. PANEL GÜNCELLEME ===== */
+            function updatePanel() {
+                let html = '';
+                //let html = '<table style="width:100%; border-collapse:collapse; font-size:13px; color:white;">';
+                //html += `<tr><td colspan="2"><hr style="border:0; border-top:1px solid #444; margin:2px 0;"></td></tr>`;
+                //html += `</table>`;
+
+                function buildTargetUrl() {
+                    // 1. YARDIMCI: Metin içindeki ilk 4 haneli yılı bulur
+                    const extractYear = (str) => {
+                        const match = String(str).match(/\b(19|20)\d{2}\b/);
+                        return match ? match[0] : "";
+                    };
+
+                    const sigortaSelect = document.getElementById('SIGORTA_SEKLI');
+                    const sigortaTipi = sigortaSelect ? sigortaSelect.value : "";
+
+                    let m = "", yRaw = "", kStr = "0";
+
+                    // --- VERİ ÇEKME: TRAFİK (Tablo) veya KASKO (ID) ---
+                    if (sigortaTipi === "1") {
+                        // TRAFİK: Mağdur Araç Tablosu
+                        const allTds = document.getElementsByTagName('td');
+                        for (let i = 0; i < allTds.length; i++) {
+                            if (allTds[i].innerText.includes("MAĞDUR ARAÇ")) {
+                                const parentTr = allTds[i].closest('tr');
+                                const dataTr = parentTr.nextElementSibling.querySelector('tr + tr');
+                                if (dataTr) {
+                                    const cells = dataTr.cells;
+                                    m = (cells[1].innerText + " " + cells[2].innerText);
+                                    yRaw = cells[3].innerText;
+                                }
+                                break;
+                            }
+                        }
+                    }
+
+                    // Eğer m hala boşsa Kasko moduna/ID'lere geç
+                    if (!m) {
+                        const mInput = document.getElementById('HAS_MODEL_ADI');
+                        const yInput = document.getElementById('HAS_MODEL_YILI');
+                        m = mInput ? (mInput.value || mInput.innerText || "") : "";
+                        yRaw = yInput ? (yInput.value || yInput.innerText || "") : "";
+                    }
+
+                    // --- TEMİZLİK ---
+                    // Model adındaki parantezleri ve tarihli kısımları temizle
+                    m = m.replace(/\d{2}\/\d{2}\/\d{4}.*/g, '').replace(/\(\s*\d+\s*\)/g, '').replace(/\s+/g, ' ').trim();
+
+                    const y = extractYear(yRaw);
+
+                    const kInput = document.getElementById('HAS_KM');
+                    kStr = kInput ? (kInput.value || kInput.innerText || "0") : "0";
+                    const k = parseInt(kStr.replace(/\D/g, '')) || 0;
+
+                    if (!m) return null;
+
+                    // --- URL OLUŞTURMA ---
+                    let baseUrl = `https://www.sahibinden.com/otomobil?query_text=${encodeURIComponent(m)}`;
+                    let params = [];
+
+                    if (y) params.push(`a5_min=${y}`, `a5_max=${y}`);
+
+                    // KM 100'den küçükse hiç ekleme
+                    if (k >= 100) {
+                        params.push(`a4_min=${Math.floor(k * 0.9)}`, `a4_max=${Math.ceil(k * 1.1)}`);
+                    }
+
+                    return params.length > 0 ? `${baseUrl}&${params.join('&')}` : baseUrl;
+                }
+
+                document.getElementById('btn-auto-analiz').onclick = function () {
+                    const resBox = document.getElementById('shb-res-box');
+
+                    // Fonksiyonun varlığını kontrol et
+                    if (typeof GM_xmlhttpRequest === "undefined") {
+                        resBox.innerHTML = "❌ Hata: Kaynak kod dış sitelere erişim izni alamadı.";
+                        return;
+                    }
+
+                    const targetUrl = buildTargetUrl();
+                    if (!targetUrl) {
+                        resBox.innerHTML = "❌ Hata: URL oluşturulamadı!";
+                        return;
+                    }
+
+                    resBox.innerHTML = "🚀 İstek gönderiliyor...";
+
+                    try {
+                        GM_xmlhttpRequest({
+                            method: "GET",
+                            url: targetUrl,
+                            headers: {
+                                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0",
+                                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"
+                            },
+                            timeout: 10000, // 10 saniye sonra vazgeç
+                            onreadystatechange: function (res) {
+                                // İstek aşamalarını yazdırır (1: Açıldı, 2: Gönderildi, 3: Yükleniyor)
+                                if (res.readyState === 1) resBox.innerHTML = "⏳ Bağlantı açıldı...";
+                                if (res.readyState === 3) resBox.innerHTML = "📥 Veri indiriliyor...";
+                            },
+                            onload: function (res) {
+                                resBox.innerHTML = `📡 Cevap geldi (Kod: ${res.status})`;
+
+                                if (res.status === 200) {
+                                    // Sayfayı analiz et
+                                    const doc = new DOMParser().parseFromString(res.responseText, "text/html");
+
+                                    // Bot kontrolü var mı? (Sahibinden genelde 'security' veya 'captcha' içeren sayfa gönderir)
+                                    if (res.responseText.includes("captcha") || res.responseText.includes("security-check")) {
+                                        resBox.innerHTML = "🛡️ Bot engeli! Site arka planda veri çekmemize izin vermiyor.";
+                                        return;
+                                    }
+
+                                    const priceElements = doc.querySelectorAll('.searchResultsPriceValue');
+                                    const prices = [...priceElements].map(el => parseInt(el.innerText.replace(/\D/g, ''))).filter(n => n > 10000);
+
+                                    if (prices.length > 0) {
+                                        const avg = Math.round(prices.reduce((a, b) => a + b) / prices.length);
+                                        resBox.innerHTML = `✅ <b>${prices.length} ilan bulundu.</b><br>💰 Ort: <b>${avg.toLocaleString('tr-TR')} TL</b>`;
+                                    } else {
+                                        resBox.innerHTML = "❓ Sayfa yüklendi ama fiyat bulunamadı. Yapı değişmiş olabilir.";
+                                    }
+                                } else if (res.status === 403) {
+                                    resBox.innerHTML = "🚫 Erişim Yasaklandı (403)! IP adresiniz geçici olarak engellenmiş olabilir.";
+                                } else {
+                                    resBox.innerHTML = `⚠️ Sunucu hatası! Kod: ${res.status}`;
+                                }
+                            },
+                            onerror: function (res) {
+                                resBox.innerHTML = "⚠️ Bağlantı hatası! İnternet veya SSL sorunu olabilir.";
+                                console.error("Detaylı Hata:", res);
+                            },
+                            ontimeout: function () {
+                                resBox.innerHTML = "⏱️ İstek zaman aşımına uğradı (10sn). Site çok yavaş!";
+                            }
+                        });
+                    } catch (e) {
+                        resBox.innerHTML = "⚠️ Kritik Hata: " + e.message;
+                    }
+                };
+
+                document.getElementById('btn-auto-look').onclick = function () {
+                    const resBox = document.getElementById('shb-res-box');
+                    // Fonksiyonun varlığını kontrol et
+                    if (typeof GM_xmlhttpRequest === "undefined") {
+                        resBox.innerHTML = "❌ Hata: Kaynak kod dış sitelere erişim izni alamadı.<br><small>${targetUrl}</small>";
+                        return;
+                    }
+                    try {
+                        const targetUrl = buildTargetUrl();
+                        const resBox = document.getElementById('shb-res-box');
+
+                        if (targetUrl) {
+                            if (resBox) resBox.innerHTML = `🔗 <small>${targetUrl}</small>`;
+                            window.open(targetUrl, '_blank');
+                        } else {
+                            if (resBox) resBox.innerHTML = "❌ Model adı çekilemedi!";
+                        }
+                    } catch (e) {
+                        console.error("Buton hatası:", e);
+                    }
+                };
+
+                document.getElementById('panelContent').innerHTML = html;
+            }
+
+
+            /* ===== 5. OTOMATİK SEÇİM BUTONU ===== */
+            document.getElementById('autoSelectBtn').addEventListener('click', (e) => {
+                            const setVal = (id, val) => {
+                                const el = $(id);
+                                if (el) {
+                                    el.value = val;
+                                    el.dispatchEvent(new Event('change',
+                                        {
+                                            bubbles: true
+                                        }));
+                                }
+                            };
+                            const clickCb = (id) => {
+                                const el = $(id);
+                                if (el) {
+                                    el.checked = false;
+                                    el.click();
+                                }
+                            };
+                            ['KUSURLU1', 'SURUCU_BELGESI0', 'RUHSAT_ASLI0', 'TESPIT_SEKLI0', 'SURUCU_BELGESI_GORULDU1', 'EHLIYET_YETERLI1', 'ALKOL_DURUMU2'].forEach(clickCb);
+                            //setVal('MILLI_R_NO', getValue('IHBAR_TARIHI_YIL'));
+                            setVal('SURUCU_EHLIYET_SINIFI', 'B');
+                            const setSelectText = (id, txt) => {
+                                const el = $(id);
+                                if (!el) return;
+                                const opt = [...el.options].find(o => o.text.includes(txt));
+                                if (opt) {
+                                    el.value = opt.value;
+                                    el.dispatchEvent(new Event('change',
+                                        {
+                                            bubbles: true
+                                        }));
+                                }
+                            };
+                            setSelectText('KAZA_IHBAR_TURU', 'ANLAŞMALI KAZA');
+                            setSelectText('KANAAT', 'OLUMLUDUR');
+                            console.log('✅ Otomatik seçimler tamamlandı.');
+                        });
+                         /* ===== 5. OTOMATİK SEÇİM BUTONU ===== */
+           document.getElementById('unlockSelectBtn').addEventListener('click', (e) => {
+                    // 1. Disabled attribute'una sahip tüm elementleri bul
+                    const disabledElements = document.querySelectorAll('[disabled], .disabled');
+
+                    disabledElements.forEach(el => {
+                        el.disabled = false;
+                        el.removeAttribute('disabled');
+                        el.classList.remove('disabled');
+                        // Bazı siteler pointer-events: none kullanır, onu da çözelim:
+                        el.style.pointerEvents = 'auto';
+                        el.style.opacity = '1';
+                    });
+
+                    // 2. Readonly olanları düzenlenebilir yap
+                    const readOnlyElements = document.querySelectorAll('[readonly]');
+                    readOnlyElements.forEach(el => {
+                        el.readOnly = false;
+                        el.removeAttribute('readonly');
+                    });
+
+            });
+            setInterval(highlightFields, 1500);
+            setInterval(updatePanel, 2000);
+        }
+    }
     // Hızlı Referans açma Otohasar
     if (window.location.href.includes('otohasar') && location.href.includes("eks_hasar_yp_list_yp_talep.php")) {
         injectStyles();
@@ -1314,7 +1720,7 @@
             contentArea.appendChild(btnCopy);
         }
     }
-        // Hızlı Referans açma Otohasar
+    // Hızlı Referans açma Otohasar
     if (window.location.href.includes('otohasar') && location.href.includes("eks_hasar_yp_list.php")) {
         injectStyles();
         initPanel();
@@ -1525,20 +1931,20 @@
                     }
                 }
             };
-            /* ===== 4. CORE ACTIONS ===== */
+           const zorunluAlanlar = [// Kontrol edilecek zorunlu alanlar (Adet ve ID hariç)
+                   { ref: refs.kod, label: "Parça Kodu" },
+                   { ref: refs.ad, label: "Adı" },
+                   { ref: refs.fiyat, label: "Fiyat" }
+               ];
+           /* ===== 4. CORE ACTIONS ===== */
            const MainFields = () => {
-                // Kontrol edilecek zorunlu alanlar (Adet ve ID hariç)
-                const zorunluAlanlar = [
-                    { ref: refs.kod, label: "Parça Kodu" },
-                    { ref: refs.ad, label: "Adı" },
-                    { ref: refs.fiyat, label: "Fiyat" }
-                ];
+                degisonar();
 
                 // Eksik alan kontrolü
                 const eksikAlan = zorunluAlanlar.find(alan => !alan.ref.value || alan.ref.value.trim() === "");
 
                 if (eksikAlan) {
-                    alert(`Lütfen eksik alanları doldurun: ${eksikAlan.label}`);
+                    //alert(`Lütfen eksik alanları doldurun: ${eksikAlan.label}`);
                     return; // İşlemi durdurur, giriş yapmaz
                 }
 
@@ -1556,9 +1962,13 @@
             const SideFields = async (dom, dem) => {
                 await selectValue("GRUP_ID", dom);
                 await selectValue("ANA_GRUP", dem);
+
                 await selectValue("SISTEM_NOTU_ID", "2");
                 if ($("NOTLAR")) $("NOTLAR").value = "KODSUZ PARÇA";
                 selectValue("SIPARIS_VERMEME_SEBEP_ID", "2");
+
+                const eksikAlan = zorunluAlanlar.find(alan => !alan.ref.value || alan.ref.value.trim() === "");
+                if (!eksikAlan) { submitForm(); setTimeout(() => { submitForm(); }, 400); }
             }
            const submitForm = () => {
                // HTML'deki orijinal submit mantığı
@@ -1597,51 +2007,33 @@
                 submitForm();*/
             // Kaporta ön
             $("b0").onclick = async () => {
-                degisonar();
                 await MainFields();
                 await SideFields("10","777");
-                submitForm();
-                setTimeout(() => { submitForm(); }, 400);
             };
             // Kaporta yan
             $("b1").onclick = async () => {
-                degisonar();
                 await MainFields();
                 await SideFields("11","852");
-                submitForm();
-                setTimeout(() => { submitForm(); }, 400);
             };
             // Mekanik
             $("b2").onclick = async () => {
-                degisonar();
                 await MainFields();
                 await SideFields("2","645");
-                submitForm();
-                setTimeout(() => { submitForm(); }, 400);
             };
             // Elektrik
             $("b3").onclick = async () => {
-                degisonar();
                 await MainFields();
                 await SideFields("4","686");
-                submitForm();
-                setTimeout(() => { submitForm(); }, 400);
             };
             // Cam
             $("b4").onclick = async () => {
-                degisonar();
                 await MainFields();
                 await SideFields("17","934");
-                submitForm();
-                setTimeout(() => { submitForm(); }, 400);
             };
             // MOTORSİKLET
             $("b6").onclick = async () => {
-                degisonar();
                 await MainFields();
                 await SideFields("29","554");
-                submitForm();
-                setTimeout(() => { submitForm(); }, 400);
             };
             // Genel Onarım********************************************/////
             $("b5").onclick = async () => {
@@ -1798,6 +2190,8 @@
             POLICE: '3',
             IMZA: '131',
             SICIL: '202',
+            GAZETE: '202',
+            FAAL: '190',
             IRSALIYE: '26',
             NUFUS: '2',
             DIGER: '12',
@@ -1807,6 +2201,7 @@
             ALKOL: '4',
             RAYIC: '49',
             TRAMER: '48',
+            VERGI: ['9', '221'],
             MASAK: '162'
         };
 
@@ -1820,6 +2215,8 @@
             POLICE: '3',
             IMZA: '8',
             SICIL: '40',
+            GAZETE: '40',
+            FAAL: '190',
             IRSALIYE: '41',
             NUFUS: '2',
             DIGER: '12',
@@ -1829,6 +2226,7 @@
             ALKOL: '4',
             RAYIC: '49',
             TRAMER: '48',
+            VERGI: ['9', '221'],
             MASAK: '162'
         };
 
@@ -1892,12 +2290,13 @@
 
         const rowFA = document.createElement('div');
         rowFA.style.display = 'flex'; rowFA.style.gap = '3px';
-        rowFA.appendChild(createMiniBtn('F', '#e67e22', 'select[name^="EVRAK_TIPI_"]', '0', 'Evrak Tipi: F', 'Tümünü Fatura olarak işaretler.'));
-        rowFA.appendChild(createMiniBtn('A', '#2980b9', 'select[name^="EVRAK_TIPI_"]', '1', 'Evrak Tipi: A', 'Tümünü Alınan olarak işaretler.'));
+        rowFA.appendChild(createMiniBtn('FO', '#e67e22', 'select[name^="EVRAK_TIPI_"]', '0', 'Evrak Tipi: Fotokopi', 'Tümünü Fotokopi olarak işaretler.'));
+        rowFA.appendChild(createMiniBtn('AS', '#2980b9', 'select[name^="EVRAK_TIPI_"]', '1', 'Evrak Tipi: Aslı', 'Tümünü Aslı olarak işaretler.'));
 
         panel.appendChild(rowFA);
         panel.appendChild(createMiniBtn('OLAY YERİ', '#8e44ad', 'select[name^="PHOTO_CTG_ID_"]', '11', 'Kategori: Olay', 'Tümünü Olay Yeri Resimleri yapar.'));
-        panel.appendChild(createMiniBtn('1. EKSPERTİZ', '#27ae60', 'select[name^="PHOTO_CTG_ID_"]', '1', 'Kategori: Eksp.', 'Tümünü 1. Ekspertiz Resimleri yapar.'));
+        panel.appendChild(createMiniBtn('1. EKSPERTİZ', '#27ae60', 'select[name^="PHOTO_CTG_ID_"]', '1', 'Kategori: Ekspertiz', 'Tümünü 1. Ekspertiz Resimleri yapar.'));
+        panel.appendChild(createMiniBtn('HASAR', '#2c3e50', 'select[name^="PHOTO_CTG_ID_"]', '13', 'Kategori: Hasar', 'Tümünü Hasar Resimleri yapar.'));
         panel.appendChild(createMiniBtn('ONARIM SNR', '#c0392b', 'select[name^="PHOTO_CTG_ID_"]', ayarlar.ONARIM_SONRASI, 'Kategori: Onarım', 'Tümünü Onarım Sonrası Resimleri yapar.'));
     }
 
@@ -1938,13 +2337,16 @@
                     { label: 'ZAB', vals: [ayarlar.ZABIT], color: '#8e44ad', t: 'Zabıt/Rapor' },
                     { label: 'ALK', vals: [ayarlar.ALKOL], color: '#eb4d4b', t: 'Alkol Raporu' },
                     { label: 'İMZ', vals: [ayarlar.IMZA], color: '#16a085', t: 'İmza Sirküsü' },
-                    { label: 'GAZ', vals: [ayarlar.SICIL], color: '#7f8c8d', t: 'Sicil Gazetesi' },
+                    { label: 'GAZ', vals: [ayarlar.GAZETE], color: '#7f8c8d', t: 'Sicil Gazetesi' },
+                    { label: 'SCL', vals: [ayarlar.SICIL], color: '#7f8c8d', t: 'Sicil Kayıt' },
+                    { label: 'FAL', vals: [ayarlar.FAAL], color: '#eb4d4b', t: 'Faaliyet' },
                     { label: 'MUT', vals: [ayarlar.MUTABAKAT], color: '#6ab04c', t: 'Mutabakatname' },
                     { label: 'TİB', vals: [ayarlar.IBRA], color: '#3498db', t: 'Teslim İbra' },
                     { label: 'İRS', vals: [ayarlar.IRSALIYE], color: '#d35400', t: 'İrsaliye' },
                     { label: 'RAY', vals: [ayarlar.RAYIC], color: '#f0932b', t: 'Rayiç Çalışması' },
                     { label: 'TRA', vals: [ayarlar.TRAMER], color: '#4834d4', t: 'Tramer Kontrolü' },
                     { label: 'MSK', vals: [ayarlar.MASAK], color: '#22a6b3', t: 'MASAK Evrakları' },
+                    { label: 'VRL', vals: ayarlar.VERGI, color: '#7f8c8d', t: 'VERGİ LEVHASI / V.L. ŞİRKETLER İÇİN Tekrar tıkla' },
                     { label: 'DİĞ', vals: [ayarlar.DIGER], color: '#95a5a6', t: 'Diğer Evraklar' }
                 ];
 
