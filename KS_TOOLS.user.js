@@ -15,6 +15,8 @@
 // @grant        GM_xmlhttpRequest
 // @connect      sahibinden.com
 // @connect      www.sahibinden.com
+// @connect      google.com
+// @connect      www.google.com
 // @updateURL    https://github.com/sayginkizilkaya/Ks-Tools/raw/refs/heads/main/KS_TOOLS.user.js
 // @downloadURL  https://github.com/sayginkizilkaya/Ks-Tools/raw/refs/heads/main/KS_TOOLS.user.js
 // ==/UserScript==
@@ -604,7 +606,7 @@
                 </div>
             </div>
 
-            <div style="display: none; position: fixed;">
+            <div>
                 <hr style="border:0; border-top:1px solid #444; margin:2px 0;">
                 <div id="shb-res-box">Piyasa kontrolü bekleniyor...</div>
                 <div style="display: flex; flex-direction: row; width: 100%; gap: 4%; justify-content: space-between;">
@@ -1015,8 +1017,9 @@
                 html += `<tr><td style="color:white;">Muallak:</td><td style="text-align:right; color:white;">${ssTahmini.toLocaleString()}</td></tr>`;
                 html += `</table>`;
 
+                // --- 1. URL OLUŞTURUCU (Verileri çeker ve parametreleri hazırlar) ---
+                // --- 1. VERİ TOPLAMA VE URL PARAMETRE HAZIRLAMA (Değişmedi) ---
                 function buildTargetUrl() {
-                    // 1. YARDIMCI: Metin içindeki ilk 4 haneli yılı bulur
                     const extractYear = (str) => {
                         const match = String(str).match(/\b(19|20)\d{2}\b/);
                         return match ? match[0] : "";
@@ -1024,28 +1027,23 @@
 
                     const sigortaSelect = document.getElementById('SIGORTA_SEKLI');
                     const sigortaTipi = sigortaSelect ? sigortaSelect.value : "";
-
                     let m = "", yRaw = "", kStr = "0";
 
-                    // --- VERİ ÇEKME: TRAFİK (Tablo) veya KASKO (ID) ---
                     if (sigortaTipi === "1") {
-                        // TRAFİK: Mağdur Araç Tablosu
                         const allTds = document.getElementsByTagName('td');
                         for (let i = 0; i < allTds.length; i++) {
                             if (allTds[i].innerText.includes("MAĞDUR ARAÇ")) {
                                 const parentTr = allTds[i].closest('tr');
                                 const dataTr = parentTr.nextElementSibling.querySelector('tr + tr');
                                 if (dataTr) {
-                                    const cells = dataTr.cells;
-                                    m = (cells[1].innerText + " " + cells[2].innerText);
-                                    yRaw = cells[3].innerText;
+                                    m = (dataTr.cells[1].innerText + " " + dataTr.cells[2].innerText);
+                                    yRaw = dataTr.cells[3].innerText;
                                 }
                                 break;
                             }
                         }
                     }
 
-                    // Eğer m hala boşsa Kasko moduna/ID'lere geç
                     if (!m) {
                         const mInput = document.getElementById('HAS_MODEL_ADI');
                         const yInput = document.getElementById('HAS_MODEL_YILI');
@@ -1053,126 +1051,141 @@
                         yRaw = yInput ? (yInput.value || yInput.innerText || "") : "";
                     }
 
-                    // --- TEMİZLİK ---
-                    // Model adındaki parantezleri ve tarihli kısımları temizle
                     m = m.replace(/\d{2}\/\d{2}\/\d{4}.*/g, '').replace(/\(\s*\d+\s*\)/g, '').replace(/\s+/g, ' ').trim();
-
                     const y = extractYear(yRaw);
-
                     const kInput = document.getElementById('HAS_KM');
                     kStr = kInput ? (kInput.value || kInput.innerText || "0") : "0";
                     const k = parseInt(kStr.replace(/\D/g, '')) || 0;
 
                     if (!m) return null;
 
-                    // --- URL OLUŞTURMA ---
-                    let baseUrl = `https://www.sahibinden.com/otomobil?query_text=${encodeURIComponent(m)}`;
-                    let params = [];
-
-                    if (y) params.push(`a5_min=${y}`, `a5_max=${y}`);
-
-                    // KM 100'den küçükse hiç ekleme
-                    if (k >= 100) {
-                        params.push(`a4_min=${Math.floor(k * 0.9)}`, `a4_max=${Math.ceil(k * 1.1)}`);
-                    }
-
-                    return params.length > 0 ? `${baseUrl}&${params.join('&')}` : baseUrl;
+                    return {
+                        model: m,
+                        year: y,
+                        kmMin: k >= 100 ? Math.floor(k * 0.9) : null,
+                        kmMax: k >= 100 ? Math.ceil(k * 1.1) : null
+                    };
                 }
 
-                document.getElementById('btn-auto-analiz').onclick = function () {
+                // --- 2. GOOGLE ÜZERİNDEN DOĞRU KATEGORİYİ BULMA ---
+                async function startAutomatedSearch(isAnalyze) {
                     const resBox = document.getElementById('shb-res-box');
+                    const data = buildTargetUrl();
 
-                    // Fonksiyonun varlığını kontrol et
-                    if (typeof GM_xmlhttpRequest === "undefined") {
-                        resBox.innerHTML = "❌ Hata: Kaynak kod dış sitelere erişim izni alamadı.";
+                    if (!data) {
+                        resBox.innerHTML = "❌ Hata: Araç bilgileri çekilemedi!";
                         return;
                     }
 
-                    const targetUrl = buildTargetUrl();
-                    if (!targetUrl) {
-                        resBox.innerHTML = "❌ Hata: URL oluşturulamadı!";
-                        return;
-                    }
+                    resBox.innerHTML = `🔍 Google'da taranıyor: <b>${data.model}</b>...`;
 
-                    resBox.innerHTML = "🚀 İstek gönderiliyor...";
+                    const googleQuery = `site:sahibinden.com "${data.model}" ${data.year}`;
+                    const googleUrl = `https://www.google.com/search?q=${encodeURIComponent(googleQuery)}`;
 
-                    try {
-                        GM_xmlhttpRequest({
-                            method: "GET",
-                            url: targetUrl,
-                            headers: {
-                                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0",
-                                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"
-                            },
-                            timeout: 10000, // 10 saniye sonra vazgeç
-                            onreadystatechange: function (res) {
-                                // İstek aşamalarını yazdırır (1: Açıldı, 2: Gönderildi, 3: Yükleniyor)
-                                if (res.readyState === 1) resBox.innerHTML = "⏳ Bağlantı açıldı...";
-                                if (res.readyState === 3) resBox.innerHTML = "📥 Veri indiriliyor...";
-                            },
-                            onload: function (res) {
-                                resBox.innerHTML = `📡 Cevap geldi (Kod: ${res.status})`;
+                    GM_xmlhttpRequest({
+                        method: "GET",
+                        url: googleUrl,
+                        headers: {
+                            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/122.0.0.0",
+                            "Accept": "text/html"
+                        },
+                        onload: function (gRes) {
+                            const gDoc = new DOMParser().parseFromString(gRes.responseText, "text/html");
+                            const links = [...gDoc.querySelectorAll('a')];
 
-                                if (res.status === 200) {
-                                    // Sayfayı analiz et
-                                    const doc = new DOMParser().parseFromString(res.responseText, "text/html");
+                            const target = links.find(a =>
+                                a.href.includes("sahibinden.com/") &&
+                                !a.href.includes("/ilan/") &&
+                                (a.href.includes("/otomobil") || a.href.includes("/ticari-araclar") || a.href.includes("/arazi-suv-pickup"))
+                            );
 
-                                    // Bot kontrolü var mı? (Sahibinden genelde 'security' veya 'captcha' içeren sayfa gönderir)
-                                    if (res.responseText.includes("captcha") || res.responseText.includes("security-check")) {
-                                        resBox.innerHTML = "🛡️ Bot engeli! Site arka planda veri çekmemize izin vermiyor.";
-                                        return;
-                                    }
-
-                                    const priceElements = doc.querySelectorAll('.searchResultsPriceValue');
-                                    const prices = [...priceElements].map(el => parseInt(el.innerText.replace(/\D/g, ''))).filter(n => n > 10000);
-
-                                    if (prices.length > 0) {
-                                        const avg = Math.round(prices.reduce((a, b) => a + b) / prices.length);
-                                        resBox.innerHTML = `✅ <b>${prices.length} ilan bulundu.</b><br>💰 Ort: <b>${avg.toLocaleString('tr-TR')} TL</b>`;
-                                    } else {
-                                        resBox.innerHTML = "❓ Sayfa yüklendi ama fiyat bulunamadı. Yapı değişmiş olabilir.";
-                                    }
-                                } else if (res.status === 403) {
-                                    resBox.innerHTML = "🚫 Erişim Yasaklandı (403)! IP adresiniz geçici olarak engellenmiş olabilir.";
-                                } else {
-                                    resBox.innerHTML = `⚠️ Sunucu hatası! Kod: ${res.status}`;
-                                }
-                            },
-                            onerror: function (res) {
-                                resBox.innerHTML = "⚠️ Bağlantı hatası! İnternet veya SSL sorunu olabilir.";
-                                console.error("Detaylı Hata:", res);
-                            },
-                            ontimeout: function () {
-                                resBox.innerHTML = "⏱️ İstek zaman aşımına uğradı (10sn). Site çok yavaş!";
+                            if (!target) {
+                                resBox.innerHTML = "⚠️ Google'da kategori bulunamadı. Lütfen 'Göz At' butonuyla manuel bakın.";
+                                return;
                             }
-                        });
-                    } catch (e) {
-                        resBox.innerHTML = "⚠️ Kritik Hata: " + e.message;
-                    }
-                };
 
-                document.getElementById('btn-auto-look').onclick = function () {
+                            let finalLink = "";
+                            try {
+                                const urlObj = new URL(target.href);
+                                finalLink = urlObj.pathname === "/url" ? urlObj.searchParams.get("q").split('&')[0] : target.href.split('&')[0];
+                            } catch (e) { finalLink = target.href; }
+
+                            const isTicari = finalLink.includes("ticari-araclar");
+                            const yearKey = isTicari ? "a90178" : "a5";
+                            const kmKey = isTicari ? "a90180" : "a4";
+
+                            const shbUrl = new URL(finalLink);
+                            if (data.year) {
+                                shbUrl.searchParams.set(`${yearKey}_min`, data.year);
+                                shbUrl.searchParams.set(`${yearKey}_max`, data.year);
+                            }
+                            if (data.kmMin) {
+                                shbUrl.searchParams.set(`${kmKey}_min`, data.kmMin);
+                                shbUrl.searchParams.set(`${kmKey}_max`, data.kmMax);
+                            }
+
+                            if (isAnalyze) {
+                                fetchPricesFromShb(shbUrl.toString());
+                            } else {
+                                resBox.innerHTML = "🚀 Sayfa açılıyor...";
+                                unsafeWindow.open(shbUrl.toString(), '_blank');
+                            }
+                        },
+                        onerror: () => resBox.innerHTML = "⚠️ Google bağlantı hatası!"
+                    });
+                }
+
+                // --- 3. SAHİBİNDEN'DEN VERİ ÇEKME (KRİTİK GÜNCELLEME) ---
+                function fetchPricesFromShb(url) {
                     const resBox = document.getElementById('shb-res-box');
-                    // Fonksiyonun varlığını kontrol et
-                    if (typeof GM_xmlhttpRequest === "undefined") {
-                        resBox.innerHTML = "❌ Hata: Kaynak kod dış sitelere erişim izni alamadı.<br><small>${targetUrl}</small>";
-                        return;
-                    }
-                    try {
-                        const targetUrl = buildTargetUrl();
-                        const resBox = document.getElementById('shb-res-box');
+                    resBox.innerHTML = "📥 Analiz ediliyor (Lütfen bekleyin)...";
 
-                        if (targetUrl) {
-                            if (resBox) resBox.innerHTML = `🔗 <small>${targetUrl}</small>`;
-                            unsafeWindow.open(targetUrl, '_blank');
-                        } else {
-                            if (resBox) resBox.innerHTML = "❌ Model adı çekilemedi!";
-                        }
-                    } catch (e) {
-                        console.error("Buton hatası:", e);
-                    }
-                };
+                    GM_xmlhttpRequest({
+                        method: "GET",
+                        url: url,
+                        anonymous: false, // Çerezleri gönder
+                        cookie: true,
+                        headers: {
+                            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+                            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+                            "Accept-Language": "tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7",
+                            "Referer": "https://www.google.com/",
+                            "Sec-Fetch-Dest": "document",
+                            "Sec-Fetch-Mode": "navigate",
+                            "Sec-Fetch-Site": "cross-site",
+                            "Upgrade-Insecure-Requests": "1"
+                        },
+                        onload: function (res) {
+                            // Sahibinden bazen 200 dönse bile boş sayfa veya captcha gönderebilir
+                            const responseText = res.responseText.toLowerCase();
 
+                            if (responseText.includes("captcha") || responseText.includes("security-check") || res.status === 403) {
+                                resBox.innerHTML = `🛡️ <b>Veri Çekme Engellendi!</b><br><small>Sahibinden bot kontrolü uyguluyor. <a href="${url}" target="_blank" style="color:yellow; text-decoration:underline;">Buraya tıkla</a>, doğrulamayı geç ve butona tekrar bas.</small>`;
+                                return;
+                            }
+
+                            const sDoc = new DOMParser().parseFromString(res.responseText, "text/html");
+                            const priceElements = sDoc.querySelectorAll('.searchResultsPriceValue, .searchResultsPrice');
+
+                            // Fiyatları çek
+                            const prices = [...priceElements]
+                                .map(el => parseInt(el.innerText.replace(/\D/g, '')))
+                                .filter(n => n > 20000);
+
+                            if (prices.length > 0) {
+                                const avg = Math.round(prices.reduce((a, b) => a + b) / prices.length);
+                                resBox.innerHTML = `✅ <b>${prices.length} İlan</b> bulundu.<br>💰 Ort: <b>${avg.toLocaleString('tr-TR')} TL</b>`;
+                            } else {
+                                resBox.innerHTML = `❓ İlan listesi boş veya fiyatlar okunamadı.<br><a href="${url}" target="_blank" style="color:cyan; font-size:11px;">Manuel Kontrol Et</a>`;
+                            }
+                        },
+                        onerror: () => resBox.innerHTML = "⚠️ Sahibinden bağlantısı koptu."
+                    });
+                }
+
+                // --- 4. BUTONLAR ---
+                document.getElementById('btn-auto-analiz').onclick = () => startAutomatedSearch(true);
+                document.getElementById('btn-auto-look').onclick = () => startAutomatedSearch(false);
                 document.getElementById('panelContent').innerHTML = html;
             }
 
@@ -1908,7 +1921,7 @@
                     🔓 Her Şeyi Aktif Et
                 </button>
                 <div class="ks-tooltip-box">
-                    <strong>⚠️ Dikkat ⚠️</strong>
+                    <strong>⚠️ Dikkat ⚠️</strong><br>
                     Zorunda kalmadıkça bu buton özelliğini kullanmayınız.
                     Site üzerindeki tüm etkileşimleri aktifleştirir (Buton, yazı kutusu, liste kutusu vs...).
                 </div>
