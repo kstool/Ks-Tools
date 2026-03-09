@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KS TOOLS PANEL
 // @namespace    KS_TOOLS_PANEL
-// @version      1.21
+// @version      1.22
 // @license      GPL-3.0
 // @description  OtoHasar Form Panel / Parça - Manuel ve Çoklu ekleme / Donanim Panel / SBM Tramer no ayırma ve resim indirme / Wp resim indirme
 // @author       Saygın
@@ -17,8 +17,8 @@
 // @connect      www.sahibinden.com
 // @connect      google.com
 // @connect      www.google.com
-// @updateURL    https://github.com/sayginkizilkaya/Ks-Tools/raw/refs/heads/main/KS_TOOLS.user.js
-// @downloadURL  https://github.com/sayginkizilkaya/Ks-Tools/raw/refs/heads/main/KS_TOOLS.user.js
+// @updateURL    https://github.com/sayginkizilkaya/Ks-Tools/raw/main/KS_TOOLS.user.js
+// @downloadURL  https://github.com/sayginkizilkaya/Ks-Tools/raw/main/KS_TOOLS.user.js
 // ==/UserScript==
 (function () {
     'use strict';
