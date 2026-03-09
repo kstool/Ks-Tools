@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KS TOOLS PANEL
 // @namespace    KS_TOOLS_PANEL
-// @version      1.19
+// @version      1.21
 // @license      GPL-3.0
 // @description  OtoHasar Form Panel / Parça - Manuel ve Çoklu ekleme / Donanim Panel / SBM Tramer no ayırma ve resim indirme / Wp resim indirme
 // @author       Saygın
@@ -3167,46 +3167,52 @@
             return `WhatsApp Image ${date} at ${time}.jpeg`;
         }
 
-        // Çift tıklama olayını tüm dökümanda dinle (Delegation)
         document.addEventListener('dblclick', function (event) {
-            // Tıklanan eleman bir resim mi veya resmin içindeki bir katman mı?
             const target = event.target;
-
-            // WhatsApp'ın görsel sınıfını veya resim etiketini bul
             const imgElement = target.closest('img._ao3e') ||
-                (target.tagName === 'IMG' ? target : null) ||
-                target.querySelector('img');
+                               (target.tagName === 'IMG' ? target : null) ||
+                               target.querySelector('img');
 
             if (imgElement && imgElement.src) {
-                // Eğer src bir blob veya link ise indir
-                if (imgElement.src.startsWith('blob:') || imgElement.src.startsWith('data:') || imgElement.src.startsWith('http')) {
-                    const fileName = getFileName();
+                // Event'in yukarı/aşağı yayılmasını durdurun (Çift tetiklenmeyi önler)
+                event.stopPropagation();
+                event.preventDefault();
 
-                    console.log("İndirme başlatılıyor:", fileName);
+                const fileName = getFileName();
+                console.log("İndirme başlatılıyor:", fileName);
 
+                // GM_download kullanımı (Eğer Tampermonkey/Violentmonkey ise en sağlıklısı budur)
+                if (typeof GM_download === "function") {
                     GM_download({
                         url: imgElement.src,
                         name: fileName,
                         saveAs: false,
-                        onload: () => {
-                            console.log("İndirme başarılı.");
-                        },
+                        onload: () => console.log("GM_download ile başarıyla indirildi."),
                         onerror: (err) => {
-                            console.error("GM_download hatası, alternatif deneniyor:", err);
-                            // Manuel indirme yedeği
-                            const link = document.createElement('a');
-                            link.href = imgElement.src;
-                            link.download = fileName;
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
+                            // Sadece GM_download gerçekten başarısız olursa manuel yöntemi dene
+                            if(err.error !== 'not_permitted' && err.error !== 'not_supported') {
+                                manualDownload(imgElement.src, fileName);
+                            }
                         }
                     });
+                } else {
+                    manualDownload(imgElement.src, fileName);
                 }
             }
-        }, true); // 'true' kullanarak olayı yakalama fazında tutuyoruz
+        }, true);
 
-        // Sağ tık menüsü için eski mantık (opsiyonel)
+        // Manuel indirme fonksiyonunu dışarı alalım
+        function manualDownload(url, name) {
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = name;
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            setTimeout(() => document.body.removeChild(link), 100);
+        }
+
+        // Sağ tık menüsü (Mevcut kodunuzu koruduk)
         document.addEventListener('contextmenu', function (event) {
             const msgNode = event.target.closest('.message-out, .message-in');
             if (msgNode && event.target.tagName !== 'IMG' && event.target.tagName !== 'A') {
@@ -3215,7 +3221,6 @@
                 if (btn) btn.click();
             }
         }, true);
-
     }
     // Türkiye Sigorta
     if (location.href.includes("hasaroto.turkiyesigorta.com.tr")) {
