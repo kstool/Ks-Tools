@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KS TOOLS - Otoanaliz Oceanic Compact
 // @namespace    KS_TOOLS_Otoanaliz_Oceanic
-// @version      1.3
+// @version      1.4
 // @description  Düzeltilmiş, modern, kompakt tema.
 // @author       Saygın
 // @match        *://*/*
@@ -13,6 +13,9 @@
 
 (function() {
     'use strict';
+	const url = unsafeWindow.location.href.toLowerCase();
+	const blockedGroups = [ "yazdir", "print", "rapor", "ihbar", "dilekce", "fatura", "makbuz", "dekont", "invoice", "receipt", "barcode", "kimlik", "kart"];
+    if (blockedGroups.some(word => url.includes(word))) { return; }
 
     const oceanicTheme = `
         * {
@@ -555,6 +558,49 @@
         @keyframes fadeInSmooth { from { opacity: 0; } to { opacity: 1; } }
         @keyframes inputEntry { from { opacity: 0; filter: brightness(1.2); } to { opacity: 1; filter: brightness(1); } }
 
+
+		/* 1. Butonun Ana Stil Ayarları (Daha sade ve profesyonel) */
+        /* Butonun kendisini bir kutu gibi düşünelim */
+        a[onclick*="document.yedparforhasar.submit"] {
+            display: inline-flex !important; /* İçeriği merkeze almak için */
+            align-items: center;
+            justify-content: center;
+            min-width: 100px; /* Yazı sığsın diye genişlik */
+            height: 20px;     /* Sabit yükseklik */
+			padding: 3px;
+            background: #d32f2f !important;
+			color: #ffffff !important;
+            font-size: 12px !important;
+            font-weight: bold !important;
+            text-decoration: none !important;
+            border-radius: 6px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            transition: transform 0.2s, background 0.2s;
+            cursor: pointer;
+            border: 1px solid #b71c1c;
+            text-transform: uppercase;
+        }
+
+        /* Mevcut çirkin GIF görselini tamamen siliyoruz */
+        a[onclick*="document.yedparforhasar.submit"] img {
+            display: none !important;
+        }
+
+        /* Yazıyı buraya 'çakıyoruz' */
+        a[onclick*="document.yedparforhasar.submit"]::after {
+            content: "KAYDET" !important;
+            display: block !important;
+            visibility: visible !important;
+            color: white !important;
+        }
+
+        /* Üstüne gelince ufak bir büyüme efekti (Animasyon) */
+        a[onclick*="document.yedparforhasar.submit"]:hover {
+            transform: scale(1.02);
+            background: linear-gradient(180deg, #ff0000 0%, #b71c1c 100%) !important;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
         /* ANA KONTEYNER - ORTALANMIŞ VERSİYON */
         .tm-tedarik-container {
             /* Genişlik ayarları */
@@ -715,7 +761,6 @@
             }
         });
     };
-
     const map = document.querySelector('map[name="linkmap"]');
     if (map) {
         const areas = map.querySelectorAll('area');
