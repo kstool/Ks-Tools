@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KS TOOLS PANEL
 // @namespace    KS_TOOLS_PANEL
-// @version      1.28-test
+// @version      1.29
 // @license      GPL-3.0
 // @description  OtoHasar Form Panel / Parça - Manuel ve Çoklu ekleme / Donanim Panel / SBM Tramer no ayırma ve resim indirme / Wp resim indirme
 // @author       Saygın
@@ -105,31 +105,29 @@
                 .ks-draggable-panel.collapsed {
                     width: ${config.collapsedWidth};
 				    min-width: ${config.collapsedWidth};
-                    height: 40px !important;
-                    min-height: 40px !important;
-                    max-height: 40px !important;
+                    height: 30px !important;
+                    min-height: 30px !important;
+                    max-height: 30px !important;
                     overflow: hidden !important;
                 }
                .ks-header {
-                   padding: 8px 15px;
+                   padding: 5px;
                    background: rgba(255, 255, 255, 0.03);
                    cursor: s-resize;
                    display: flex;
                    justify-content: space-between;
                    align-items: center;
-                   border-bottom: 1px solid ${config.themeColor}44;
+                   border-bottom: 2px solid ${config.themeColor}44;
                    box-shadow: inset 0 1px 10px rgba(0, 0, 0, 0.2);
                    transition: background 0.3s ease;
                }
 
                .ks-header:hover {
                    background: rgba(255, 255, 255, 0.1);
-                   color: #ffffff;
+                   color: ${config.themeColor};
                    text-shadow:
-                       0 0 2px #fff,
-                       0 0 10px ${config.themeColor},
-                       0 0 25px ${config.themeColor}99,
-                       0 0 45px ${config.themeColor}66;
+                       0 0 4px ${config.themeColor},
+                       0 0 14px ${config.themeColor};
                    filter: brightness(1.2);
                }
 
@@ -145,8 +143,8 @@
                }
                /* İçerik Alanı */
                .ks-content {
-                   padding: 5px;
-                   gap: 5px;
+                   padding: 2px;
+                   gap: 2px;
                    display: flex;
                    flex-direction: column;
                    color: ${config.Color};
@@ -165,19 +163,19 @@
                    background: ${config.themeColor};
                    color: white !important;
                    border: none;
-                   padding: 6px;
-                   border-radius: 10px;
+                   padding: 4px;
+                   border-radius: 6px;
                    font-weight: bold;
                    cursor: pointer;
                    font-size: 12px;
-                   transition: 0.2s;
+                   transition: all 0.15s ease;
                }
-               .ks-btn:hover { filter: brightness(1.1);
+               .ks-btn:hover {
+                   filter: brightness(1.1);
                    transform: translateY(-2px);
-                   text-shadow: 0 0 5px rgba(0,0,0,0.2); }
-                   /* Neon Glow Efekti */
-                   box-shadow: 0 0 10px ${config.themeColor},
-                               0 0 20px ${config.themeColor};
+                   text-shadow: 0 0 5px rgba(255,255,255,0.5);
+                   box-shadow: 0 6px 12px ${config.themeColor}66;
+				   }
                .ks-btn:active {
                    transform: translateY(1px);
                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -204,7 +202,8 @@
                    text-shadow: 0 0 5px rgba(255,255,255,0.5);
                }
                .ks-btn-danger:active {
-                   transform: translateY(1px);
+                   filter: brightness(1.1);
+                   transform: translateY(-2px);
                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
                }
                 #shb-res-box { font-size: 13px; color: white; margin: 2px 0 2px 0; text-align: center; }
@@ -224,32 +223,76 @@
                .ks-tooltip-box {
                    visibility: hidden;
                    width: 230px;
-                   background: rgba(25, 25, 27, 0.85);
-                   color: #e0e0e0;
+                   background: rgba(15, 15, 18, 0.9) !important;
+				   backdrop-filter: blur(8px);
+				   -webkit-backdrop-filter: blur(8px);
+                   color: #f0f0f0;
                    text-align: left;
-                   border-radius: 8px;
-                   padding: 10px;
+
+                   border-radius: 12px;
+                   padding: 12px 16px;
+
                    bottom: calc(100% + 20px);
+
                    position: absolute !important;
                    z-index: 3179999 !important;
 
                    transform: translateX(50%);
                    opacity: 0;
                    transition: opacity 0.5s ease, transform 0.5s ease, visibility 0.5s;
-                   border: 1.5px solid ${config.themeColor};
-                   animation: neonPulse 2s infinite ease-in-out;
+                   border-left: 3px solid ${config.themeColor}80;
+				   border-right: 3px solid ${config.themeColor}80;
+                   border-top: 5px solid ${config.themeColor};
+                   border-bottom: 5px solid ${config.themeColor};
 
                    font-family: 'Inter', 'Roboto', 'Segoe UI', sans-serif;
                    font-size: 11px;
-                   line-height: 1.5;
+                   line-height: 1.6;
                    pointer-events: none;
+
+                   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                   opacity: 0;
+                   transform: scale(0.9) translateY(10px);
+                   display: block !important;
                }
+			   #ks-dynamic-tooltip::before,
+			   #ks-dynamic-tooltip::after {
+			       content: "";
+			       position: absolute;
+			       width: 15px;
+			       height: 15px;
+			       border: 2px solid ${config.themeColor};
+				   border-radius: 2px;
+			       filter: drop-shadow(0 0 5px ${config.themeColor});
+			   }
 			   .ks-tooltip-container:hover .ks-tooltip-box {
                    visibility: visible;
                    opacity: 1;
                    transform: translate(0%);
                }
+               /* Sol Üst Köşe */
+               #ks-dynamic-tooltip::before {
+                   top: 3px;
+                   left: 3px;
+                   border-right: none;
+                   border-bottom: none;
+               }
 
+               /* Sağ Alt Köşe */
+               #ks-dynamic-tooltip::after {
+                   bottom: 3px;
+                   right: 3px;
+                   border-left: none;
+                   border-top: none;
+               }
+			   #ks-dynamic-tooltip.visible::before,
+			   #ks-dynamic-tooltip.visible::after {
+			       animation: cornerPulse 1.5s infinite alternate;
+			   }
+			   @keyframes cornerPulse {
+			       from { opacity: 0.5; filter: drop-shadow(0 0 2px ${config.themeColor}); }
+			       to { opacity: 1; filter: drop-shadow(0 0 8px ${config.themeColor}); }
+			   }
                /* Başlık Renklendirme */
                .ks-tooltip-box strong {
                    color: ${config.themeColor};
@@ -260,7 +303,6 @@
                    margin-bottom: 5px;
                    text-transform: uppercase;
                }
-
                #ks-dynamic-tooltip {
                    width: 230px;
                    background: rgba(25, 25, 27, 0.85);
@@ -467,7 +509,6 @@
         `;
             document.head.appendChild(style);
         }
-
         let currentIP = "IP Alınıyor...";
 		let ipcolor = "orange";
         const scriptVersion = (typeof GM_info !== 'undefined') ? "v" + GM_info.script.version : "v1.0";
@@ -486,21 +527,37 @@
                 kstatus = document.createElement('div');
                 kstatus.id = PANEL_ID;
                 document.body.appendChild(kstatus);
-
                 kstatus.onmouseenter = () => {
                     kstatus.setAttribute('data-hover', 'true');
                     kstatus.style.color = '#fff';
                     kstatus.innerHTML = `
-                    <span style="color:${ipcolor}; font-size:15px; margin-right:5px;">●</span> ${currentIP}<span style="opacity:0.3; margin:0 8px;">|</span>${scriptVersion}<span style="opacity:0.3; margin:0 8px;">|</span>
-                    <span id="ks-settings-btn" style="cursor:pointer; font-size:14px; filter: grayscale(1);">⚙️</span>
-                `;
-
+                        <span style="color:${ipcolor}; font-size:15px; margin-right:5px;">●</span>
+                        <span style="color:inherit;">${currentIP}</span>
+                        <span style="opacity:0.3; margin:0 8px;">|</span>
+                        <span id="ks-version-link" style="
+                            cursor: pointer;
+                            padding: 2px 6px;
+                            border-radius: 4px;
+                            transition: all 0.3s ease;
+                            background: rgba(255, 255, 255, 0);
+                            color: inherit;
+                            font-family: inherit;
+                        " onmouseover="this.style.background='rgba(255, 255, 255, 0.1)'"
+                          onmouseout="this.style.background='rgba(255, 255, 255, 0)'">
+                            ${scriptVersion}
+                        </span>
+                        <span style="opacity:0.3; margin:0 8px;">|</span>
+                        <span id="ks-settings-btn" style="cursor:pointer; font-size:14px; filter: grayscale(1);">⚙️</span>
+                    `;
+                    document.getElementById('ks-version-link').onclick = (e) => {
+                        e.stopPropagation();
+                        window.open(GM_info.script.updateURL, '_blank');
+                    };
                     document.getElementById('ks-settings-btn').onclick = (e) => {
                         e.stopPropagation();
                         openSettingsModal();
                     };
                 };
-
                 kstatus.onmouseleave = () => {
                     kstatus.removeAttribute('data-hover');
                     kstatus.innerHTML = `KS TOOLS`;
@@ -509,7 +566,6 @@
 
             const openSettingsModal = () => {
                 if (document.getElementById('ks-modal-overlay')) return;
-
                 const overlay = document.createElement('div');
                 overlay.id = 'ks-modal-overlay';
                 Object.assign(overlay.style, {
@@ -517,7 +573,6 @@
                     backgroundColor: 'rgba(0,0,0,0.75)', zIndex: '10000000', backdropFilter: 'blur(5px)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center'
                 });
-
                 const modal = document.createElement('div');
                 Object.assign(modal.style, {
                     backgroundColor: '#1a1a1a', padding: '25px', borderRadius: '15px',
@@ -664,7 +719,6 @@
                          filter: brightness(0.9); /* Renk hafifçe koyulaşır */
                      }
                      </style>
-
                      <div id="ks-setting-wrapper">
                          <div class="ks-setting-title">KS Paneli</div>
                          <div class="ks-setting-grid">
@@ -679,8 +733,7 @@
                          </div>
                          <button id="ks-close-modal" class="ks-setting-btn">KAYDET</button>
                      </div>
-
-            `;
+                `;
 
                 overlay.appendChild(modal);
                 document.body.appendChild(overlay);
@@ -698,7 +751,6 @@
                 document.getElementById('ks-opt-11').onchange = (e) => setSetting('KS_NTF', e.target.checked);
                 document.getElementById('ks-close-modal').onclick = () => overlay.remove();
             };
-
             if (!kstatus.hasAttribute('data-hover')) {
                 kstatus.innerHTML = `KS TOOLS`;
             }
@@ -3093,7 +3145,7 @@
                     // Eski flex yapısı yerine 7 kolonlu kesin grid yapısı
                     const btnGroup = document.createElement('div');
                     Object.assign(btnGroup.style, {
-                        display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '3px', width: '100%', boxSizing: 'border-box'
+                        display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '0px', width: 'auto', boxSizing: 'border-box'
                     });
 
                     const buttons = [
@@ -3131,7 +3183,7 @@
                         btn.className = 'ks-btn';
                         btn.type = "button";
                         Object.assign(btn.style, {
-                            width: '100%', fontSize: '9px', padding: '2px 2px', cursor: 'pointer', background: btnData.color, color: 'white', border: 'none', borderRadius: '2px', fontWeight: 'bold',
+                            width: '45px', fontSize: '9px', padding: '2px 2px', cursor: 'pointer', background: btnData.color, color: 'white', border: 'none', borderRadius: '2px', fontWeight: 'bold',
                             boxShadow: '0 1px 3px rgba(0,0,0,0.3), inset 0 -1px 0 rgba(0,0,0,0.2)', transition: 'transform 0.1s, box-shadow 0.1s'
                         });
                         btn.onmousedown = () => {
