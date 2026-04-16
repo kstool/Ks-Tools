@@ -59,7 +59,8 @@ Script, yalnızca ilgili sayfaya girdiğinizde devreye giren "Smart-Trigger" (Ak
 2.  `ks_tools.user.js` dosyasına tıklayarak açın.
 3.  Sağ taraftan **"RAW"** butonuna basarak yükleyici paneline geçin.
 4.  Tampermonkey ekranında **"Yükle"** butonuna basarak kurulumu tamamlayın.
-4.  Desteklenen sitelerden birini açtığınızda **KS TOOLS** paneli otomatik olarak ekranın sağ altında belirecektir.
+5.  Desteklenen sitelerden birini açtığınızda **KS TOOLS** paneli otomatik olarak ekranın sağ altında belirecektir.
+6.  **Dikkat:** Eğer kod çalışmıyor durumda ise tarayıcı eklentilerinden kod-script çalıştırma iznini aktif edin.
 
 ---
 
