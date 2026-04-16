@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KS TOOLS PANEL
 // @namespace    KS_TOOLS_PANEL
-// @version      1.38
+// @version      1.39
 // @license      GPL-3.0
 // @description  OtoHasar Dinamik Form Panel / Parça - Manuel ve Çoklu ekleme / Donanim Panel / SBM Tramer no ayırma ve resim indirme / Wp resim indirme
 // @author       Saygın
@@ -25,10 +25,20 @@
 // ==/UserScript==
 (function () {
     'use strict';
-    const url = unsafeWindow.location.href.toLowerCase();
-    const hedefSiteler = /otohasar|sahibinden|sigorta|sbm|whatsapp/;
+	if (window.top !== window.self) return;
+    const lockKey = 'ks_panel_active_' + location.hostname;
+    if (sessionStorage.getItem(lockKey)) return;
+    sessionStorage.setItem(lockKey, 'true');
+    window.addEventListener('unload', () => sessionStorage.removeItem(lockKey));
+
+    const url = location.href.toLowerCase();
+    const hedefSiteler = /otohasar|sahibinden|sigorta|akcozum2|sbm|whatsapp/;
     const blockedGroups = ["yazdir", "print", "rapor", "ihbar", "dilekce", "fatura", "makbuz", "dekont", "invoice", "receipt", "barcode", "kimlik", "kart"];
-    if (!hedefSiteler.test(url) || blockedGroups.some(word => url.includes(word))) { return; }
+
+    if (!hedefSiteler.test(url) || blockedGroups.some(word => url.includes(word))) {
+        sessionStorage.removeItem(lockKey);
+        return;
+    }
     let config = {
         bottom: '22px', right: '0px', width: '270px', collapsedWidth: '270px',
         themeColor: '#1cb2cd', Color: 'white', borderRadius: '4px', blur: '15px',
@@ -42,6 +52,7 @@
         'otohasar.atlas': '#005596', // Atlas Mavi
         'otohasar.mapfre': '#e00d26', // Mapfre Kırmızı
         'otohasar.akcozum2': '#eb5311', // Aksigorta Turuncu
+		'akcozum2': '#eb5311',
         'otohasar.allianz': '#164481', // Allianz Lacivert
         'otohasar.anadolu': '#005ba4', // Anadolu Mavi
         'otohasar.sompo': '#e20613', // Sompo Kırmızı
@@ -465,43 +476,38 @@
             const setSetting = (key, val) => GM_setValue(key, val);
             if (!kstatus) {
                 kstatus = document.createElement('div');
-                kstatus.id = PANEL_ID;
-                document.body.appendChild(kstatus);
-                kstatus.onmouseenter = () => {
-                    kstatus.setAttribute('data-hover', 'true');
-                    kstatus.style.color = '#fff';
-                    kstatus.innerHTML = `
-                        <span style="color:${ipcolor}; font-size:15px; margin-right:5px;">●</span>
-                        <span style="color:inherit;">${currentIP}</span>
-                        <span style="opacity:0.3; margin:0 8px;">|</span>
-                        <span id="ks-version-link" style="
-                            cursor: pointer;
-                            padding: 2px 6px;
-                            border-radius: ${config.borderRadius};
-                            transition: all 0.3s ease;
-                            background: rgba(255, 255, 255, 0);
-                            color: inherit;
-                            font-family: inherit;
-                        " onmouseover="this.style.background='rgba(255, 255, 255, 0.1)'"
-                          onmouseout="this.style.background='rgba(255, 255, 255, 0)'">
-                            ${scriptVersion}
-                        </span>
-                        <span style="opacity:0.3; margin:0 8px;">|</span>
-                        <span id="ks-settings-btn" style="cursor:pointer; font-size:14px; filter: grayscale(1);">⚙️</span>
-                    `;
-                    document.getElementById('ks-version-link').onclick = (e) => {
-                        e.stopPropagation();
-                        window.open(GM_info.script.updateURL, '_blank');
-                    };
-                    document.getElementById('ks-settings-btn').onclick = (e) => {
-                        e.stopPropagation();
-                        openSettingsModal();
-                    };
-                };
-                kstatus.onmouseleave = () => {
-                    kstatus.removeAttribute('data-hover');
-                    kstatus.innerHTML = `KS TOOLS`;
-                };
+            	kstatus.id = PANEL_ID;
+            	document.body.appendChild(kstatus);
+            	kstatus.onmouseenter = () => {
+            	    kstatus.setAttribute('data-hover', 'true');
+            	    kstatus.style.color = '#fff';
+            	    kstatus.innerHTML = `
+            	        <span style="color:${ipcolor}; font-size:15px; margin-right:5px;">●</span>
+            	        <span style="color:inherit;">${currentIP}</span>
+            	        <span style="opacity:0.3; margin:0 8px;">|</span>
+            	        <span id="ks-version-link" style="color:${config.Color}; cursor:pointer; padding:2px 2px; border-radius:${config.borderRadius}; transition:all 0.3s ease; background:rgba(255,255,255,0); font-family:inherit;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0)'">${scriptVersion}</span>
+            	        <span style="opacity:0.3; margin:0 8px;">|</span>
+            	        <span id="ks-theme-btn" style="color:${config.Color}; cursor:pointer; padding:2px 2px; border-radius:${config.borderRadius}; transition:all 0.3s ease; background:rgba(255,255,255,0);" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0)'">Tema</span>
+            	        <span style="opacity:0.3; margin:0 2px;">|</span>
+            	        <span id="ks-settings-btn" style="cursor:pointer; font-size:14px; filter:grayscale(1);">⚙️</span>
+            	    `;
+            	    document.getElementById('ks-version-link').onclick = (e) => {
+            	        e.stopPropagation();
+            	        window.open(GM_info.script.updateURL, '_blank');
+            	    };
+            	    document.getElementById('ks-theme-btn').onclick = (e) => {
+            	        e.stopPropagation();
+            	        window.open('https://github.com/kstool/KsTools/raw/refs/heads/main/Ks_Tools_Ocean.user.js', '_blank');
+            	    };
+            	    document.getElementById('ks-settings-btn').onclick = (e) => {
+            	        e.stopPropagation();
+            	        openSettingsModal();
+            	    };
+            	};
+            	kstatus.onmouseleave = () => {
+            	    kstatus.removeAttribute('data-hover');
+            	    kstatus.innerHTML = `KS TOOLS`;
+            	};
             }
             const openSettingsModal = () => {
                 if (document.getElementById('ks-modal-overlay')) return;
@@ -1913,7 +1919,6 @@
             contentArea.appendChild(btnCopy);
         }
     }
-    // Hızlı Referans açma Otohasar
     if (KS_SYSTEM && REFERANS && location.href.includes("otohasar") && location.href.includes("talep_yp_giris.php")) {
         config.bottom = "24px";
         config.width = "200px";
@@ -3356,7 +3361,7 @@
         setTimeout(initSbmDownloadPanel, 2000);
     }
     // Sahibinden Ortalama KM Piyasa sorgusu
-    if (KS_SYSTEM && SAHIBINDEN && location.href.includes("sahibinden.com")) {
+    if (KS_SYSTEM && SAHIBINDEN && location.href.includes("sahibinden.com") && !location.pathname.includes("/ilan/") && !location.pathname.includes("/kategori/")) {
         if (!location.search.includes("pagingSize=50")) {
             const url = new URL(location.href);
             url.searchParams.set("pagingSize", "50");
