@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KS TOOLS - Otoanaliz Oceanic Compact
 // @namespace    KS_TOOLS_Otoanaliz_Oceanic
-// @version      1.8
+// @version      1.9
 // @description  Düzeltilmiş, modern, kompakt tema.
 // @author       Saygın
 // @match        *://*/*
@@ -27,10 +27,17 @@ https://i.pinimg.com/originals/7f/ae/97/7fae97b0d62464f833f75a7cce0a9902.gif
         "https://media.tenor.com/2PVH7hArX-0AAAAj/totoro-jumping.gif",
         "https://media.tenor.com/TrrbI6d6Vo0AAAAj/waal-boyss-otw.gif",
         "https://media.tenor.com/7qmbUuWQcqUAAAAj/cute-happy.gif",
-        "https://media.tenor.com/fBl_E-CvxD0AAAAj/glitch-cat.gif",
         "https://media.tenor.com/JW0XaqKXJfsAAAAj/cat-pixelated.gif",
         "https://media.tenor.com/U98uFe-2pN4AAAAj/cute-happy.gif",
-        "https://media.tenor.com/tQThay3xZ-oAAAAj/cat.gif"
+        "https://media.tenor.com/tQThay3xZ-oAAAAj/cat.gif",
+		"https://media.tenor.com/aNf6_OFGr4wAAAAj/cattaiyakikorilakkuma.gif",
+		"https://media.tenor.com/3idD6oxHpcAAAAAj/%E9%BC%A0.gif",
+		"https://media.tenor.com/EA22nY9lDbcAAAAj/penguin-penguin-dancing.gif",
+		"https://media.tenor.com/zTERWK4_wu0AAAAj/png-kitty.gif",
+		"https://media.tenor.com/Zm0_IipQgygAAAAj/we-bare-bears-polar-bear.gif",
+		"https://media.tenor.com/iYiVdYkETtIAAAAj/pixel-pixelart.gif",
+		"https://media.tenor.com/hRvoohhTmWkAAAAj/pixel-frog.gif",
+		"https://media.tenor.com/i9cw1VYmjfAAAAAj/kawaii.gif"
     ];
     const randomUrl = urls[Math.floor(Math.random() * urls.length)];
     const oceanicTheme = `
@@ -319,11 +326,27 @@ https://i.pinimg.com/originals/7f/ae/97/7fae97b0d62464f833f75a7cce0a9902.gif
         input[value="TOPLU FOTOĞRAF EKLE HTML5 (YENİ)"],
         input[value=" ARAÇ DONANIM&TEKNİK BİLGİSİ "],
         input[value="TED. PARÇA LİSTESİ"] {
-            background: linear-gradient(180deg, var(--accent) 0%, #1f442a 100%);
-            color: var(--maim);
-            border: 1px solid var(--accent);
-            box-shadow: 0 2px 5px #293b41, inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            background: var(--accent) !important;
+            color: var(--maim) !important;
+            border: 1px solid var(--accent) !important;
+            box-shadow: 0 2px 5px #293b41, inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+            outline: none !important;
+        }
+
+        input[value="YENİ KAYIT"]:active, input[value="YENİ KAYIT"]:focus,
+        input[value="MOBİL ONARIM"]:active, input[value="MOBİL ONARIM"]:focus,
+        input[value="TEDARİKCİYE GÖNDER"]:active, input[value="TEDARİKCİYE GÖNDER"]:focus,
+        input[value="GÖNDER"]:active, input[value="GÖNDER"]:focus,
+        input[value="Ara"]:active, input[value="Ara"]:focus,
+        input[value="MESAJ GÖNDER"]:active, input[value="MESAJ GÖNDER"]:focus,
+        input[value="TRAMER EVRAKLARI"]:active, input[value="TRAMER EVRAKLARI"]:focus,
+        input[value="SBM BİLGİLERİ"]:active, input[value="SBM BİLGİLERİ"]:focus,
+        input[value="UZMAN RAPORU"]:active, input[value="UZMAN RAPORU"]:focus,
+        input[value="TED. PARÇA LİSTESİ"]:active, input[value="TED. PARÇA LİSTESİ"]:focus {
+            background: black !important;
+            color: var(--maim) !important;
+            box-shadow: 0 2px 5px #293b41, inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
         }
         input[value="İHBAR YAZDIR"] {
             background: linear-gradient(180deg, #434f53 0%, #1f442a 100%);
