@@ -62,6 +62,29 @@ Script, yalnızca ilgili sayfaya girdiğinizde devreye giren "Smart-Trigger" (Ak
 5.  Desteklenen sitelerden birini açtığınızda **KS TOOLS** paneli otomatik olarak ekranın sağ altında belirecektir.
 6.  **Dikkat:** Eğer kod çalışmıyor durumda ise tarayıcı eklentilerinden kod-script çalıştırma iznini aktif edin.
 
+##  Ekran Görüntüleri
+<details>
+<summary><b>Görselleri Görüntülemek İçin Tıklayın</b></summary>
+<br>
+<p align="left">
+  <a href="https://github.com/user-attachments/assets/d361c712-21b0-485b-96b0-a78f26980272" target="_blank">
+    <img src="https://github.com/user-attachments/assets/d361c712-21b0-485b-96b0-a78f26980272" width="180" alt="Ana Panel">
+  </a>
+  <a href="https://github.com/user-attachments/assets/f6813d17-dc7f-42fb-9d79-44de1e6d9bdb" target="_blank">
+    <img src="https://github.com/user-attachments/assets/f6813d17-dc7f-42fb-9d79-44de1e6d9bdb" width="180" alt="Detaylı Analiz">
+  </a>
+  <a href="https://github.com/user-attachments/assets/a98f183b-3ed1-4c58-8613-9c41a9abee19" target="_blank">
+    <img src="https://github.com/user-attachments/assets/a98f183b-3ed1-4c58-8613-9c41a9abee19" width="180" alt="Mobil 1">
+  </a>
+  <a href="https://github.com/user-attachments/assets/4d1976dd-98f2-4b07-a8c5-2786293be160" target="_blank">
+    <img src="https://github.com/user-attachments/assets/4d1976dd-98f2-4b07-a8c5-2786293be160" width="180" alt="Mobil 2">
+  </a>
+  <a href="https://github.com/user-attachments/assets/ffbab9e9-cd28-4a80-83b7-324dc846fb48" target="_blank">
+    <img src="https://github.com/user-attachments/assets/ffbab9e9-cd28-4a80-83b7-324dc846fb48" width="180" alt="Mobil 3">
+  </a>
+</p>
+</details>
+
 ---
 
 ## 🛡️ Gizlilik Notu
