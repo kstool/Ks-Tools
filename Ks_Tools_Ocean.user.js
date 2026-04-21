@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KS TOOLS - Otoanaliz Oceanic Compact
 // @namespace    KS_TOOLS_Otoanaliz_Oceanic
-// @version      1.9
+// @version      1.10
 // @description  Düzeltilmiş, modern, kompakt tema.
 // @author       Saygın
 // @match        *://*/*
@@ -56,9 +56,8 @@ https://i.pinimg.com/originals/7f/ae/97/7fae97b0d62464f833f75a7cce0a9902.gif
             --disabled: #475569;
             --white: var(--maim);
             --fontsize: 12px;
-            --font: 'Inter', 'Segoe UI', sans-serif ;
+            --font: 'Inter', 'Segoe UI', sans-serif;
         }
-
         /* 1. GENEL TEMİZLİK */
         body {
             background-color: var(--bg-body) ;
@@ -309,76 +308,6 @@ https://i.pinimg.com/originals/7f/ae/97/7fae97b0d62464f833f75a7cce0a9902.gif
         tr:has(> .koyubaslik) {
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
         }
-        /* 5.2 ÖZEL AÇIK RENKLİ BUTONLAR (YENİ KAYIT, MOBİL ONARIM, TEDARİK) */
-        input[value="YENİ KAYIT"],
-        input[value="MOBİL ONARIM"],
-        input[value="TEDARİKCİYE GÖNDER"],
-        input[value="  TEDARİKCİYE GÖNDER  "],
-        input[value="  GÖNDER   "],
-        input[value="GÖNDER"],
-        input[value="Ara"],
-        input[value=" Ara "],
-        input[value="MESAJ GÖNDER"],
-        input[value="TRAMER EVRAKLARI"],
-        input[value="SBM BİLGİLERİ"],
-        input[value="UZMAN RAPORU"],
-        input[value="TOPLU EVRAK EKLE HTML5 (YENİ)"],
-        input[value="TOPLU FOTOĞRAF EKLE HTML5 (YENİ)"],
-        input[value=" ARAÇ DONANIM&TEKNİK BİLGİSİ "],
-        input[value="TED. PARÇA LİSTESİ"] {
-            background: var(--accent) !important;
-            color: var(--maim) !important;
-            border: 1px solid var(--accent) !important;
-            box-shadow: 0 2px 5px #293b41, inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
-            outline: none !important;
-        }
-
-        input[value="YENİ KAYIT"]:active, input[value="YENİ KAYIT"]:focus,
-        input[value="MOBİL ONARIM"]:active, input[value="MOBİL ONARIM"]:focus,
-        input[value="TEDARİKCİYE GÖNDER"]:active, input[value="TEDARİKCİYE GÖNDER"]:focus,
-        input[value="GÖNDER"]:active, input[value="GÖNDER"]:focus,
-        input[value="Ara"]:active, input[value="Ara"]:focus,
-        input[value="MESAJ GÖNDER"]:active, input[value="MESAJ GÖNDER"]:focus,
-        input[value="TRAMER EVRAKLARI"]:active, input[value="TRAMER EVRAKLARI"]:focus,
-        input[value="SBM BİLGİLERİ"]:active, input[value="SBM BİLGİLERİ"]:focus,
-        input[value="UZMAN RAPORU"]:active, input[value="UZMAN RAPORU"]:focus,
-        input[value="TED. PARÇA LİSTESİ"]:active, input[value="TED. PARÇA LİSTESİ"]:focus {
-            background: black !important;
-            color: var(--maim) !important;
-            box-shadow: 0 2px 5px #293b41, inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
-        }
-        input[value="İHBAR YAZDIR"] {
-            background: linear-gradient(180deg, #434f53 0%, #1f442a 100%);
-            color: var(--maim);
-            border: 1px solid var(--accent);
-            box-shadow: 0 2px 5px #293b41, inset 0 1px 0 rgba(255, 255, 255, 0.3);
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-        }
-        input, select, textarea, .box01, .select01, .textarea {
-            background-color: var(--primary-light) !important;
-            border: 1px solid var(--border-soft) !important;
-            border-radius: 4px !important;
-            box-sizing: border-box !important;
-            color: var(--texto) !important;
-            outline: none !important;
-            transition: border-color 0.4s ease, box-shadow 0.4s ease, background-color 0.4s ease !important;
-        }
-        input:hover, select:hover, textarea:hover, .box01:hover, .select01:hover {
-            border-color: var(--accent) !important;
-            background-color: var(--maim) !important;
-        }
-        input:focus, select:focus, textarea:focus, .box01:focus, .select01:focus {
-            outline: none !important;
-            border-color: var(--primary) !important;
-            color: var(--texto) !important;
-            box-shadow: 0 0 5px 2px rgba(20, 80, 120, 0.55) !important;
-            background-color: var(--white) !important;
-        }
-        select option {
-            background-color: var(--white) !important;
-            color: var(--texto) !important;
-        }
        /* 7.1 READONLY & DISABLED */
 		input:disabled,
 		select:disabled,
@@ -451,10 +380,36 @@ https://i.pinimg.com/originals/7f/ae/97/7fae97b0d62464f833f75a7cce0a9902.gif
         input[size="85"], .textarea_buyuk, input[name*="YP_"] { min-width: 150px !important; transition: min-width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important; }
         input[size="85"]:focus { min-width: 200px !important; }
 
-        /* 5. BUTONLAR: MODERN & ANİMASYONLU */
-        .buton01, .BUTON01, .BUTON02, .BUTON03, .BUTON06, .BTNKIRMIZI, .BUTON_YESIL, .buton02, .buton03, #SASI_MDL,
-        input[type="submit"], input[type="button"], #btnKaydet1, #btnKaydet2,
+/*************************************************/
+        input, select, textarea, .box01, .select01, .textarea {
+            background-color: var(--primary-light) !important;
+            border: 1px solid var(--border-soft) !important;
+            border-radius: 4px !important;
+            box-sizing: border-box !important;
+            color: var(--texto) !important;
+            outline: none !important;
+            transition: border-color 0.4s ease, box-shadow 0.4s ease, background-color 0.4s ease !important;
+        }
+        input:hover, select:hover, textarea:hover, .box01:hover, .select01:hover {
+            border-color: var(--accent) !important;
+            background-color: var(--maim) !important;
+        }
+        input:focus, select:focus, textarea:focus, .box01:focus, .select01:focus {
+            outline: none !important;
+            border-color: var(--primary) !important;
+            color: var(--texto) !important;
+            box-shadow: 0 0 5px 2px rgba(20, 80, 120, 0.55) !important;
+            background-color: var(--white) !important;
+        }
+        select option {
+            background-color: var(--white) !important;
+            color: var(--texto) !important;
+        }
+		/* 5. BUTONLAR: MODERN & ANİMASYONLU */
+        .buton01, .BUTON01, .BUTON02, .BUTON03, .BUTON06,  .buton02, .buton03, #SASI_MDL,
+        input[type="submit"], input[type="button"],
         input[value="KAYDET"], input[value="Ok"], input[value=" Ok "], input[name="btnALL"] {
+            background: var(--accent) !important;
             height: 22px !important;
             font-size: 10px !important;
             font-weight: 600 !important;
@@ -463,6 +418,7 @@ https://i.pinimg.com/originals/7f/ae/97/7fae97b0d62464f833f75a7cce0a9902.gif
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
+            text-align: center !important;
             cursor: pointer !important;
             position: relative !important;
             outline: none !important;
@@ -473,40 +429,84 @@ https://i.pinimg.com/originals/7f/ae/97/7fae97b0d62464f833f75a7cce0a9902.gif
             text-shadow: 0 1px 1px rgba(0,0,0,0.2) !important;
         }
         /* VARSAYILAN RENKLER */
-        .buton01, .BUTON01, .buton02 { background: var(--primary) !important; }
-        .BTNKIRMIZI, .BUTON02, .BUTON03, .buton03, #btnKaydet1, #btnKaydet2, #SASI_MDL, input[name="btnALL"], input[value="KAYDET"], input[value="Ok"], input[value=" Ok "] { background: linear-gradient(180deg, var(--reddo-light) 0%, var(--reddo) 100%) !important; }
-        .BUTON06, .BUTON_YESIL { background: #27ae60 !important; }
-        /* MAVİ BUTONLAR HOVER */
-        .buton01:hover, .BUTON01:hover, .buton02:hover,
-        input[type="submit"]:not(.BUTON02):not(.BUTON03):not(.buton03):not(.BTNKIRMIZI):not(#btnKaydet1):not(#btnKaydet2):not(.BUTON06):not(.BUTON_YESIL):not(#SASI_MDL):not([name="btnALL"]):hover,
-        input[type="button"]:not(.BUTON02):not(.BUTON03):not(.buton03):not(.BTNKIRMIZI):not(#btnKaydet1):not(#btnKaydet2):not(.BUTON06):not(.BUTON_YESIL):not(#SASI_MDL):not([name="btnALL"]):hover {
-            background: var(--accent) !important;
-            filter: brightness(1.1) !important;
-            transform: translateY(-1px) !important;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4) !important;
-        }
-        /* KIRMIZI BUTONLAR HOVER */
-        .BUTON02:hover, .BUTON03:hover, .buton03:hover, .BTNKIRMIZI:hover, #btnKaydet1:hover, #btnKaydet2:hover, #SASI_MDL:hover, input[name="btnALL"]:hover,
-        input[value="Ok"]:hover, input[value=" Ok "]:hover, input[value="KAYDET"]:hover {
+        a.buton01, div > a.buton01, .BTNKIRMIZI, .BUTON02, .BUTON03, .buton03, #btnKaydet1, #btnKaydet2, #SASI_MDL, #siparisVerButton ,input[name="btnALL"], input[value="KAYDET"], input[value="Ok"], input[value=" Ok "]
+		{ background: linear-gradient(180deg, var(--reddo-light) 0%, var(--reddo) 100%) !important; }
+        .BUTON06, .BUTON_YESIL, input[value="İHBAR YAZDIR"] { background: #27ae60 !important; }
+
+        /* 5.2 ÖZEL AÇIK RENKLİ BUTONLAR (YENİ KAYIT, MOBİL ONARIM, TEDARİK) */
+        input[value="YENİ KAYIT"],
+        input[value="MOBİL ONARIM"],
+        input[value="TEDARİKCİYE GÖNDER"],
+        input[value="  TEDARİKCİYE GÖNDER  "],
+        input[value="  GÖNDER   "],
+        input[value="GÖNDER"],
+        input[value="Ara"],
+        input[value=" Ara "],
+        input[value="MESAJ GÖNDER"],
+        input[value="TRAMER EVRAKLARI"],
+        input[value="SBM BİLGİLERİ"],
+        input[value="UZMAN RAPORU"],
+        input[value="TOPLU EVRAK EKLE HTML5 (YENİ)"],
+        input[value="TOPLU FOTOĞRAF EKLE HTML5 (YENİ)"],
+        input[value=" ARAÇ DONANIM&TEKNİK BİLGİSİ "],
+        input[value="TED. PARÇA LİSTESİ"] {
             background: var(--reddo-light) !important;
-            filter: brightness(1.15) !important;
-            transform: translateY(-1px) !important;
-            box-shadow: 0 4px 8px rgba(208, 15, 15, 0.4) !important;
+            color: var(--maim) !important;
+            border: 1px solid var(--reddo-dark) !important;
+            box-shadow: 0 2px 5px var(--reddo-light)33 !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+            outline: none !important;
+            justify-content: center !important;
+            text-align: center !important;
         }
-        /* YEŞİL BUTONLAR HOVER */
-        .BUTON06:hover, .BUTON_YESIL:hover {
-            background: #2ecc71 !important;
-            filter: brightness(1.1) !important;
-            transform: translateY(-1px) !important;
-            box-shadow: 0 4px 8px rgba(46, 204, 113, 0.4) !important;
+        a.buton01, div > a.buton01, .buton01:hover, .BUTON01:hover, .BUTON02:hover, .BUTON03:hover, .buton03:hover, .BUTON06:hover,
+        .BTNKIRMIZI:hover, .BUTON_YESIL:hover, #SASI_MDL:hover, input[name="btnALL"]:hover,
+        input[type="submit"]:hover, input[type="button"]:hover {
+            transform: translateY(-1px) scale(1.02) !important;
+            filter: brightness(1.05) !important;
         }
-        /* FOCUS & ACTIVE */
-        .buton01:active, .BUTON01:active, .BUTON02:active, .BUTON03:active, .buton03:active, .BUTON06:active, .BTNKIRMIZI:active, .BUTON_YESIL:active, #SASI_MDL:active, input[name="btnALL"]:active {
-            transform: translateY(1.5px) scale(0.96) !important;
-            filter: brightness(0.8) !important;
-            box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.4) !important;
+		a.buton01, input[value="Favorilerileri Ayarlar"] {
+            background: var(--accent, #2c3e50) !important;
+            color: var(--white, #ffffff) !important;
+            border: 1px solid rgba(0, 0, 0, 0.2) !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            text-align: center !important;
+            text-decoration: none !important;
+            line-height: 0.9 !important;
+            white-space: normal !important;
+            word-wrap: break-word !important;
+            overflow: hidden !important;
+            padding: 2px !important;
+            height: 22px !important;
+            font-size: 9px !important;
+            box-sizing: border-box !important;
+            width: 100% !important;
+            height: 22px !important;
+            font-weight: 600 !important;
+            border-radius: 3px !important;
+            text-transform: uppercase !important;
+            transition: all 0.2s ease !important;
+            cursor: pointer !important;
+            box-sizing: border-box !important;
         }
 
+        a.buton01:hover, input[value="Favorilerileri Ayarlar"] {
+            color: var(--white, #ffffff) !important;
+            filter: brightness(1.1) !important;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+            transform: translateY(-1px) !important;
+        }
+
+        a.buton01:active, input[value="Favorilerileri Ayarlar"] {
+            color: var(--white, #ffffff) !important;
+            transform: translateY(1px) !important;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4) !important;
+            filter: brightness(0.9) !important;
+        }
+/*************************************************/
         /* LİNKLER VE ÖZEL DURUMLAR */
         a, .link, .link01, .linkyp, .dosya_menu, .menu {
             color: var(--accent) !important;
@@ -557,6 +557,7 @@ https://i.pinimg.com/originals/7f/ae/97/7fae97b0d62464f833f75a7cce0a9902.gif
             background: linear-gradient(180deg, #ff0000 0%, #b71c1c 100%) !important;
             box-shadow: 0 6px 12px rgba(0,0,0,0.15);
         }
+/*************************************************/
 		/*TEDARİK BÖLÜMÜ*/
         .tm-tedarik-container {
             /*width: 100% !important;
