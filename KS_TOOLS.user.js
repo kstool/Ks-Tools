@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KS TOOLS PANEL
 // @namespace    KS_TOOLS_PANEL
-// @version      1.45
+// @version      1.46
 // @license      GPL-3.0
 // @description  OtoHasar Dinamik Form Panel / Parça - Manuel ve Çoklu ekleme / Donanim Panel / SBM Tramer no ayırma ve resim indirme / Wp resim indirme
 // @author       Saygın
@@ -36,7 +36,7 @@
     const blockedGroups = ["yazdir", "print", "rapor", "ihbar", "dilekce", "fatura", "makbuz", "dekont", "invoice", "receipt", "barcode", "kimlik", "kart"];
     if (!hedefSiteler.test(url) || blockedGroups.some(word => url.includes(word))) { return; }
     let config = {
-        bottom: '22px', right: '0px', width: '270px', collapsedWidth: '270px',
+        bottom: '0px', right: '0px', width: '270px', collapsedWidth: '270px',
         themeColor: '#1cb2cd', Color: 'white', borderRadius: '4px', blur: '15px',
         isCollapsed: false,
         wasDragging: false,
@@ -60,7 +60,7 @@
         'corpussigorta': '#8b5e34', // Quick Sarı (Canlı Ton)
         'otohasar.ray': '#ed1c24', // Ray Sigorta Kırmızı
         'otohasar.bereket': '#04b03d', // Bereket Yeşil
-        'otohasar.hdı': '#007a33', // HDI Yeşil
+        'otohasar.hdi': '#007a33', // HDI Yeşil
         'otohasar.turknippon': '#0054a6', // Türk Nippon Mavi
         'otohasar.unico': '#e30613', // Unico Kırmızı
         'otohasar.doga': '#009640', // Doğa Yeşil
@@ -457,7 +457,7 @@
             #${PANEL_ID} {
                 position: fixed !important;
                 bottom: 0px !important;
-                right: ${config.right} !important;
+                left: 0px !important;
                 padding: 2px 12px !important;
                 background: rgba(10, 10, 10, 0.70) !important;
                 backdrop-filter: blur(${config.blur}) !important;
@@ -465,7 +465,7 @@
                 font-weight: 800 !important;
                 font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
 				z-index: ${Number(config.zIndex) + 9999} !important;
-                transform-origin: bottom right !important;
+                transform-origin: bottom left !important;
                 transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
                 overflow: visible !important;
                 border-radius: 8px !important;
@@ -643,18 +643,18 @@
                     kstatus.setAttribute('data-hover', 'true');
                     kstatus.style.color = '#fff';
                     kstatus.innerHTML = `
-			                        <span style="color:${ipcolor}; font-size:15px; margin-right:5px;">●</span>
-			                        <span style="color:inherit;">${currentIP}</span>
+			                        <span id="ks-settings-btn" style="cursor:pointer; font-size:14px; filter:grayscale(1);">⚙️</span>
 			                        <span style="opacity:0.3; margin:0 8px;">|</span>
 			                        <span id="ks-unlock-btn" style="color:${config.Color}; cursor:pointer; padding:2px 2px; border-radius:${config.borderRadius}; transition:all 0.3s ease;">${isUnlocked ? '🔓' : '🔒'}</span>
+			                        <span style="opacity:0.3; margin:0 2px;">|</span>
+			                        <span style="color:${ipcolor}; font-size:15px; margin-right:5px;">●</span>
+			                        <span style="color:inherit;">${currentIP}</span>
 			                        <span style="opacity:0.3; margin:0 8px;">|</span>
 			                        <span id="ks-version-link" style="color:${config.Color}; cursor:pointer; padding:2px 2px; border-radius:${config.borderRadius}; transition:all 0.3s ease;">${scriptVersion}</span>
 			                        <span style="opacity:0.3; margin:0 8px;">|</span>
 			                        <span id="ks-theme-btn" style="color:${config.Color}; cursor:pointer; padding:2px 2px; border-radius:${config.borderRadius}; transition:all 0.3s ease;">Tema</span>
 			                        <span style="opacity:0.3; margin:0 8px;">|</span>
 			                        <span id="ks-game-btn" style="color:${config.Color}; cursor:pointer; padding:2px 2px; border-radius:${config.borderRadius}; transition:all 0.3s ease;">🐍</span>
-			                        <span style="opacity:0.3; margin:0 2px;">|</span>
-			                        <span id="ks-settings-btn" style="cursor:pointer; font-size:14px; filter:grayscale(1);">⚙️</span>
 			                    `;
                     //document.getElementById('ks-game-btn').onclick = (e) => { e.stopPropagation(); if(typeof toggleGame === 'function') toggleGame(); };
                     document.getElementById('ks-unlock-btn').onclick = (e) => {
@@ -888,7 +888,7 @@
     const BILDIRIM = GM_getValue('KS_NTF', false);
     // Hızlı ve Panel takipli Ön giriş
     if (KS_SYSTEM && ANALIZPANEL && location.href.includes("otohasar") && (location.href.includes("eks_hasar.php") || location.href.includes("eks_hasar_magdur.php"))) {
-        const magdurpanel = location.href.includes("eks_hasar_magdur.php");
+	const magdurpanel = location.href.includes("eks_hasar_magdur.php");
         /* ===== 1. PANEL VE STİL ===== */
         injectStyles(); initPanel();
         const panel = document.getElementById('ks-master-panel');
@@ -916,8 +916,8 @@
             	     </div>
             	 </div>
 			</div>
-			<hr style="border:0; border-top:1px solid #444; margin:2px 0;">
-			<div class="ks-grid-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; width: 100%;">
+    		<hr id="action-divider" style="border:0; border-top:1px solid #444; margin:2px 0;">
+    		<div id="action-section" class="ks-grid-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; width: 100%;">
                 <div class="ks-tooltip-container">
                     <button id="autoSelectBtn" class="ks-btn" style="width:100%; height: 100%;">⚡ Ön Giriş</button>
                     <div class="ks-tooltip-box">
@@ -944,18 +944,16 @@
             	</div>
 			</div>
             `;
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'F2') {
-                    e.preventDefault();
-                    const btn = document.getElementById('btnKaydetYeni') || document.getElementsByName('btnKaydetYeni')[0];
-                    if (btn) { btn.click(); }
-                }
-                if (e.key === 'F4') {
-                    e.preventDefault();
-                    const btn = document.getElementById('autoSelectBtn') || document.getElementsByName('autoSelectBtn')[0];
-                    if (btn) { btn.click(); }
-                }
-            });
+			document.addEventListener('keydown', (e) => {
+			if (e.key === 'F2') {
+            	e.preventDefault();
+            	const btn = document.getElementById('btnKaydetYeni') || document.getElementsByName('btnKaydetYeni')[0];
+        	if (btn && btn.offsetParent !== null) btn.click(); }
+            	if (e.key === 'F4') {
+            	     e.preventDefault();
+            	     const btn = document.getElementById('autoSelectBtn') || document.getElementsByName('autoSelectBtn')[0];
+        		if (btn && btn.offsetParent !== null) btn.click(); }
+            	});
             if (!ANALIZPANEL_pys) {
                 const pysSection = document.getElementById('pys-section');
                 if (pysSection) { pysSection.style.display = 'none'; }
@@ -964,6 +962,12 @@
                 const notSection = document.getElementById('not-section');
                 if (notSection) { notSection.style.display = 'none'; }
             }
+			if (typeof magdurpanel !== 'undefined' && magdurpanel) {
+			    const actionSection = document.getElementById('action-section');
+			    const actionDivider = document.getElementById('action-divider');
+			    if (actionSection) actionSection.style.display = 'none';
+			    if (actionDivider) actionDivider.style.display = 'none';
+			}
             /* ===== 2. YARDIMCI FONKSİYONLAR ===== */
             const $ = (id) => document.getElementById(id) || document.querySelector(`[name="${id}"]`);
             const getValue = (id) => ($(id)?.value || $(id)?.textContent || '').trim();
@@ -2581,9 +2585,8 @@ body.panel-closed {
     // Hızlı Resim girişi
     if (KS_SYSTEM && RESIM && location.href.includes("otohasar") && location.href.includes("multi_file_upload/index.php")) {
         const getSistemAyarlari = () => {
-            config.bottom = "24px";
             config.width = "100px";
-            config.collapsedWidth = "150px";
+            config.collapsedWidth = config.width;
             injectStyles(); initPanel();
             const text = document.body.innerText.toUpperCase();
             const url = location.href.toLowerCase();
