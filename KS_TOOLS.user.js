@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KS TOOLS PANEL
 // @namespace    KS_TOOLS_PANEL
-// @version      1.48
+// @version      1.49
 // @license      GPL-3.0
 // @description  OtoHasar Dinamik Form Panel / Parça - Manuel ve Çoklu ekleme / Donanim Panel / SBM Tramer no ayırma ve resim indirme / Wp resim indirme
 // @author       Saygın
@@ -449,21 +449,20 @@
                     backdrop-filter: blur(${config.blur}) !important;
                     color: white !important;
                     font-family: 'Inter', sans-serif !important;
-                    font-size: 11px !important;
+                    font-size: 12px !important;
                     font-weight: 800 !important;
                     z-index: ${Number(config.zIndex) + 9999} !important;
                     display: flex !important;
                     align-items: center !important;
-                    justify-content: center !important; /* Tam ortalama */
+                    justify-content: center !important;
                     overflow: hidden !important;
                     white-space: nowrap !important;
                     cursor: pointer !important;
                     border-radius: 0px 12px 0px 12px !important;
-                    border: 1px solid ${config.themeColor} !important;
-                    box-shadow: 0px 0px 8px 1px ${config.themeColor}66 !important;
+                    border: 2px solid ${config.themeColor} !important;
+                    box-shadow: 0px 0px 10px 1px ${config.themeColor}66 !important;
                     transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
                     animation: ks-glow-pulse 3s infinite ease-in-out !important;
-                    padding: 0px !important;
                 }
                 /* Hover Durumu */
                 #${PANEL_ID}.active, #${PANEL_ID}:hover {
@@ -500,7 +499,6 @@
             	    backdrop-filter: blur(6px);
             	}
             	#ks2-overlay *, #ks2-overlay *::before, #ks2-overlay *::after {
-            	    box-sizing: border-box;
                 	font-family: 'Rajdhani', 'Share Tech Mono', sans-serif;
             	    -webkit-font-smoothing: antialiased;
             	}
@@ -540,7 +538,7 @@
             	@keyframes ks2-scan { to { transform: translateY(50%); } }
             	/* ── Sidebar ── */
             	#ks2-sidebar {
-            	    width: 215px; flex-shrink: 0;
+            	    width: 250px; flex-shrink: 0;
             	    background: var(--ks2-bg1);
             	    border-right: 1px solid var(--ks2-bd);
             	    display: flex; flex-direction: column;
@@ -553,7 +551,7 @@
             	    background: linear-gradient(180deg,transparent,rgba(0,153,204,0.27),transparent);
             	    pointer-events: none;
             	}
-            	.ks2-brand { padding: 18px 16px 14px; border-bottom: 1px solid var(--ks2-bd); }
+            	.ks2-brand { padding: 10px 4px; border-bottom: 1px solid var(--ks2-bd); }
             	.ks2-brand-hex { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
             	.ks2-brand-diamond {
             	    width: 30px; height: 30px; flex-shrink: 0;
@@ -588,15 +586,15 @@
             	    animation: ks2-pulse 1.5s infinite;
             	}
             	@keyframes ks2-pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
-            	.ks2-nav { padding: 15px 0; flex: 1; overflow-y: auto; font-size: 20px;}
+            	.ks2-nav { padding: 8px; flex: 1; overflow-y: auto; font-size: 20px;}
             	.ks2-nav-sec {
-            	    padding-left: 10px;
+            	    padding-bottom: 10px;
             	    font-family: 'Share Tech Mono', monospace !important;
             	    font-size: 15px; color: var(--ks2-txt2); letter-spacing: 2px;
             	}
             	.ks2-nav-item {
             	    display: flex; align-items: center; gap: 10px;
-            	    padding: 9px 16px; cursor: pointer;
+            	    padding-top: 2px; cursor: pointer;
             	    border-left: 2px solid transparent;
             	    transition: background .15s, border-color .15s;
             	    position: relative;
@@ -618,7 +616,7 @@
             	.ks2-nav-item.ks2-active .ks2-nav-text { color: var(--ks2-cy); }
             	.ks2-nav-count {
             	    font-family: 'Share Tech Mono', monospace !important;
-            	    font-size: 10px; padding: 2px 6px;
+            	    font-size: 12px; padding: 2px 10px;
             	    background: rgba(0,212,255,0.1); color: var(--ks2-cy2);
             	    border: 1px solid var(--ks2-bd2);
             	}
@@ -664,7 +662,7 @@
             	.ks2-sw input:checked + .ks2-sw-track::before { transform: translateX(22px); background: var(--ks2-cy); }
             	/* Content & Sections */
             	.ks2-content {
-            	    flex: 1; overflow-y: auto; padding: 20px;
+            	    flex: 1; overflow-y: auto; padding: 10px;
             	    scrollbar-width: thin; scrollbar-color: var(--ks2-cy) transparent;
             	}
             	.ks2-content::-webkit-scrollbar { width: 3px; }
@@ -672,10 +670,10 @@
             	.ks2-sec-view { display: none; }
             	.ks2-sec-view.ks2-active { display: block; }
             	/* Bulk Buttons */
-            	.ks2-bulk-row { display: flex; gap: 8px; margin-bottom: 12px; }
+            	.ks2-bulk-row { display: flex; margin-bottom: 12px; }
             	.ks2-bulk-btn {
             	    flex: 1; position: relative; cursor: pointer;
-            	    background: transparent; border: none; outline: none;
+            	    background: var(--ks2-bg3); border: none; outline: none;
             	    font-family: 'Share Tech Mono', monospace !important;
             	    font-size: 10px; letter-spacing: 1.5px;
             	    color: var(--ks2-txt2); padding: 9px 0; transition: color .15s;
@@ -700,17 +698,17 @@
             	}
             	.ks2-mod-card::before {
             	    content: ''; position: absolute;
-            	    width: 1px; height: 100%;
-            	    background: var(--ks2-bd2); transition: background .2s;
+            	    bottom:0; width: 100%; height: 2px;
+            	    background: rgba(0,212,255,0.03); transition: background .2s;
             	}
             	.ks2-mod-card.ks2-on::before { background: var(--ks2-cy); }
             	.ks2-mod-card:hover { border-color: var(--ks2-cy2); background: rgba(0,212,255,0.03); }
             	.ks2-mod-card:hover::before { background: var(--ks2-cy); }
             	.ks2-corner { position: absolute; width: 8px; height: 8px; border-color: var(--ks2-cy); border-style: solid; opacity: 0; transition: opacity .2s; }
-            	.ks2-corner-tl { top: 4px; right: 4px; border-width: 1px 0 0 1px; }
+            	.ks2-corner-tl { top: 4px; left: 4px; border-width: 1px 0 0 1px; }
             	.ks2-corner-br { bottom: 4px; right: 4px; border-width: 0 1px 1px 0; }
             	.ks2-mod-card:hover .ks2-corner, .ks2-mod-card.ks2-on .ks2-corner { opacity: 1; }
-            	.ks2-card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 8px; }
+            	.ks2-card-top { display: flex; align-items: flex-start; justify-content: space-between; }
             	.ks2-card-icon {
             	    width: 32px; height: 32px; flex-shrink: 0;
             	    border: 0px solid var(--ks2-bd2);
@@ -733,7 +731,7 @@
             	.ks2-sub-tag {
             	    font-family: 'Share Tech Mono', monospace !important;
             	    font-size: 11px; color: var(--ks2-txt2); letter-spacing: .5px;
-            	    padding-right: 16px; border: 1px solid var(--ks2-bd);
+            	    padding: 2px 8px; border: 1px solid var(--ks2-bd);
             	}
             	/* ── Footer ── */
             	.ks2-footer {
@@ -743,7 +741,7 @@
             	    display: flex; align-items: center; justify-content: space-between;
             	}
             	.ks2-footer-stats { display: flex; align-items: center; gap: 26px; }
-            	.ks2-stat-val { font-family: 'Share Tech Mono', monospace !important; font-size: 16px; color: var(--ks2-cy); font-weight: 700; line-height: 1; }
+            	.ks2-stat-val { text-align:center; font-family: 'Share Tech Mono', monospace !important; font-size: 18px; color: var(--ks2-cy); font-weight: 700; line-height: 1.2; }
             	.ks2-stat-lbl { font-size: 11px; color: var(--ks2-txt2); letter-spacing: .5px; margin-top: 2px; }
             	.ks2-stat-divider { width: 1px; height: 28px; background: var(--ks2-bd2); }
             	.ks2-footer-btns { display: flex; gap: 10px; align-items: center; }
@@ -839,14 +837,6 @@
 				    display: block !important;
 				    width: calc(100% - 12px);
 				}
-
-				/* Footer'daki etiketleri de aynı hizaya çekmek için */
-				.ks2-card-footer {
-				    padding-left: 12px !important;
-				    border-top: 1px solid rgba(255, 255, 255, 0.05);
-				    margin-top: 8px;
-				    padding-top: 6px;
-				}
             `;
             document.head.appendChild(style);
         	}
@@ -928,11 +918,7 @@
                     hidePanelTip();
                     const tip = document.getElementById('ks-dynamic-tooltip');
                     if (tip) { tip.style.opacity = '0'; }
-                    hideTimeout = setTimeout(() => {
-                        kstatus.classList.remove('active');
-                        kstatus.innerHTML = `<span>KS</span>`;
-                        hideTimeout = null;
-                    }, 1000);
+                    hideTimeout = setTimeout(() => { kstatus.classList.remove('active'); kstatus.innerHTML = `<span>KS</span>`; hideTimeout = null; }, 1500);
                 };
                 kstatus.onmouseenter = () => {
                     if (hideTimeout) { clearTimeout(hideTimeout); hideTimeout = null; }
@@ -942,44 +928,44 @@
 			// ── Veri Tanımları ─────────────────────────────────────────────────
 			const SECTIONS = [
 			    {
-			        id: 'dosya', title: 'OTOANALİZ DOSYA PANELİ', icon: '📁', label: 'Dosya Paneli',
+			        id: 'dosya', title: 'OTOANALİZ DOSYA PANELİ', icon: '📁', label: 'Otoanaliz Dosya Paneli',
 			        items: [
 			            { key: 'KS_PANEL', icon: '📊', title: 'Giriş Kontrol', desc: 'Poliçe rücu pert piyasa izleme', sub: false },
-			            { key: 'KS_PANEL_hlt', icon: '🔦', title: 'Hücre Boyama', desc: 'Boş alan renklendirme', sub: false },
 			            { key: 'KS_PANEL_pol', icon: '📋', title: 'Poliçe Kontrol', desc: 'Tarih + geçerlilik denetimi', sub: true },
-			            { key: 'KS_PANEL_sgs', icon: '🛡️', title: 'Sigorta Şekli', desc: 'Trafik / Kasko durumu', sub: true },
+			            { key: 'KS_PANEL_sgs', icon: '🛡️', title: 'Sigorta Şekli', desc: 'Trafik / Kasko göstergesi', sub: true },
 			            { key: 'KS_PANEL_rc', icon: '↩️', title: 'Rücu Takibi', desc: 'Rücu durum göstergesi', sub: true },
-			            { key: 'KS_PANEL_pert', icon: '🚗', title: 'Pert Kontrolü', desc: 'Pert durum izleme', sub: true },
+			            { key: 'KS_PANEL_pert', icon: '🚗', title: 'Pert Kontrolü', desc: 'Pert durum göstergesi', sub: true },
 			            { key: 'KS_PANEL_hsr', icon: '💥', title: 'Hasar Şekli', desc: 'Hasar tipi bilgisi', sub: true },
-			            { key: 'KS_PANEL_srtp', icon: '🔧', title: 'Servis Tipi', desc: 'Servis durum gösterimi', sub: true },
+			            { key: 'KS_PANEL_srtp', icon: '🔧', title: 'Servis Tipi', desc: 'Servis yetki bilgisi', sub: true },
 			            { key: 'KS_PANEL_srad', icon: '🏭', title: 'Servis Adı', desc: 'Servis adı bilgisi', sub: true },
-			            { key: 'KS_PANEL_tra', icon: '📈', title: 'Tramer', desc: 'Tramer değer göstergesi', sub: true },
-			            { key: 'KS_PANEL_sad', icon: '👤', title: 'Sigortalı Adı', desc: 'Ad soyad değeri', sub: true },
+			            { key: 'KS_PANEL_tra', icon: '📈', title: 'Tramer', desc: 'Tramer değer bilgisi', sub: true },
+			            { key: 'KS_PANEL_sad', icon: '👤', title: 'Sigortalı Adı', desc: 'Ad soyad bilgisi', sub: true },
 			            { key: 'KS_PANEL_aad', icon: '🚙', title: 'Araç Model', desc: 'Model bilgisi', sub: true },
-			            { key: 'KS_PANEL_mull', icon: '💰', title: 'Muallak', desc: 'Muallak değer izleme', sub: true },
-			            { key: 'KS_PANEL_ryc', icon: '🏷️', title: 'Piyasa Rayiç', desc: 'Piyasa değer gösterimi', sub: true },
-			            { key: 'KS_PANEL_rycorn', icon: '⚠️', title: 'Rayiç Pert Oran', desc: '%30 %60 eşik uyarıları', sub: true },
+			            { key: 'KS_PANEL_mull', icon: '💰', title: 'Muallak', desc: 'Muallak değer bilgisi', sub: true },
+			            { key: 'KS_PANEL_ryc', icon: '🏷️', title: 'Piyasa Rayiç', desc: 'Piyasa değer bilgisi', sub: true },
+			            { key: 'KS_PANEL_rycorn', icon: '⚠️', title: 'Rayiç Pert Oran', desc: '%30 ve %60 eşik oranlarını takip etmeyi sağlayan yüzdelik bar', sub: true },
 			            { key: 'KS_PANEL_pys', icon: '🌐', title: 'Piyasa Kontrol', desc: 'Dış kaynak veri çekimi', sub: true },
 			            { key: 'KS_PANEL_not', icon: '📝', title: 'Notlar', desc: 'Panel not bölümü', sub: true },
-			            { key: 'KS_MANU', icon: '🔩', title: 'Manuel Parça', desc: 'Tekli çoklu parça girişi', sub: false },
-			            { key: 'KS_REF', icon: '📌', title: 'Referans Panel', desc: 'Excel copy paste desteği', sub: false },
-			            { key: 'KS_DNM', icon: '⚙️', title: 'Donanım Girişi', desc: 'Araç donanım eşleme', sub: false },
-			            { key: 'KS_IMG', icon: '🖼️', title: 'Resim Yükleme', desc: 'Toplu evrak kategorisi', sub: false },
 			        ]
 			    },
 			    {
-			        id: 'ek', title: 'EK MODÜLLER', icon: '⚙️', label: 'Ek Modüller',
+			        id: 'ek', title: 'OTOANALİZ EK MODÜLLER', icon: '⚙️', label: 'Otoanaliz Ek Modüller',
 			        items: [
+			            { key: 'KS_PANEL_hlt', icon: '🔦', title: 'Hücre Boyama', desc: 'Eksik-Boş alan renklendirme', sub: false },
+			            { key: 'KS_MANU', icon: '🔩', title: 'Manuel Parça', desc: 'Tekli-Çoklu parça girişi panelleri', sub: false },
+			            { key: 'KS_REF', icon: '📌', title: 'Referans Panel', desc: 'Excel ile kopyalama yapıştırma fonksiyon butonları', sub: false },
+			            { key: 'KS_DNM', icon: '⚙️', title: 'Donanım Girişi', desc: 'Araç donanımı hızlı giriş butonları', sub: false },
+			            { key: 'KS_IMG', icon: '🖼️', title: 'Resim Yükleme', desc: 'Toplu evrak kategorisi', sub: false },
 			            { key: 'KS_NTF', icon: '🔕', title: 'Bildirim Engel', desc: '3+ tekrarlı popup engeli', sub: false },
 			        ]
 			    },
 			    {
-			        id: 'dis', title: 'DIŞ ENTEGRASYONLAR', icon: '📡', label: 'Entegrasyonlar',
+			        id: 'dis', title: 'DIŞ ENTEGRASYONLAR', icon: '📡', label: 'Dış Entegrasyonlar',
 			        items: [
-			            { key: 'KS_TRS', icon: '🛡️', title: 'Türkiye Sigorta', desc: 'Yan menü form otomasyonu', sub: false },
-			            { key: 'KS_SAHIB', icon: '🏷️', title: 'Sahibinden', desc: 'KM fiyat piyasa analizi', sub: false },
-			            { key: 'KS_SBM', icon: '🏦', title: 'SBM Panel', desc: 'Tramer bölme KTT sorgu', sub: false },
-			            { key: 'KS_WP', icon: '💬', title: 'WhatsApp', desc: 'Medya çift tık indirme', sub: false },
+			            { key: 'KS_TRS', icon: '🛡️', title: 'Türkiye Sigorta', desc: 'Yan menü liste ve hızlı girişler', sub: false },
+			            { key: 'KS_SAHIB', icon: '🏷️', title: 'Sahibinden', desc: 'Fiyat ortalaması gösteren panel', sub: false },
+			            { key: 'KS_SBM', icon: '🏦', title: 'SBM Panel', desc: "Tramer no'nun 3'lü bölünmüş halini gösteren panel", sub: false },
+			            { key: 'KS_WP', icon: '💬', title: 'WhatsApp', desc: 'Resimlere çift tıklama hızlı indirme', sub: false },
 			        ]
 			    }
 			];
