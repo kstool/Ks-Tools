@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KS TOOLS PANEL
 // @namespace    KS_TOOLS_PANEL
-// @version      1.49
+// @version      1.50
 // @license      GPL-3.0
 // @description  OtoHasar Dinamik Form Panel / Parça - Manuel ve Çoklu ekleme / Donanim Panel / SBM Tramer no ayırma ve resim indirme / Wp resim indirme
 // @author       Saygın
@@ -24,17 +24,27 @@
 (function () {
     'use strict';
     /* ---Eklenecekler
+
+		*** paneller düzenlenecek; genişlikleri, kaydırma oranı, görünümü vs.
+
+		sağ üste danseden doge
+
         Gerekli evrak gösteren panel - duruma bağlı
         Veriyi sayfalar arası taşıma - aynı adres kökünde
         Resim okuma gelişimi - isme göre
-        Ek tasarım şekilleri */
+        Ek tasarım şekilleri
+		genel sigorta sayfası giriş destekleri ~türkiye sigorta, quick
+		oto seçtirici sistem gelişmiş versiyon
+
+		*/
     const url = location.href.toLowerCase();
     const hedefSiteler = /otohasar|sahibinden|sigorta|anadolusigorta|akcozum2|sbm|whatsapp/;
     const blockedGroups = ["yazdir", "print", "rapor", "ihbar", "dilekce", "fatura", "makbuz", "dekont", "invoice", "receipt", "barcode", "kimlik", "kart"];
     if (!hedefSiteler.test(url) || blockedGroups.some(word => url.includes(word))) { return; }
     let config = {
-        bottom: '0px', right: '0px', width: '270px', collapsedWidth: '270px',
+        bottom: '0px', right: '0px', width: '250px',
         themeColor: '#1cb2cd', Color: 'white', borderRadius: '4px', blur: '15px',
+		backColor:'#3d3e41',
         isCollapsed: false, wasDragging: false, zIndex: 3169999
     };
     const getSetting = (key) => GM_getValue(key, true);
@@ -64,336 +74,349 @@
     const matchedKey = Object.keys(themes).find(key => url.includes(key));
     if (matchedKey) config.themeColor = themes[matchedKey];
     const injectStyles = () => {
+        if (document.getElementById('ks-dynamic-styles')) return;
         const style = document.createElement('style');
         style.id = 'ks-dynamic-styles';
         style.innerHTML = `
-				@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap');
-				.ks-draggable-panel {
-                    position: fixed !important;
-                    bottom: ${config.bottom};
-                    right: ${config.right};
-                    width: ${config.width};
-					min-width: ${config.width};
-                    /*background: rgba(25, 25, 27, 0.75);*/
-					background-image: linear-gradient(180deg, rgba(15,15,15,0.65), rgba(15,15,15,0.65));
-					backdrop-filter: blur(${config.blur});
-					-webkit-backdrop-filter: blur(${config.blur}) saturate(180%);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-					border-radius: ${config.borderRadius};
-                    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-					z-index: ${config.zIndex};
-					color: ${config.Color};
-                	font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
-                    overflow: hidden;
-                    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), height 0.3s ease;
-                    user-select: none;
-                    display: flex;
-                    flex-direction: column;
-                    min-height: min-content;
-                    max-height: 90vh;
-                }
-                .ks-dragging {
-                    transition: none !important;
-                }
-				.ks-draggable-panel {
-                    resize: both;
-                    overflow: auto;
-					transition: opacity 0.2s ease;
-                }
-                /* Küçülmüş Mod (Collapsed) */
-                .ks-draggable-panel.collapsed {
-					resize: none;
-                    width: ${config.collapsedWidth};
-				    min-width: ${config.collapsedWidth};
-                    height: auto !important;
-                    overflow: hidden !important;
-                }
-				.ks-draggable-panel:hover {
-				    background: rgba(25, 25, 25, 0.75);
-				    border-color: rgba(255, 255, 255, 0.2);
-				    box-shadow: 0 8px 15px rgba(0,0,0,0.6);
-                    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), height 0.3s ease;
-				}
-               .ks-header {
-			   	   background: rgba(25, 25, 27, 0.85);
-                   padding: 5px;
-                   background: rgba(255, 255, 255, 0.03);
-                   cursor: hand;
-                   display: flex;
-                   justify-content: space-between;
-                   align-items: center;
-                   border-bottom: 2px solid ${config.themeColor}44;
-                   box-shadow: inset 0 1px 10px rgba(0, 0, 0, 0.2);
-                   transition: background 0.3s ease;
-               }
-               .ks-header:hover {
-                   background: rgba(255, 255, 255, 0.1);
-                   color: ${config.themeColor};
-                   text-shadow:
-                       0 0 4px ${config.themeColor},
-                       0 0 14px ${config.themeColor};
-                   filter: brightness(1.2);
-               }
-               .ks-header h4 {
-                   margin: 0;
-                   font-size: 12px;
-                   color: color-mix(in srgb, ${config.themeColor}, white 30%) !important;
-                   pointer-events: none;
-                   font-weight: 800;
-                   text-transform: uppercase;
-                   letter-spacing: 1px;
-                   text-shadow: 0 1px 4px rgba(0,0,0,0.5) !important;
-               }
-               /* İçerik Alanı */
-               .ks-content {
-                   padding: 4px;
-                   gap: 2px;
-				   flex: 1;
-                   display: flex;
-                   flex-direction: column;
-                   color: ${config.Color};
-                   transition: opacity 0.2s;
-                   width: 100% !important;
-                   max-width: 100%;
-                   box-sizing: border-box;
-                   overflow-x: hidden;
-                   word-wrap: break-word;
-               }
-               .ks-content * {
-                   max-width: 100% !important;
-                   box-sizing: border-box !important;
-               }
-               .ks-draggable-panel.collapsed .ks-content {
-                   opacity: 0;
-                   pointer-events: none;
-               }
-               /* Modern Butonlar */
-               .ks-btn {
-                   background: ${config.themeColor};
-                   color: white !important;
-                   border: none;
-                   padding: 4px;
-                   border-radius: ${config.borderRadius};
-                   font-weight: bold;
-                   cursor: pointer;
-                   font-size: 12px;
-                   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-				   outline: none;
-               }
-               .ks-btn:hover {
-                   filter: brightness(1.1);
-                   transform: translateY(-2px);
-                   text-shadow: 0 0 5px rgba(255,255,255,0.5);
-                   box-shadow: 0 6px 12px ${config.themeColor}66;
-				   }
-               .ks-btn:active {
-                   transform: translateY(1px);
-                   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-               }
-               /* Kırmızı Neon Buton */
-               .ks-btn-danger {
-                   background: #ff4d4d !important;
-                   color: white !important;
-                   border: none;
-                   padding: 6px;
-                   border-radius: ${config.borderRadius};
-                   font-weight: bold;
-                   cursor: pointer;
-                   font-size: 12px;
-                   transition: all 0.2s ease;
-                   box-shadow: 0 0 5px #ff4d4d;
-               }
-               .ks-btn-danger:hover {
-                   filter: brightness(1.2);
-                   box-shadow: 0 0 10px #ff4d4d,
-                               0 0 20px #ff4d4d,
-                               0 0 30px #ff1a1a !important;
-                   text-shadow: 0 0 5px rgba(255,255,255,0.5);
-               }
-               .ks-btn-danger:active {
-                   filter: brightness(1.1);
-                   transform: translateY(-2px);
-                   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-               }
-               #shb-res-box { font-size: 13px; color: white; margin: 2px 0 2px 0; text-align: center; }
-               @keyframes neonPulse {
-            		0%, 100% { box-shadow: 0 0 5px ${config.themeColor}66; }
-            		50% { box-shadow: 0 0 15px ${config.themeColor}AA; }
-               }
-               .ks-tooltip-container {
-                    position: relative;
-                    display: inline-block;
-               }
-               .ks-tooltip-box {
-                   display: none !important;
-                   border-color: ${config.themeColor};
-               }
-               #ks-dynamic-tooltip {
-                   position: fixed;
-                   z-index: ${Number(config.zIndex) + 100000};
-                   width: 230px;
-                   padding: 10px 14px;
-                   background: rgba(15, 15, 18, 0.75);
-                   color: #f0f0f0;
-               	font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
-                   font-size: 11px;
-                   line-height: 1.5;
-                   border-radius: ${config.borderRadius};
-                   border: 2px solid ${config.themeColor};
-                   backdrop-filter: blur(10px);
-                   -webkit-backdrop-filter: blur(10px);
-                   box-shadow: 0 0 30px rgba(15, 15, 15, 0.5);
-                   pointer-events: none;
-                   opacity: 0;
-                   visibility: hidden;
-                   transition: opacity 0.2s ease, transform 0.2s ease;
-               }
-               #ks-dynamic-tooltip.visible {
-                   opacity: 1;
-                   visibility: visible;
-                   animation: neonPulse 3s infinite ease-in-out;
-               }
-               #ks-dynamic-tooltip::before {
-                   content: "";
-                   position: absolute;
-                   inset: -2px;
-                   border-radius: inherit;
-                   z-index: -1;
-                   box-shadow: 0 0 15px rgba(255, 255, 255, 0.7);
-                   opacity: 0.6;
-               }
-               #ks-dynamic-tooltip strong {
-                   align-items: center;
-                   text-align: center;
-                   color: inherit;
-                   filter: brightness(1.7);
-                   font-size: 12px;
-                   display: block;
-                   margin-bottom: 4px;
-                   text-transform: uppercase;
-                   font-weight: 800;
-                   letter-spacing: 0.5px;
-               }
-               @keyframes neonPulse {
-                   0%, 100% { filter: brightness(0.9); }
-                   50% { filter: brightness(1.3); }
-               }
-               .ks-tooltip-box { display: none !important; }
-            `;
+            @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+            body { transition: margin-right 0.4s cubic-bezier(0.4,0,0.2,1) !important; }
+            body.ks-panel-open { margin-right: ${config.width}; overflow-x: hidden !important; }
+            /* ── Panel ── */
+            .ks-draggable-panel {
+                position: fixed !important;
+                top: 0 !important; right: 0 !important; bottom: 0 !important;
+                width: ${config.width};
+                height: 100vh !important;
+                background: ${config.backColor};
+                border-left: 1px solid ${config.themeColor}33;
+                display: flex; flex-direction: column;
+                overflow: hidden;
+                z-index: ${config.zIndex};
+                transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+                transform: translateX(0);
+                resize: none !important;
+                user-select: none;
+            }
+            .ks-draggable-panel::before {
+                content: '';
+                position: absolute; top: 0; left: 0; right: 0; height: 2px;
+                background: ${config.backColor}33;
+                z-index: 5; pointer-events: none;
+                animation: ks-pulse 2.5s ease-in-out infinite;
+            }
+            .ks-draggable-panel::after {
+                content: '';
+                position: absolute; top: 3px; left: 0;
+                width: 12px; height: 12px;
+                border-top: 1px solid ${config.themeColor};
+                border-left: 1px solid ${config.themeColor};
+                z-index: 5; pointer-events: none;
+            }
+            .ks-draggable-panel.collapsed {
+                transform: translateX(${config.width});
+            }
+            @keyframes ks-pulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
+            @keyframes ks-scan  { to{transform:translateY(50%)} }
+            @keyframes ksBlink  { 0%,100%{opacity:1} 50%{opacity:0.3} }
+            .ks-scanline {
+                position: absolute; inset: 0;
+                pointer-events: none; overflow: hidden; z-index: 0;
+            }
+            .ks-scanline::after {
+                content: '';
+                position: absolute; top: -100%; left: 0; width: 100%; height: 200%;
+                background: repeating-linear-gradient(
+                    0deg, transparent, transparent 3px,
+                    ${config.themeColor}08 3px, ${config.themeColor}08 4px
+                );
+                animation: ks-scan 10s linear infinite;
+            }
+            .ks-corner-br {
+                position: absolute; bottom: 8px; right: 8px;
+                width: 10px; height: 10px;
+                border-bottom: 1px solid ${config.themeColor}33;
+                border-right: 1px solid ${config.themeColor}33;
+                pointer-events: none; z-index: 2;
+            }
+            /* ── Toggle ── */
+            #ks-panel-toggle {
+                position: fixed !important;
+				right: ${config.width};
+                top: 50% !important;
+                transform: translateY(-50%) !important;
+                width: 22px !important;
+                height: 54px !important;
+                background: ${config.backColor} !important;
+                border: 1px solid ${config.themeColor}44 !important;
+                border-right: none !important;
+                border-radius: 6px 0 0 6px !important;
+                cursor: pointer !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 4px !important;
+                z-index: ${Number(config.zIndex) + 10} !important;
+                transition: right 0.4s cubic-bezier(0.4,0,0.2,1),
+                            background 0.2s ease !important;
+            }
+            #ks-panel-toggle:hover { background: ${config.themeColor}80 !important; }
+            .ks-tbar {
+                width: 9px; height: 1.5px;
+                background: white;
+                display: block;
+                transition: transform 0.3s ease, opacity 0.3s ease, width 0.3s ease;
+            }
+            #ks-panel-toggle.ks-closed .ks-tbar:nth-child(1) { transform: translateY(2.5px) rotate(-45deg); }
+            #ks-panel-toggle.ks-closed .ks-tbar:nth-child(2) { opacity: 0; width: 0; }
+            #ks-panel-toggle.ks-closed .ks-tbar:nth-child(3) { transform: translateY(-2.5px) rotate(45deg); }
+            /* ── Header ── */
+            .ks-header {
+                display: flex; align-items: center;
+                flex-shrink: 0; padding: 8px 10px;
+                border-bottom: 1px solid ${config.themeColor}1a;
+                background: #1e1f24;
+                cursor: pointer; z-index: 2; gap: 8px;
+            }
+            .ks-header:hover { background: #22252b; }
+            .ks-title-diamond {
+                width: 7px; height: 7px;
+                background: ${config.themeColor};
+                transform: rotate(45deg); flex-shrink: 0;
+                animation: ks-pulse 2.5s ease-in-out infinite;
+            }
+            .ks-title-wrap { display: flex; flex-direction: column; flex: 1; }
+            .ks-title-text {
+                font-family: 'Share Tech Mono', monospace !important;
+                font-size: 10px; font-weight: 700;
+                color: ${config.themeColor};
+                letter-spacing: 2px; text-transform: uppercase;
+                line-height: 1.2; pointer-events: none;
+            }
+            .ks-title-sub {
+                font-family: 'Share Tech Mono', monospace !important;
+                font-size: 8px; color: ${config.themeColor}55;
+                letter-spacing: 1.5px; text-transform: uppercase;
+                pointer-events: none;
+            }
+            .ks-header-ver {
+                font-family: 'Share Tech Mono', monospace !important;
+                font-size: 9px; color: ${config.themeColor}44;
+                border: 1px solid ${config.themeColor}1a;
+                padding: 1px 4px; letter-spacing: 1px; flex-shrink: 0;
+            }
+            /* ── İçerik ── */
+            .ks-content {
+                flex: 1; overflow-y: auto; overflow-x: hidden;
+                padding: 6px; display: flex; flex-direction: column; gap: 4px;
+                color: ${config.Color}; box-sizing: border-box;
+                position: relative; z-index: 1;
+                scrollbar-width: thin;
+                scrollbar-color: ${config.themeColor}33 transparent;
+            }
+            .ks-content::-webkit-scrollbar { width: 2px; }
+            .ks-content::-webkit-scrollbar-thumb { background: ${config.themeColor}44; }
+            .ks-content * { max-width: 100% !important; box-sizing: border-box !important; }
+            /* ── Butonlar ── */
+            .ks-btn {
+                background: #0c5e9dd9;
+                color: white !important;
+                border: 1px solid ${config.themeColor};
+                padding: 5px 6px;
+                font-family: 'Share Tech Mono', monospace !important;
+                font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+                cursor: pointer; text-transform: uppercase;
+                transition: all 0.15s ease; outline: none; width: 100%;
+                height: 100%;
+            }
+            .ks-btn:hover {
+                background: ${config.themeColor}30; color: #fff !important;
+                border-color: ${config.themeColor}77;
+            }
+            .ks-btn:active { transform: translateY(1px); }
+            .ks-btn-danger {
+                background: #d61111cf !important;
+                color: #ffffff !important;
+                border: 1px solid rgba(220,50,50,0.3) !important;
+                padding: 5px 6px;
+                font-family: 'Share Tech Mono', monospace !important;
+                font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+                cursor: pointer; text-transform: uppercase;
+                transition: all 0.15s ease; outline: none; width: 100%;
+            }
+            .ks-btn-danger:hover {
+                background: rgba(220,50,50,0.22) !important; color: #fff !important;
+                border-color: rgba(220,50,50,0.6) !important;
+            }
+            .ks-btn-danger:active { transform: translateY(1px); }
+            .ks-divider { border: none; border-top: 1px solid ${config.themeColor}10; margin: 3px 0; flex-shrink: 0; }
+            .ks-grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; width: 100%; }
+            #panelContent table td { font-family: 'Share Tech Mono', monospace !important; font-size: 11px; }
+            #shb-res-box { font-size: 11px; color: ${config.Color}; margin: 2px 0; text-align: center; }
+            #page-note-input {
+                font-family: 'Share Tech Mono', monospace !important;
+                background: #22252b !important; color: #ccc !important;
+                border: 1px solid ${config.themeColor}1a !important;
+                border-left: 2px solid ${config.themeColor}55 !important;
+                outline: none !important; resize: vertical !important; font-size: 11px !important;
+            }
+            #page-note-input:focus {
+                border-color: ${config.themeColor}44 !important;
+                border-left-color: ${config.themeColor} !important;
+            }
+            /* ── Tooltip ── */
+            .ks-tooltip-container { position: relative; display: block; width: 100%; }
+            .ks-tooltip-box { display: none !important; }
+            #ks-dynamic-tooltip {
+                position: fixed;
+                z-index: ${Number(config.zIndex) + 100000};
+                max-width: 220px;
+                padding: 0;
+                background: #17181be6;
+                border: 1px solid ${config.themeColor};
+                border-left: 2px solid ${config.themeColor};
+                color: #fff;
+                font-family: 'Share Tech Mono', monospace !important;
+                font-size: 12px; line-height: 1.2;
+                pointer-events: none;
+                opacity: 0; visibility: hidden;
+                transition: opacity 0.15s ease;
+                box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            }
+            #ks-dynamic-tooltip.visible { opacity: 1; visibility: visible; }
+            #ks-dynamic-tooltip .ks-tip-head {
+                padding: 6px 10px 5px;
+                border-bottom: 1px solid ${config.themeColor};
+                background: ${config.themeColor}0f;
+            }
+            #ks-dynamic-tooltip .ks-tip-head strong {
+                display: block;
+                color: color-mix(in srgb, ${config.themeColor}, white 80%);
+				filter: brightness(1.3);
+                font-size: 13px; font-weight: 800;
+                text-transform: uppercase; letter-spacing: 1.3px;
+            }
+            #ks-dynamic-tooltip .ks-tip-body {
+                padding: 7px 10px 8px;
+                font-size: 11px; color: #a8b4c0;
+            }
+        `;
         document.head.appendChild(style);
     };
+
     const initPanel = () => {
+        if (document.getElementById('ks-master-panel')) return;
+
+        const bodyStyle = `body.ks-panel-open {
+        margin-right: ${config.width};
+        overflow-x: hidden !important;
+        transition: margin-right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    	}`;
+    	injectStyles(bodyStyle);
+
+        const isCollapsedSaved = localStorage.getItem('ks-panel-collapsed') === 'true';
+
         const panel = document.createElement('div');
         panel.className = 'ks-draggable-panel';
         panel.id = 'ks-master-panel';
-        const isCollapsedSaved = localStorage.getItem('ks-panel-collapsed') === 'true';
-        panel.innerHTML = `<div class="ks-content" id="ks-content" style="display: ${isCollapsedSaved ? 'none' : 'block'}">Loading...</div>
-	    <div class="ks-header" id="ks-header" style="border-top: 1px solid #333; border-bottom: none;"><h4>PANEL</h4> <span style="font-size: 10px; opacity: 0.5;">${isCollapsedSaved ? '▲' : '▼'}</span></div>`;
-        if (isCollapsedSaved) panel.classList.add('collapsed');
+
+        const scriptVersion = (typeof GM_info !== 'undefined') ? 'v' + GM_info.script.version : 'v1.0';
+
+        panel.innerHTML = `
+            <div class="ks-scanline"></div>
+            <div class="ks-corner-br"></div>
+            <div class="ks-header" id="ks-header">
+                <div class="ks-title-diamond"></div>
+                <div class="ks-title-wrap">
+                    <span class="ks-title-text" id="ks-panel-title">KS TOOLS</span>
+                    <span class="ks-title-sub" id="ks-panel-subtitle">PANEL</span>
+                </div>
+                <span class="ks-header-ver">${scriptVersion}</span>
+            </div>
+            <div class="ks-content" id="ks-content">Yükleniyor...</div>
+        `;
+
+        const toggleBtn = document.createElement('div');
+        toggleBtn.id = 'ks-panel-toggle';
+        toggleBtn.title = 'Paneli Aç / Kapat';
+        toggleBtn.innerHTML = `
+            <span class="ks-tbar"></span>
+            <span class="ks-tbar"></span>
+            <span class="ks-tbar"></span>
+        `;
+
         document.body.appendChild(panel);
-        const content = document.getElementById('ks-content');
-        const header = document.getElementById('ks-header');
-        const icon = header.querySelector('span');
-        const safeConfig = (typeof config !== 'undefined') ? config : { bottom: '20px', right: '20px' };
-        let state = { isDragging: false, startX: 0, startY: 0, offsetX: 0, offsetY: 0, dragThreshold: 5 };
-        const setTransition = (t) => { panel.style.transition = t };
-        const startDragging = (e) => {
-            state.isDragging = true;
-            panel.dataset.wasDragging = 'false';
-            state.startX = e.clientX;
-            state.startY = e.clientY;
-            const rect = panel.getBoundingClientRect();
-            state.offsetX = e.clientX - rect.left;
-            state.offsetY = e.clientY - rect.top;
-            setTransition('none');
-            header.style.cursor = 'grabbing';
+        document.body.appendChild(toggleBtn);
+
+        const applyState = (collapsed) => {
+            panel.classList.toggle('collapsed', collapsed);
+            toggleBtn.classList.toggle('ks-closed', collapsed);
+            document.body.classList.toggle('ks-panel-open', !collapsed);
+            /* toggle right: panel açıkken panel genişliği, kapalıyken 0 */
+            toggleBtn.style.right = collapsed ? '0px' : config.width;
+            localStorage.setItem('ks-panel-collapsed', String(collapsed));
         };
-        const onMouseMove = (e) => {
-            if (!state.isDragging) return;
-            const moveX = e.clientX - state.startX;
-            const moveY = e.clientY - state.startY;
-            if (Math.hypot(moveX, moveY) > state.dragThreshold) {
-                panel.dataset.wasDragging = 'true';
-                panel.style.left = `${e.clientX - state.offsetX}px`;
-                panel.style.top = `${e.clientY - state.offsetY}px`;
-                panel.style.right = 'auto';
-                panel.style.bottom = 'auto';
-            }
-        };
-        const onMouseUp = () => {
-            if (!state.isDragging) return;
-            state.isDragging = false;
-            setTransition('width 0.3s ease, height 0.3s ease');
-            setTimeout(() => { panel.dataset.wasDragging = 'false'; }, 200);
-        };
-        // --- B. KÜÇÜLTME/BÜYÜTME ---
-        header.addEventListener('click', () => {
-            if (panel.dataset.wasDragging === 'true') return;
-            const isCollapsed = panel.classList.toggle('collapsed');
-            icon.innerText = isCollapsed ? '▲' : '▼';
-            content.style.display = isCollapsed ? 'none' : 'block';
-            localStorage.setItem('ks-panel-collapsed', isCollapsed);
+
+        applyState(isCollapsedSaved);
+
+        toggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            applyState(!panel.classList.contains('collapsed'));
         });
-        // --- C. YERİNE GERİ DÖNME ---
-        panel.addEventListener('dblclick', (e) => {
-            e.preventDefault();
-            const rect = panel.getBoundingClientRect();
-            panel.style.transition = 'none';
-            panel.style.left = `${rect.left}px`;
-            panel.style.top = `${rect.top}px`;
-            panel.style.right = 'auto';
-            panel.style.bottom = 'auto';
-            requestAnimationFrame(() => {
-                setTransition('all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)');
-                panel.style.left = `${window.innerWidth - panel.offsetWidth - parseInt(safeConfig.right)}px`;
-                panel.style.top = `${window.innerHeight - panel.offsetHeight - parseInt(safeConfig.bottom)}px`;
-                setTimeout(() => {
-                    setTransition('none');
-                    panel.style.top = 'auto';
-                    panel.style.left = 'auto';
-                    panel.style.right = safeConfig.right;
-                    panel.style.bottom = safeConfig.bottom;
-                    panel.dataset.wasDragging = 'false';
-                    setTimeout(() => { setTransition('width 0.3s ease, height 0.3s ease'); }, 50);
-                }, 550);
-            });
+
+        document.getElementById('ks-header').addEventListener('click', () => {
+            applyState(!panel.classList.contains('collapsed'));
         });
-        header.addEventListener('mousedown', startDragging);
-        content.addEventListener('mousedown', startDragging);
-        document.addEventListener('mousemove', onMouseMove);
-        document.addEventListener('mouseup', onMouseUp);
     };
+
+    /* ── Tooltip sistemi — .ks-tooltip-box içindeki HTML'i okur ── */
     const tooltip = document.createElement('div');
     tooltip.id = 'ks-dynamic-tooltip';
     document.body.appendChild(tooltip);
+
     document.addEventListener('mouseover', (e) => {
         const container = e.target.closest('.ks-tooltip-container');
-        if (container) {
-            const box = container.querySelector('.ks-tooltip-box');
-            if (box) {
-                tooltip.innerHTML = box.innerHTML;
-                tooltip.classList.add('visible');
-                const color = getComputedStyle(box).borderColor;
-                tooltip.style.borderColor = color;
-                const strong = tooltip.querySelector('strong');
-                if (strong) strong.style.color = color;
-            }
-        }
+        if (!container) return;
+        const box = container.querySelector('.ks-tooltip-box');
+        if (!box) return;
+
+        /* İçeriği strong (başlık) + geri kalan (gövde) olarak ayır */
+        const rawHTML = box.innerHTML.trim();
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = rawHTML;
+        const strongEl = tempDiv.querySelector('strong');
+        const headText = strongEl ? strongEl.outerHTML : '';
+        if (strongEl) strongEl.remove();
+        const bodyText = tempDiv.innerHTML.trim();
+
+        tooltip.innerHTML = `
+            <div class="ks-tip-head">${headText}</div>
+            <div class="ks-tip-body">${bodyText}</div>
+        `;
+
+        /* Rengi data-tip-color veya themeColor'dan al */
+        const tipColor = container.dataset.tipColor || config.themeColor;
+        tooltip.style.borderLeftColor = tipColor;
+        tooltip.style.borderColor = tipColor + '44';
+        tooltip.style.borderLeftColor = tipColor;
+        const head = tooltip.querySelector('.ks-tip-head strong');
+        if (head) head.style.color = tipColor;
+
+        tooltip.classList.add('visible');
     });
+
     document.addEventListener('mousemove', (e) => {
         if (!tooltip.classList.contains('visible')) return;
-        const gap = 15;
-        const { clientX: x, clientY: y } = e;
-        const { offsetWidth: tw, offsetHeight: th } = tooltip;
-        const { innerWidth: winW, innerHeight: winH } = window;
-        let left = Math.max(10, Math.min(x - tw / 2, winW - tw - 10));
-        let top = y - th - gap;
-        if (top < 10) {
-            top = y + gap; tooltip.style.transform = 'translateY(5px)';
-        } else { tooltip.style.transform = 'translateY(0)'; }
-        tooltip.style.left = `${left}px`;
-        tooltip.style.top = `${top}px`;
+        const gap = 16;
+        const tw = tooltip.offsetWidth;
+        const th = tooltip.offsetHeight;
+        let left = Math.max(8, Math.min(e.clientX - tw / 2, window.innerWidth - tw - 8));
+        let top = e.clientY - th - gap;
+        if (top < 8) top = e.clientY + gap;
+        tooltip.style.left = left + 'px';
+        tooltip.style.top = top + 'px';
     });
+
     document.addEventListener('mouseout', (e) => {
         if (e.target.closest('.ks-tooltip-container')) {
             tooltip.classList.remove('visible');
@@ -930,7 +953,7 @@
 			    {
 			        id: 'dosya', title: 'OTOANALİZ DOSYA PANELİ', icon: '📁', label: 'Otoanaliz Dosya Paneli',
 			        items: [
-			            { key: 'KS_PANEL', icon: '📊', title: 'Giriş Kontrol', desc: 'Poliçe rücu pert piyasa izleme', sub: false },
+			            { key: 'KS_PANEL', icon: '📊', title: 'Yan Panel', desc: 'Genel Dosya durumunu gösteren panel', sub: false },
 			            { key: 'KS_PANEL_pol', icon: '📋', title: 'Poliçe Kontrol', desc: 'Tarih + geçerlilik denetimi', sub: true },
 			            { key: 'KS_PANEL_sgs', icon: '🛡️', title: 'Sigorta Şekli', desc: 'Trafik / Kasko göstergesi', sub: true },
 			            { key: 'KS_PANEL_rc', icon: '↩️', title: 'Rücu Takibi', desc: 'Rücu durum göstergesi', sub: true },
@@ -2063,7 +2086,7 @@
     }
     // Hızlı Referans açma Otohasar
     if (KS_SYSTEM && REFERANS && location.href.includes("otohasar") && location.href.includes("eks_hasar_yp_list_yp_talep.php")) {
-        let wdt ="200px"; config.width = wdt; config.collapsedWidth = wdt;
+        config.width = '200px';
         initPanel();
         const panel = document.getElementById('ks-master-panel');
         const panelContent = panel ? panel.querySelector('.ks-content') : null;
@@ -2173,7 +2196,7 @@
         }
     }
     if (KS_SYSTEM && REFERANS && location.href.includes("otohasar") && location.href.includes("talep_yp_giris.php")) {
-        let wdt ="200px"; config.width = wdt; config.collapsedWidth = wdt;
+        config.width = '200px';
         initPanel();
         const panel = document.getElementById('ks-master-panel');
         const panelContent = panel ? panel.querySelector('.ks-content') : null;
@@ -2252,7 +2275,7 @@
         }
     }
     if (KS_SYSTEM && REFERANS && location.href.includes("otohasar") && location.href.includes("talep_yp_ayrinti.php")) {
-        let wdt ="150px"; config.width = wdt; config.collapsedWidth = wdt;
+        config.width = '150px';
         initPanel();
         const panel = document.getElementById('ks-master-panel');
         if (panel) {
@@ -2342,8 +2365,8 @@
             /* Kapatma / Açma Butonu (Toggle) */
             #tm-toggle {
                 position: fixed;
-                top: 20px;
                 right: calc(var(--toggle-loc) + 15px);
+                top: 20px;
                 width: 40px;
                 height: 50px;
                 background: var(--panel-bg);
@@ -2780,7 +2803,7 @@
     }
     // Hızlı Çoklu Parça girişi
     if (KS_SYSTEM && MANUEL && location.href.includes("otohasar") && location.href.includes("eks_hasar_yedpar_multi.php") && !location.href.includes("eks_hasar_yedpar_multi_form.php")) {
-        let wdt ="180px"; config.width = wdt; config.collapsedWidth = wdt;
+        config.width = '180px';
         initPanel();
         const panel = document.getElementById('ks-master-panel');
         const panelContent = panel ? panel.querySelector('.ks-content') : null;
@@ -2897,7 +2920,7 @@
     // Hızlı Resim girişi
     if (KS_SYSTEM && RESIM && location.href.includes("otohasar") && location.href.includes("multi_file_upload/index.php")) {
         const getSistemAyarlari = () => {
-            let wdt ="100px"; config.width = wdt; config.collapsedWidth = wdt;
+            config.width = '100px';
             initPanel();
             const text = document.body.innerText.toUpperCase();
             const url = location.href.toLowerCase();
@@ -3043,8 +3066,8 @@
         function initGeneralPanel() {
             const panel = document.getElementById('ks-master-panel');
             if (!panel) return;
-            panel.style.setProperty('width', config.width, 'important');
-            panel.style.setProperty('min-width', config.width, 'important');
+            panel.style.setProperty('width', config.width);
+            panel.style.setProperty('min-width', config.width);
             const panelContent = panel.querySelector('.ks-content');
             const headerTitle = panel.querySelector('.ks-header h4');
             if (headerTitle) headerTitle.innerText = "Resim Seçme";
@@ -3235,9 +3258,14 @@
     }
     // Resim yükleme kontrolü
     if (KS_SYSTEM && RESIM && location.href.includes("otohasar") && location.href.includes("eks_hasar_evrak_foto_list.php")) {
-        let wdt ="150px"; config.width = wdt; config.collapsedWidth = wdt;
+        config.width = '150px';
         initPanel();
         const panel = document.getElementById('ks-master-panel');
+        if (!panel) return;
+        panel.style.setProperty('width', config.width);
+        panel.style.setProperty('min-width', config.width);
+		// bi sorun var ama yakalayamadım nedense
+		if (document.body.classList.contains('ks-panel-open')) { document.body.style.marginRight = config.width; }
         const panelContent = panel ? panel.querySelector('.ks-content') : null;
         if (panel && panelContent) {
             const headerTitle = panel.querySelector('.ks-header h4');
@@ -3278,7 +3306,8 @@
                     bgColor = 'rgba(255,193,7,0.15)';
                     textColor = '#ffe082';
                 }
-                div.style.cssText = `padding:4px 5px; border-radius:4px; font-size:11px; font-weight:600; text-align:center; transition: all 0.3s; border-right: 4px solid ${borderColor}; background:${bgColor}; color:${textColor}; margin-bottom:2px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);`;
+                div.style.cssText = `padding:4px 5px; border-radius:4px; font-size:11px; font-weight:600; text-align:center;
+				transition: all 0.3s; border-right: 4px solid ${borderColor}; background:${bgColor}; color:${textColor}; margin-bottom:2px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);`;
                 div.innerText = (ok ? "" : "⚠ ") + text.toUpperCase();//ok ? "✓ " : "⚠ "
                 if (isMain && ok) { statusHeader.innerText = text.toUpperCase(); statusHeader.style.color = "#28a745"; }
                 return div;
@@ -3678,7 +3707,7 @@
             url.searchParams.set("pagingSize", "50");
             location.replace(url.href);
         }
-        let wdt ="200px"; config.width = wdt; config.collapsedWidth = wdt;
+        config.width = '200px';
         initPanel();
         const contentArea = document.querySelector('.ks-content');
         let lastState = "";
