@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KS TOOLS PANEL
 // @namespace    KS_TOOLS_PANEL
-// @version      1.50
+// @version      1.51
 // @license      GPL-3.0
 // @description  OtoHasar Dinamik Form Panel / Parça - Manuel ve Çoklu ekleme / Donanim Panel / SBM Tramer no ayırma ve resim indirme / Wp resim indirme
 // @author       Saygın
@@ -25,18 +25,18 @@
     'use strict';
     /* ---Eklenecekler
 
-		*** paneller düzenlenecek; genişlikleri, kaydırma oranı, görünümü vs.
+        *** paneller düzenlenecek; genişlikleri, kaydırma oranı, görünümü vs.
 
-		sağ üste danseden doge
+        sağ üste danseden doge
 
         Gerekli evrak gösteren panel - duruma bağlı
         Veriyi sayfalar arası taşıma - aynı adres kökünde
         Resim okuma gelişimi - isme göre
         Ek tasarım şekilleri
-		genel sigorta sayfası giriş destekleri ~türkiye sigorta, quick
-		oto seçtirici sistem gelişmiş versiyon
+        genel sigorta sayfası giriş destekleri ~türkiye sigorta, quick
+        oto seçtirici sistem gelişmiş versiyon
 
-		*/
+        */
     const url = location.href.toLowerCase();
     const hedefSiteler = /otohasar|sahibinden|sigorta|anadolusigorta|akcozum2|sbm|whatsapp/;
     const blockedGroups = ["yazdir", "print", "rapor", "ihbar", "dilekce", "fatura", "makbuz", "dekont", "invoice", "receipt", "barcode", "kimlik", "kart"];
@@ -44,8 +44,7 @@
     let config = {
         bottom: '0px', right: '0px', width: '250px',
         themeColor: '#1cb2cd', Color: 'white', borderRadius: '4px', blur: '15px',
-		backColor:'#3d3e41',
-        isCollapsed: false, wasDragging: false, zIndex: 3169999
+        backColor: '#3d3e41', isCollapsed: false, wasDragging: false, zIndex: 3169999
     };
     const getSetting = (key) => GM_getValue(key, true);
     const setSetting = (key, val) => GM_setValue(key, val);
@@ -78,7 +77,8 @@
         const style = document.createElement('style');
         style.id = 'ks-dynamic-styles';
         style.innerHTML = `
-            @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;700&display=swap');
+            :root { --fontier: 'Exo 2', sans-serif !important; }
             body { transition: margin-right 0.4s cubic-bezier(0.4,0,0.2,1) !important; }
             body.ks-panel-open { margin-right: ${config.width}; overflow-x: hidden !important; }
             /* ── Panel ── */
@@ -86,9 +86,10 @@
                 position: fixed !important;
                 top: 0 !important; right: 0 !important; bottom: 0 !important;
                 width: ${config.width};
-                height: 100vh !important;
+                height: 100% !important;
                 background: ${config.backColor};
                 border-left: 1px solid ${config.themeColor}33;
+                box-shadow: 0px 0px 10px 2px ${config.themeColor}66 !important;
                 display: flex; flex-direction: column;
                 overflow: hidden;
                 z-index: ${config.zIndex};
@@ -97,6 +98,7 @@
                 resize: none !important;
                 user-select: none;
             }
+            .ks-draggable-panel:hover,.ks-draggable-panel:active { background: color-mix(in srgb, ${config.backColor}, white 2%) !important; }
             .ks-draggable-panel::before {
                 content: '';
                 position: absolute; top: 0; left: 0; right: 0; height: 2px;
@@ -118,6 +120,21 @@
             @keyframes ks-pulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
             @keyframes ks-scan  { to{transform:translateY(50%)} }
             @keyframes ksBlink  { 0%,100%{opacity:1} 50%{opacity:0.3} }
+			.custom-line {
+			    border: 0;
+			    height: 1px;
+			    margin: 5px auto;
+			    display: block;
+			    width: 80%;
+			    background: linear-gradient(90deg, #1a1a1a 0%, ${config.backColor} 40%, #1a1a1a 50%, ${config.backColor} 60%, #1a1a1a 100%);
+			    background-size: 200% 100%;
+			    animation: neonFlowslide 1.5s linear infinite;
+			    box-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+			}
+			@keyframes neonFlowslide {
+			    0% { background-position: 200% 0%; }
+			    100% { background-position: 0% 0%; }
+			}
             .ks-scanline {
                 position: absolute; inset: 0;
                 pointer-events: none; overflow: hidden; z-index: 0;
@@ -125,10 +142,7 @@
             .ks-scanline::after {
                 content: '';
                 position: absolute; top: -100%; left: 0; width: 100%; height: 200%;
-                background: repeating-linear-gradient(
-                    0deg, transparent, transparent 3px,
-                    ${config.themeColor}08 3px, ${config.themeColor}08 4px
-                );
+                background: repeating-linear-gradient( 0deg, transparent, transparent 3px, ${config.themeColor}08 3px, ${config.themeColor}08 4px );
                 animation: ks-scan 10s linear infinite;
             }
             .ks-corner-br {
@@ -147,20 +161,21 @@
                 width: 22px !important;
                 height: 54px !important;
                 background: ${config.backColor} !important;
-                border: 1px solid ${config.themeColor}44 !important;
+                border: 1px solid ${config.themeColor} !important;
                 border-right: none !important;
                 border-radius: 6px 0 0 6px !important;
+                box-shadow: 0px 0px 10px 2px ${config.themeColor}66 !important;
                 cursor: pointer !important;
                 display: flex !important;
                 flex-direction: column !important;
                 align-items: center !important;
                 justify-content: center !important;
                 gap: 4px !important;
-                z-index: ${Number(config.zIndex) + 10} !important;
+                z-index: ${Number(config.zIndex) - 10} !important;
                 transition: right 0.4s cubic-bezier(0.4,0,0.2,1),
                             background 0.2s ease !important;
             }
-            #ks-panel-toggle:hover { background: ${config.themeColor}80 !important; }
+            #ks-panel-toggle:hover { background: ${config.themeColor}80 !important; box-shadow: 0px 0px 5px 2px ${config.themeColor}66 !important;}
             .ks-tbar {
                 width: 9px; height: 1.5px;
                 background: white;
@@ -174,35 +189,36 @@
             .ks-header {
                 display: flex; align-items: center;
                 flex-shrink: 0; padding: 8px 10px;
-                border-bottom: 1px solid ${config.themeColor}1a;
-                background: #1e1f24;
-                cursor: pointer; z-index: 2; gap: 8px;
+                border-bottom: 1px solid ${config.themeColor};
+                background: #383838;
+                cursor: pointer; z-index: 2; gap: 12px;
+				filter: brightness(1.3); font-weight: 700;
             }
-            .ks-header:hover { background: #22252b; }
+            .ks-header:hover { background: white; }
             .ks-title-diamond {
-                width: 7px; height: 7px;
+                width: 12px; height: 12px;
                 background: ${config.themeColor};
                 transform: rotate(45deg); flex-shrink: 0;
                 animation: ks-pulse 2.5s ease-in-out infinite;
             }
             .ks-title-wrap { display: flex; flex-direction: column; flex: 1; }
             .ks-title-text {
-                font-family: 'Share Tech Mono', monospace !important;
-                font-size: 10px; font-weight: 700;
+                font-family: var(--fontier);
+                font-size: 12px; font-weight: 700;
                 color: ${config.themeColor};
                 letter-spacing: 2px; text-transform: uppercase;
-                line-height: 1.2; pointer-events: none;
+                pointer-events: none;
             }
             .ks-title-sub {
-                font-family: 'Share Tech Mono', monospace !important;
-                font-size: 8px; color: ${config.themeColor}55;
+                font-family: var(--fontier);
+                font-size: 10px; color: ${config.themeColor};
                 letter-spacing: 1.5px; text-transform: uppercase;
                 pointer-events: none;
             }
             .ks-header-ver {
-                font-family: 'Share Tech Mono', monospace !important;
-                font-size: 9px; color: ${config.themeColor}44;
-                border: 1px solid ${config.themeColor}1a;
+                font-family: var(--fontier);
+                font-size: 11px; color: ${config.themeColor};
+                border: 1px solid ${config.themeColor};
                 padding: 1px 4px; letter-spacing: 1px; flex-shrink: 0;
             }
             /* ── İçerik ── */
@@ -223,7 +239,7 @@
                 color: white !important;
                 border: 1px solid ${config.themeColor};
                 padding: 5px 6px;
-                font-family: 'Share Tech Mono', monospace !important;
+                font-family: var(--fontier);
                 font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
                 cursor: pointer; text-transform: uppercase;
                 transition: all 0.15s ease; outline: none; width: 100%;
@@ -239,7 +255,7 @@
                 color: #ffffff !important;
                 border: 1px solid rgba(220,50,50,0.3) !important;
                 padding: 5px 6px;
-                font-family: 'Share Tech Mono', monospace !important;
+                font-family: var(--fontier);
                 font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
                 cursor: pointer; text-transform: uppercase;
                 transition: all 0.15s ease; outline: none; width: 100%;
@@ -251,10 +267,10 @@
             .ks-btn-danger:active { transform: translateY(1px); }
             .ks-divider { border: none; border-top: 1px solid ${config.themeColor}10; margin: 3px 0; flex-shrink: 0; }
             .ks-grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; width: 100%; }
-            #panelContent table td { font-family: 'Share Tech Mono', monospace !important; font-size: 11px; }
+            #panelContent table td { font-family: var(--fontier); font-size: 11px; }
             #shb-res-box { font-size: 11px; color: ${config.Color}; margin: 2px 0; text-align: center; }
             #page-note-input {
-                font-family: 'Share Tech Mono', monospace !important;
+                font-family: var(--fontier);
                 background: #22252b !important; color: #ccc !important;
                 border: 1px solid ${config.themeColor}1a !important;
                 border-left: 2px solid ${config.themeColor}55 !important;
@@ -276,7 +292,7 @@
                 border: 1px solid ${config.themeColor};
                 border-left: 2px solid ${config.themeColor};
                 color: #fff;
-                font-family: 'Share Tech Mono', monospace !important;
+                font-family: var(--fontier);
                 font-size: 12px; line-height: 1.2;
                 pointer-events: none;
                 opacity: 0; visibility: hidden;
@@ -303,25 +319,19 @@
         `;
         document.head.appendChild(style);
     };
-
     const initPanel = () => {
         if (document.getElementById('ks-master-panel')) return;
-
         const bodyStyle = `body.ks-panel-open {
         margin-right: ${config.width};
         overflow-x: hidden !important;
         transition: margin-right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     	}`;
-    	injectStyles(bodyStyle);
-
+        injectStyles(bodyStyle);
         const isCollapsedSaved = localStorage.getItem('ks-panel-collapsed') === 'true';
-
         const panel = document.createElement('div');
         panel.className = 'ks-draggable-panel';
         panel.id = 'ks-master-panel';
-
         const scriptVersion = (typeof GM_info !== 'undefined') ? 'v' + GM_info.script.version : 'v1.0';
-
         panel.innerHTML = `
             <div class="ks-scanline"></div>
             <div class="ks-corner-br"></div>
@@ -335,7 +345,6 @@
             </div>
             <div class="ks-content" id="ks-content">Yükleniyor...</div>
         `;
-
         const toggleBtn = document.createElement('div');
         toggleBtn.id = 'ks-panel-toggle';
         toggleBtn.title = 'Paneli Aç / Kapat';
@@ -344,10 +353,8 @@
             <span class="ks-tbar"></span>
             <span class="ks-tbar"></span>
         `;
-
         document.body.appendChild(panel);
         document.body.appendChild(toggleBtn);
-
         const applyState = (collapsed) => {
             panel.classList.toggle('collapsed', collapsed);
             toggleBtn.classList.toggle('ks-closed', collapsed);
@@ -356,30 +363,24 @@
             toggleBtn.style.right = collapsed ? '0px' : config.width;
             localStorage.setItem('ks-panel-collapsed', String(collapsed));
         };
-
         applyState(isCollapsedSaved);
-
         toggleBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             applyState(!panel.classList.contains('collapsed'));
         });
-
         document.getElementById('ks-header').addEventListener('click', () => {
-            applyState(!panel.classList.contains('collapsed'));
+            //applyState(!panel.classList.contains('collapsed'));
         });
     };
-
     /* ── Tooltip sistemi — .ks-tooltip-box içindeki HTML'i okur ── */
     const tooltip = document.createElement('div');
     tooltip.id = 'ks-dynamic-tooltip';
     document.body.appendChild(tooltip);
-
     document.addEventListener('mouseover', (e) => {
         const container = e.target.closest('.ks-tooltip-container');
         if (!container) return;
         const box = container.querySelector('.ks-tooltip-box');
         if (!box) return;
-
         /* İçeriği strong (başlık) + geri kalan (gövde) olarak ayır */
         const rawHTML = box.innerHTML.trim();
         const tempDiv = document.createElement('div');
@@ -388,12 +389,10 @@
         const headText = strongEl ? strongEl.outerHTML : '';
         if (strongEl) strongEl.remove();
         const bodyText = tempDiv.innerHTML.trim();
-
         tooltip.innerHTML = `
             <div class="ks-tip-head">${headText}</div>
             <div class="ks-tip-body">${bodyText}</div>
         `;
-
         /* Rengi data-tip-color veya themeColor'dan al */
         const tipColor = container.dataset.tipColor || config.themeColor;
         tooltip.style.borderLeftColor = tipColor;
@@ -401,10 +400,8 @@
         tooltip.style.borderLeftColor = tipColor;
         const head = tooltip.querySelector('.ks-tip-head strong');
         if (head) head.style.color = tipColor;
-
         tooltip.classList.add('visible');
     });
-
     document.addEventListener('mousemove', (e) => {
         if (!tooltip.classList.contains('visible')) return;
         const gap = 16;
@@ -416,7 +413,6 @@
         tooltip.style.left = left + 'px';
         tooltip.style.top = top + 'px';
     });
-
     document.addEventListener('mouseout', (e) => {
         if (e.target.closest('.ks-tooltip-container')) {
             tooltip.classList.remove('visible');
@@ -449,16 +445,16 @@
     const SUCCESS_COLOR = '#00ff88';
     const PANEL_ID = 'ks-global-status-indicator';
     if (window.self === window.top) {
-		const injectFonts = () => {
-        if (document.getElementById('ks2-fonts')) return;
-        const link = document.createElement('link');
-        link.id = 'ks2-fonts';
-        link.rel = 'stylesheet';
-        link.href = 'https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap';
-        document.head.appendChild(link);
-    };
+        const injectFonts = () => {
+            if (document.getElementById('ks2-fonts')) return;
+            const link = document.createElement('link');
+            link.id = 'ks2-fonts';
+            link.rel = 'stylesheet';
+            link.href = 'https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap';
+            document.head.appendChild(link);
+        };
         if (!document.getElementById(PANEL_ID + '-style')) {
-			injectFonts();
+            injectFonts();
             const style = document.createElement("style");
             style.id = PANEL_ID + '-style';
             style.innerText = `
@@ -471,7 +467,7 @@
                     background: rgba(10, 10, 10, 0.60) !important;
                     backdrop-filter: blur(${config.blur}) !important;
                     color: white !important;
-                    font-family: 'Inter', sans-serif !important;
+                    font-family: var(--fontier);
                     font-size: 12px !important;
                     font-weight: 800 !important;
                     z-index: ${Number(config.zIndex) + 9999} !important;
@@ -522,7 +518,7 @@
             	    backdrop-filter: blur(6px);
             	}
             	#ks2-overlay *, #ks2-overlay *::before, #ks2-overlay *::after {
-                	font-family: 'Rajdhani', 'Share Tech Mono', sans-serif;
+                	font-family: var(--fontier);
             	    -webkit-font-smoothing: antialiased;
             	}
             	#ks2-root {
@@ -584,11 +580,11 @@
             	}
             	.ks2-brand-diamond-inner { width: 10px; height: 10px; background: var(--ks2-cy); }
             	.ks2-brand-title {
-            	    font-family: 'Share Tech Mono', monospace !important;
+            	    font-family: var(--fontier);
             	    font-size: 13px; color: var(--ks2-cy); letter-spacing: 2px; line-height: 1.2;
             	}
             	.ks2-brand-sub {
-            	    font-family: 'Share Tech Mono', monospace !important;
+            	    font-family: var(--fontier);
             	    font-size: 14px; color: var(--ks2-txt2); letter-spacing: 2px;
             	}
             	.ks2-sys-row {
@@ -596,12 +592,12 @@
             	    padding-top: 15px; border-top: 1px solid var(--ks2-bd);
             	}
             	.ks2-sys-lbl {
-            	    font-family: 'Share Tech Mono', monospace !important;
+            	    font-family: var(--fontier);
             	    font-size: 9px; color: var(--ks2-txt3); letter-spacing: 1px;
             	}
             	.ks2-sys-on {
             	    display: flex; align-items: center; gap: 5px;
-            	    font-family: 'Share Tech Mono', monospace !important;
+            	    font-family: var(--fontier);
             	    font-size: 10px; color: var(--ks2-cy3);
             	}
             	.ks2-pulse {
@@ -612,7 +608,7 @@
             	.ks2-nav { padding: 8px; flex: 1; overflow-y: auto; font-size: 20px;}
             	.ks2-nav-sec {
             	    padding-bottom: 10px;
-            	    font-family: 'Share Tech Mono', monospace !important;
+            	    font-family: var(--fontier);
             	    font-size: 15px; color: var(--ks2-txt2); letter-spacing: 2px;
             	}
             	.ks2-nav-item {
@@ -638,7 +634,7 @@
             	.ks2-nav-item:hover .ks2-nav-text,
             	.ks2-nav-item.ks2-active .ks2-nav-text { color: var(--ks2-cy); }
             	.ks2-nav-count {
-            	    font-family: 'Share Tech Mono', monospace !important;
+            	    font-family: var(--fontier);
             	    font-size: 12px; padding: 2px 10px;
             	    background: rgba(0,212,255,0.1); color: var(--ks2-cy2);
             	    border: 1px solid var(--ks2-bd2);
@@ -648,11 +644,11 @@
             	    display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;
             	}
             	.ks2-theme-lbl {
-            	    font-family: 'Share Tech Mono', monospace !important;
+            	    font-family: var(--fontier);
             	    font-size: 11px; color: var(--ks2-txt2); letter-spacing: 1.2px;
             	}
             	.ks2-ver-tag {
-            	    font-family: 'Share Tech Mono', monospace !important;
+            	    font-family: var(--fontier);
 					right:0;
             	    font-size: 11px; color: var(--ks2-cy);
             	    background: rgba(0,212,255,0.08); border: 1px solid var(--ks2-cy); padding: 3px 3px;
@@ -672,10 +668,10 @@
             	    display: flex; align-items: center; justify-content: space-between;
             	}
             	.ks2-topbar-left { display: flex; align-items: center; gap: 8px; }
-            	.ks2-bracket { font-family: 'Share Tech Mono', monospace !important; font-size: 9px;}
+            	.ks2-bracket { font-family: var(--fontier); font-size: 9px;}
             	.ks2-topbar-title { font-size: 13px; font-weight: 700; letter-spacing: 1px; color: var(--ks2-txt); }
             	.ks2-ctrl-row { display: flex; align-items: center; gap: 10px; }
-            	.ks2-ctrl-lbl { font-family: 'Share Tech Mono', monospace !important; font-size: 11px; letter-spacing: 1px; }
+            	.ks2-ctrl-lbl { font-family: var(--fontier); font-size: 11px; letter-spacing: 1px; }
             	/* Toggle Switch */
             	.ks2-sw { position: relative; width: 42px; height: 20px; cursor: pointer; }
             	.ks2-sw input { opacity: 0; width: 0; height: 0; position: absolute; }
@@ -697,7 +693,7 @@
             	.ks2-bulk-btn {
             	    flex: 1; position: relative; cursor: pointer;
             	    background: var(--ks2-bg3); border: none; outline: none;
-            	    font-family: 'Share Tech Mono', monospace !important;
+            	    font-family: var(--fontier);
             	    font-size: 10px; letter-spacing: 1.5px;
             	    color: var(--ks2-txt2); padding: 9px 0; transition: color .15s;
             	}
@@ -740,19 +736,19 @@
             	}
             	.ks2-mod-card.ks2-on .ks2-card-icon { border-color: var(--ks2-cy); background: rgba(0,212,255,0.06); }
             	.ks2-card-title { font-size: 12px; font-weight: 700; color: var(--ks2-txt); margin-bottom: 3px; letter-spacing: .5px; padding-left: 10px;  }
-            	.ks2-card-desc { font-family: 'Share Tech Mono', monospace !important; font-size: 13px; color: var(--ks2-txt2); line-height: 1.2; padding-left: 8px; }
+            	.ks2-card-desc { font-family: var(--fontier); font-size: 13px; color: var(--ks2-txt2); line-height: 1.2; padding-left: 8px; }
             	.ks2-card-footer {
             	    display: flex; align-items: center; justify-content: space-between;
             	    margin-top: 8px; border-top: 1px solid var(--ks2-bd);
             	}
             	.ks2-status-pill {
-            	    font-family: 'Share Tech Mono', monospace !important;
+            	    font-family: var(--fontier);
             	    font-size: 13px; padding: 2px 8px; border: 1px solid; transition: .2s; left:0;
             	}
             	.ks2-mod-card.ks2-on .ks2-status-pill { color: var(--ks2-cy3); border-color: rgba(0,255,157,0.27); background: rgba(0,255,157,0.06); }
             	.ks2-mod-card:not(.ks2-on) .ks2-status-pill { color: var(--ks2-txt3); border-color: rgba(61,84,112,0.5); }
             	.ks2-sub-tag {
-            	    font-family: 'Share Tech Mono', monospace !important;
+            	    font-family: var(--fontier);
             	    font-size: 11px; color: var(--ks2-txt2); letter-spacing: .5px;
             	    padding: 2px 8px; border: 1px solid var(--ks2-bd);
             	}
@@ -764,7 +760,7 @@
             	    display: flex; align-items: center; justify-content: space-between;
             	}
             	.ks2-footer-stats { display: flex; align-items: center; gap: 26px; }
-            	.ks2-stat-val { text-align:center; font-family: 'Share Tech Mono', monospace !important; font-size: 18px; color: var(--ks2-cy); font-weight: 700; line-height: 1.2; }
+            	.ks2-stat-val { text-align:center; font-family: var(--fontier); font-size: 18px; color: var(--ks2-cy); font-weight: 700; line-height: 1.2; }
             	.ks2-stat-lbl { font-size: 11px; color: var(--ks2-txt2); letter-spacing: .5px; margin-top: 2px; }
             	.ks2-stat-divider { width: 1px; height: 28px; background: var(--ks2-bd2); }
             	.ks2-footer-btns { display: flex; gap: 10px; align-items: center; }
@@ -775,7 +771,7 @@
             	    border: none;
             	    outline: none;
             	    background: transparent;
-            	    font-family: 'Share Tech Mono', monospace !important;
+            	    font-family: var(--fontier);
             	    font-size: 14px;
             	    text-transform: uppercase;
             	    letter-spacing: 4px;
@@ -862,17 +858,17 @@
 				}
             `;
             document.head.appendChild(style);
-        	}
-            let currentIP = "IP Alınıyor...";
-            let ipcolor = "orange";
-            const scriptVersion = (typeof GM_info !== 'undefined') ? "v" + GM_info.script.version : "v1.0";
-        	fetch('https://api.ipify.org?format=json').then(res => res.json()).then(data => { currentIP = data.ip; ipcolor = "#00ff00"; }).catch(() => { currentIP = "Gizli Bağlantı"; ipcolor = "red"; });
-            const injectPanel = () => {
-                injectStyles();
-                let kstatus = document.getElementById(PANEL_ID);
-                if (!kstatus) {
-                    kstatus = document.createElement('div');
-                    kstatus.id = PANEL_ID;
+        }
+        let currentIP = "IP Alınıyor...";
+        let ipcolor = "orange";
+        const scriptVersion = (typeof GM_info !== 'undefined') ? "v" + GM_info.script.version : "v1.0";
+        fetch('https://api.ipify.org?format=json').then(res => res.json()).then(data => { currentIP = data.ip; ipcolor = "#00ff00"; }).catch(() => { currentIP = "Gizli Bağlantı"; ipcolor = "red"; });
+        const injectPanel = () => {
+            injectStyles();
+            let kstatus = document.getElementById(PANEL_ID);
+            if (!kstatus) {
+                kstatus = document.createElement('div');
+                kstatus.id = PANEL_ID;
                 kstatus.innerHTML = `<span>KS</span>`;
                 document.body.appendChild(kstatus);
                 let hideTimeout = null;
@@ -889,24 +885,13 @@
                 const bindTooltips = (container) => {
                     const panelTip = getPanelTip();
                     container.querySelectorAll('[data-tip]').forEach(el => {
-                        el.addEventListener('mouseenter', () => {
-                            panelTip.textContent = el.getAttribute('data-tip');
-                            panelTip.style.visibility = 'visible';
-                            panelTip.style.opacity = '1';
-                        });
-                        el.addEventListener('mousemove', (e) => {
-                            panelTip.style.left = (e.clientX + 12) + 'px';
-                            panelTip.style.top = (e.clientY - 34) + 'px';
-                        });
-                        el.addEventListener('mouseleave', () => {
-                            panelTip.style.opacity = '0';
-                            panelTip.style.visibility = 'hidden';
-                        });
+                        el.addEventListener('mouseenter', () => { panelTip.textContent = el.getAttribute('data-tip'); panelTip.style.visibility = 'visible'; panelTip.style.opacity = '1'; });
+                        el.addEventListener('mousemove', (e) => { panelTip.style.left = (e.clientX + 12) + 'px'; panelTip.style.top = (e.clientY - 34) + 'px'; });
+                        el.addEventListener('mouseleave', () => { panelTip.style.opacity = '0'; panelTip.style.visibility = 'hidden'; });
                     });
                 };
                 const hidePanelTip = () => {
-                    const tip = document.getElementById('ks-dynamic-tooltip');
-                    if (tip) { tip.style.opacity = '0'; tip.style.visibility = 'hidden'; }
+                    const tip = document.getElementById('ks-dynamic-tooltip'); if (tip) { tip.style.opacity = '0'; tip.style.visibility = 'hidden'; }
                 };
                 const showFullContent = () => {
                     kstatus.classList.add('active');
@@ -948,50 +933,51 @@
                     showFullContent();
                 };
             }
-			// ── Veri Tanımları ─────────────────────────────────────────────────
-			const SECTIONS = [
-			    {
-			        id: 'dosya', title: 'OTOANALİZ DOSYA PANELİ', icon: '📁', label: 'Otoanaliz Dosya Paneli',
-			        items: [
-			            { key: 'KS_PANEL', icon: '📊', title: 'Yan Panel', desc: 'Genel Dosya durumunu gösteren panel', sub: false },
-			            { key: 'KS_PANEL_pol', icon: '📋', title: 'Poliçe Kontrol', desc: 'Tarih + geçerlilik denetimi', sub: true },
-			            { key: 'KS_PANEL_sgs', icon: '🛡️', title: 'Sigorta Şekli', desc: 'Trafik / Kasko göstergesi', sub: true },
-			            { key: 'KS_PANEL_rc', icon: '↩️', title: 'Rücu Takibi', desc: 'Rücu durum göstergesi', sub: true },
-			            { key: 'KS_PANEL_pert', icon: '🚗', title: 'Pert Kontrolü', desc: 'Pert durum göstergesi', sub: true },
-			            { key: 'KS_PANEL_hsr', icon: '💥', title: 'Hasar Şekli', desc: 'Hasar tipi bilgisi', sub: true },
-			            { key: 'KS_PANEL_srtp', icon: '🔧', title: 'Servis Tipi', desc: 'Servis yetki bilgisi', sub: true },
-			            { key: 'KS_PANEL_srad', icon: '🏭', title: 'Servis Adı', desc: 'Servis adı bilgisi', sub: true },
-			            { key: 'KS_PANEL_tra', icon: '📈', title: 'Tramer', desc: 'Tramer değer bilgisi', sub: true },
-			            { key: 'KS_PANEL_sad', icon: '👤', title: 'Sigortalı Adı', desc: 'Ad soyad bilgisi', sub: true },
-			            { key: 'KS_PANEL_aad', icon: '🚙', title: 'Araç Model', desc: 'Model bilgisi', sub: true },
-			            { key: 'KS_PANEL_mull', icon: '💰', title: 'Muallak', desc: 'Muallak değer bilgisi', sub: true },
-			            { key: 'KS_PANEL_ryc', icon: '🏷️', title: 'Piyasa Rayiç', desc: 'Piyasa değer bilgisi', sub: true },
-			            { key: 'KS_PANEL_rycorn', icon: '⚠️', title: 'Rayiç Pert Oran', desc: '%30 ve %60 eşik oranlarını takip etmeyi sağlayan yüzdelik bar', sub: true },
-			            { key: 'KS_PANEL_pys', icon: '🌐', title: 'Piyasa Kontrol', desc: 'Dış kaynak veri çekimi', sub: true },
-			            { key: 'KS_PANEL_not', icon: '📝', title: 'Notlar', desc: 'Panel not bölümü', sub: true },
-			        ]
-			    },
-			    {
-			        id: 'ek', title: 'OTOANALİZ EK MODÜLLER', icon: '⚙️', label: 'Otoanaliz Ek Modüller',
-			        items: [
-			            { key: 'KS_PANEL_hlt', icon: '🔦', title: 'Hücre Boyama', desc: 'Eksik-Boş alan renklendirme', sub: false },
-			            { key: 'KS_MANU', icon: '🔩', title: 'Manuel Parça', desc: 'Tekli-Çoklu parça girişi panelleri', sub: false },
-			            { key: 'KS_REF', icon: '📌', title: 'Referans Panel', desc: 'Excel ile kopyalama yapıştırma fonksiyon butonları', sub: false },
-			            { key: 'KS_DNM', icon: '⚙️', title: 'Donanım Girişi', desc: 'Araç donanımı hızlı giriş butonları', sub: false },
-			            { key: 'KS_IMG', icon: '🖼️', title: 'Resim Yükleme', desc: 'Toplu evrak kategorisi', sub: false },
-			            { key: 'KS_NTF', icon: '🔕', title: 'Bildirim Engel', desc: '3+ tekrarlı popup engeli', sub: false },
-			        ]
-			    },
-			    {
-			        id: 'dis', title: 'DIŞ ENTEGRASYONLAR', icon: '📡', label: 'Dış Entegrasyonlar',
-			        items: [
-			            { key: 'KS_TRS', icon: '🛡️', title: 'Türkiye Sigorta', desc: 'Yan menü liste ve hızlı girişler', sub: false },
-			            { key: 'KS_SAHIB', icon: '🏷️', title: 'Sahibinden', desc: 'Fiyat ortalaması gösteren panel', sub: false },
-			            { key: 'KS_SBM', icon: '🏦', title: 'SBM Panel', desc: "Tramer no'nun 3'lü bölünmüş halini gösteren panel", sub: false },
-			            { key: 'KS_WP', icon: '💬', title: 'WhatsApp', desc: 'Resimlere çift tıklama hızlı indirme', sub: false },
-			        ]
-			    }
-			];
+            // ── Veri Tanımları ─────────────────────────────────────────────────
+            const SECTIONS = [
+                {
+                    id: 'dosya', title: 'OTOANALİZ DOSYA PANELİ', icon: '📁', label: 'Otoanaliz Dosya Paneli',
+                    items: [
+                        { key: 'KS_PANEL', icon: '📊', title: 'Yan Panel', desc: 'Genel Dosya durumunu gösteren panel', sub: false },
+                        { key: 'KS_PANEL_pol', icon: '📋', title: 'Poliçe Kontrol', desc: 'Tarih + geçerlilik denetimi', sub: true },
+                        { key: 'KS_PANEL_sgs', icon: '🛡️', title: 'Sigorta Şekli', desc: 'Trafik / Kasko göstergesi', sub: true },
+                        { key: 'KS_PANEL_rc', icon: '↩️', title: 'Rücu Takibi', desc: 'Rücu durum göstergesi', sub: true },
+                        { key: 'KS_PANEL_pert', icon: '🚗', title: 'Pert Kontrolü', desc: 'Pert durum göstergesi', sub: true },
+                        { key: 'KS_PANEL_hsr', icon: '💥', title: 'Hasar Şekli', desc: 'Hasar tipi bilgisi', sub: true },
+                        { key: 'KS_PANEL_srtp', icon: '🔧', title: 'Servis Tipi', desc: 'Servis yetki bilgisi', sub: true },
+                        { key: 'KS_PANEL_srad', icon: '🏭', title: 'Servis Adı', desc: 'Servis adı bilgisi', sub: true },
+                        { key: 'KS_PANEL_tra', icon: '📈', title: 'Tramer', desc: 'Tramer değer bilgisi', sub: true },
+                        { key: 'KS_PANEL_sad', icon: '👤', title: 'Sigortalı Adı', desc: 'Ad soyad bilgisi', sub: true },
+                        { key: 'KS_PANEL_aad', icon: '🚙', title: 'Araç Model', desc: 'Model bilgisi', sub: true },
+                        { key: 'KS_PANEL_mull', icon: '💰', title: 'Muallak', desc: 'Muallak değer bilgisi', sub: true },
+                        { key: 'KS_PANEL_ryc', icon: '🏷️', title: 'Piyasa Rayiç', desc: 'Piyasa değer bilgisi', sub: true },
+                        { key: 'KS_PANEL_rycorn', icon: '⚠️', title: 'Rayiç Pert Oran', desc: '%30 ve %60 eşik oranlarını takip etmeyi sağlayan yüzdelik bar', sub: true },
+                        { key: 'KS_PANEL_pys', icon: '🌐', title: 'Piyasa Kontrol', desc: 'Dış kaynak veri çekimi', sub: true },
+                        { key: 'KS_PANEL_not', icon: '📝', title: 'Notlar', desc: 'Panel not bölümü', sub: true },
+                    ]
+                },
+                {
+                    id: 'ek', title: 'OTOANALİZ EK MODÜLLER', icon: '⚙️', label: 'Otoanaliz Ek Modüller',
+                    items: [
+                        { key: 'KS_PANEL_hlt', icon: '🔦', title: 'Hücre Boyama', desc: 'Eksik-Boş alan renklendirme', sub: false },
+                        { key: 'KS_MANU', icon: '🔩', title: 'Manuel Parça', desc: 'Tekli-Çoklu parça girişi panelleri', sub: false },
+                        { key: 'KS_REF', icon: '📌', title: 'Referans Panel', desc: 'Excel ile kopyalama yapıştırma fonksiyon butonları', sub: false },
+                        { key: 'KS_DNM', icon: '⚙️', title: 'Donanım Girişi', desc: 'Araç donanımı hızlı giriş butonları', sub: false },
+                        { key: 'KS_IMG', icon: '🖼️', title: 'Resim Yükleme', desc: 'Toplu evrak kategorisi', sub: false },
+                        { key: 'KS_NTF', icon: '🔕', title: 'Bildirim Engel', desc: '3+ tekrarlı popup engeli', sub: false },
+                    ]
+                },
+                {
+                    id: 'dis', title: 'DIŞ ENTEGRASYONLAR', icon: '📡', label: 'Dış Entegrasyonlar',
+                    items: [
+                        { key: 'KS_TRS', icon: '🛡️', title: 'Türkiye Sigorta', desc: 'Yan menü liste ve hızlı girişler', sub: false },
+                        { key: 'KS_QCA', icon: '🛡️', title: 'Quick-Corpus-Anadolu Sigorta', desc: 'Hızlı girişler', sub: false },
+                        { key: 'KS_SAHIB', icon: '🏷️', title: 'Sahibinden', desc: 'Fiyat ortalaması gösteren panel', sub: false },
+                        { key: 'KS_SBM', icon: '🏦', title: 'SBM Panel', desc: "Tramer no'nun 3'lü bölünmüş halini gösteren panel", sub: false },
+                        { key: 'KS_WP', icon: '💬', title: 'WhatsApp', desc: 'Resimlere çift tıklama hızlı indirme', sub: false },
+                    ]
+                }
+            ];
             // ── Modal Aç ──────────────────────────────────────────────────────
             const openSettingsModal = () => {
                 if (document.getElementById('ks2-overlay')) return;
@@ -1194,10 +1180,8 @@
                     closeModal();
                     if (confirm('Ayarlar kaydedildi. Sayfa yenilensin mi?')) window.location.reload();
                 });
-            	window.openSettingsModal = openSettingsModal;
-            	document.addEventListener('keydown', (e) => {
-            	    if (e.altKey && e.key === 's') openSettingsModal();
-            	});
+                window.openSettingsModal = openSettingsModal;
+                //document.addEventListener('keydown', (e) => { if (e.altKey && e.key === 's') openSettingsModal(); });
             };
         };
         setInterval(injectPanel, 2000); injectPanel();
@@ -1225,6 +1209,7 @@
     const DONANIM = GM_getValue('KS_DNM', false);
     const RESIM = GM_getValue('KS_IMG', false);
     const TRSIGORTA = GM_getValue('KS_TRS', false);
+    const QCASIGORTA = GM_getValue('KS_QCA', false);
     const SAHIBINDEN = GM_getValue('KS_SAHIB', false);
     const SBM = GM_getValue('KS_SBM', false);
     const WHATSAPP = GM_getValue('KS_WP', false);
@@ -1241,14 +1226,14 @@
             if (headerTitle) headerTitle.innerText = "Giriş Kontrol Paneli";
             panelContent.innerHTML = `
             <div id="panelContent" style ="color:#ffffff; text-align:center;">⏳ Yükleniyor...</div>
-            <hr style="border:0; border-top:1px solid #444; margin:2px 0;">
+            <hr class="custom-line">
 			<div id="pys-section">
 				<div id="shb-res-box"></div>
 				<div class="ks-grid-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; width: 100%;">
             	     <div class="ks-tooltip-container">
             	         <button id="btn-auto-analiz" class="ks-btn" style="width: 100%;">Piyasa Göster</button>
             	         <div class="ks-tooltip-box">
-            	             Piyasayı otomatik olarak panel arayüzü üzerinde gösterir.
+            	             Piyasayı otomatik olarak panel arayüzü üzerinde gösterir. Aynı araç için sürekli kontrol sağlamaya çalışmayın, site erişimi kilitleyecektir.
             	         </div>
             	     </div>
             	     <div class="ks-tooltip-container">
@@ -1259,7 +1244,7 @@
             	     </div>
             	 </div>
 			</div>
-    		<hr id="action-divider" style="border:0; border-top:1px solid #444; margin:2px 0;">
+    		<hr class="custom-line" id="action-divider">
     		<div id="action-section" class="ks-grid-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; width: 100%;">
                 <div class="ks-tooltip-container">
                     <button id="autoSelectBtn" class="ks-btn" style="width:100%; height: 100%;">⚡ Ön Giriş</button>
@@ -1278,7 +1263,7 @@
             </div>
 			<div id="not-section">
             	<div id="custom-page-notes-container" style="width: 100%; dashed #444;">
-				<hr style="border:0; border-top:1px solid #444; margin:4px 0;">
+				<hr class="custom-line">
             	    <div style="color: #bbb; font-size: 11px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
             	        <span>NOT</span>
             	        <span id="note-status" style="font-size: 10px; opacity: 0.6;">Otomatik Kayıt Edecek...</span>
@@ -1350,9 +1335,7 @@
             }
             // Butona ekleme yapıyoruz
             const kaydetButonu = document.getElementById('btnKaydetYeni');
-            if (kaydetButonu) {
-                kaydetButonu.addEventListener('click', () => { savePageNote(); });
-            }
+            if (kaydetButonu) { kaydetButonu.addEventListener('click', () => { savePageNote(); }); }
             /* ===== 3. KONTROL VE HIGHLIGHT ===== */
             function highlightFields() {
                 const getEl = (id) => document.getElementById(id) || document.getElementsByName(id)[0];
@@ -1393,492 +1376,595 @@
                 }
             }
             /* ===== 4. PANEL GÜNCELLEME ===== */
-            function updatePanel() {
-                const sigortaSekli = document.getElementById('SIGORTA_SEKLI');
-                const isTrafik = sigortaSekli && sigortaSekli.value === "1";
-                let html = '<table style="width:100%; border-collapse:collapse; font-size:13px; color:white;">';
-                if (ANALIZPANEL_pol && !magdurpanel) {
-                    const hasar = getDate('HASAR_TARIHI');
-                    const bas = getDate('SB_POLICE_BAS');
-                    const bitis = getDate('SB_POLICE_BITIS');
-                    if (hasar && bas && bitis) {
-                        hasar.setHours(0, 0, 0, 0);
-                        bas.setHours(0, 0, 0, 0);
-                        bitis.setHours(0, 0, 0, 0);
-                        html += `<tr><td colspan="2" style="text-align:center; padding:10px;"><div class="ks-tooltip-container">`;
-                        // 1. DURUM: POLİÇE VADESİ İÇİNDE
-                        if (hasar >= bas && hasar <= bitis) {
-                            const diffBas = Math.floor((hasar - bas) / 86400000);
-                            const diffBit = Math.floor((bitis - hasar) / 86400000);
-                            // --- RİSK ANALİZİ ---
-                            if (diffBas <= 3) {
-                                // KRİTİK: İlk 3 gün (Suistimal Riski)
-                                html += `<b style="color:#ff4444; font-size:15px;">🚨 KRİTİK: YENİ POLİÇE HASARI</b><br>`;
-                                html += `<span style="color:#ff4444;">Poliçe başladıktan sadece <b>${diffBas} gün</b> sonra kaza gerçekleşmiş!</span>`;
-                            }
-                            else if (diffBas <= 7) {
-                                // UYARI: İlk hafta
-                                html += `<b style="color:${SUCCESS_COLOR}">✔️ Poliçe İçinde</b><br>`;
-                                html += `<span style="color:#ffcc00">⚠️ Dikkat: İlk hafta içinde hasar (${diffBas}. gün)</span>`;
-                            }
-                            else if (diffBit <= 7) {
-                                // UYARI: Son hafta
-                                html += `<b style="color:${SUCCESS_COLOR}">✔️ Poliçe İçinde</b><br>`;
-                                html += `<span style="color:#ffcc00">⚠️ Dikkat: Poliçe bitimine yakın (${diffBit} gün kaldı)</span>`;
-                            }
-                            else {
-                                // NORMAL: Güvenli bölge
-                                html += `<b style="color:${SUCCESS_COLOR}; font-size:15px;">✅ Poliçe İçinde (Sorunsuz)</b>`;
-                            }
-                        }
-                        // 2. DURUM: POLİÇE VADESİ DIŞINDA
-                        else {
-                            let diff = hasar < bas ? Math.floor((bas - hasar) / 86400000) : Math.floor((hasar - bitis) / 86400000);
-                            let yon = hasar < bas ? 'ÖNCE' : 'SONRA';
-                            html += `<b style="color:#ff0000; font-size:16px;">❌ POLİÇE DIŞI HASAR</b><br>`;
-                            html += `<span style="background:red; color:white; padding:2px 5px; border-radius: ${config.borderRadius};">`;
-                            html += `Vade ${yon} ${diff} gün fark var!`;
-                            html += `</span>`;
-                        }
-                        html += `<div class="ks-tooltip-box">
-                            Hasar ile Poliçe arasındaki gün farkını kontrol eder.
-                        </div>
-                    </div></td></tr>`;
-                    }
-                    html += `<tr><td colspan="2"><hr style="border:0; border-top:1px solid #444; margin:2px 0;"></td></tr>`;
-                }
-                const sigortaElement = document.getElementById('SIGORTA_SEKLI');
-                let dynamicLabel = (magdurpanel || isTrafik) ? 'Mağdur Araç :' : 'Sigortalı/Kaskolu Araç :';
-                let sigortaBadge = "";
-                if (sigortaElement) {
-                    const selectedText = sigortaElement.options[sigortaElement.selectedIndex]?.text || "Bilinmiyor";
-                    const upText = selectedText.toUpperCase();
-                    const isTrafikSelected = upText.includes("TRAFİK");
-                    let sigortaColor = isTrafikSelected ? "#00d4ff" : (upText.includes("KASKO") ? "#a29bfe" : "#ff9500");
-                    let sigortaBg = isTrafikSelected ? "rgba(0, 212, 255, 0.15)" : (upText.includes("KASKO") ? "rgba(162, 155, 254, 0.15)" : "rgba(255, 149, 0, 0.15)");
-                    if (magdurpanel || isTrafikSelected) {
-                        dynamicLabel = 'Mağdur Araç :';
-                    } else if (upText.includes("KASKO")) {
-                        dynamicLabel = 'Sigortalı Araç :';
-                    }
-                    sigortaBadge = `
-                        <span style="
-                            color: ${sigortaColor};
-                            background: ${sigortaBg};
-                            border: 1px solid ${sigortaColor}44;
-                            padding: 1px 6px;
-                            border-radius: ${config.borderRadius};
-                            font-size: 10px;
-                            font-weight: bold;
-                            display: inline-block;
-                            vertical-align: middle;
-                            text-transform: uppercase;
-                        ">
-                            ${selectedText}
-                        </span>`;
-                    if (ANALIZPANEL_sgs && !magdurpanel) {
-                        html += `<tr style="border-bottom: 1px solid #333;"><td style="padding:4px 0;">Sigorta Şekli:</td><td style="text-align:right; padding:4px 0;">${sigortaBadge}</td></tr>`;
-                    }
-                }
-                if (ANALIZPANEL_rc && !magdurpanel) {
-                    // --- 1. RÜCU DURUMU ---
-                    const rucuVar = document.getElementById('RUCU1')?.checked;
-                    const rucuYok = document.getElementById('RUCU0')?.checked;
-                    let rucuStatus = "";
-                    if (rucuVar) { rucuStatus = `<span style="background:#ff4d4d22; color:#ff4d4d; border:1px solid #ff4d4d44; padding:1px 6px; border-radius: ${config.borderRadius}; font-weight:bold; font-size:10px;">VAR 🔴</span>`; }
-                    else if (rucuYok) { rucuStatus = `<span style="background:#2ecc7122; color:#2ecc71; border:1px solid #2ecc7144; padding:1px 6px; border-radius: ${config.borderRadius}; font-weight:bold; font-size:10px;">YOK 🟢</span>`; }
-                    else { rucuStatus = `<span style="background:#ff950022; color:#ff9500; border:1px solid #ff950044; padding:1px 6px; border-radius: ${config.borderRadius}; font-weight:bold; font-size:10px;">BELİRSİZ 🔘</span>`; }
-
-                    html += `
-                        <tr style="border-bottom:1px solid #333;">
-                            <td style="white-space:nowrap; width:100px;">Rücu:</td>
-                            <td style="text-align:right; padding:4px 0;">${rucuStatus}</td>
-                        </tr>`;
-                }
-                if (ANALIZPANEL_pert && !magdurpanel) {
-                    // --- 2. PERT DURUMU ---
-                    const pertVar = document.getElementById('pert')?.checked || false;
-                    let pertStatus = "";
-                    if (pertVar) { pertStatus = `<span style="background:#ff4d4d22; color:#ff4d4d; border:1px solid #ff4d4d44; padding:1px 6px; border-radius: ${config.borderRadius}; font-weight:bold; font-size:10px;">VAR 🔴</span>`; }
-                    else { pertStatus = `<span style="background:#2ecc7122; color:#2ecc71; border:1px solid #2ecc7144; padding:1px 6px; border-radius: ${config.borderRadius}; font-weight:bold; font-size:10px;">YOK 🟢</span>`; }
-
-                    html += `
-                        <tr style="border-bottom:1px solid #333;">
-                            <td style="white-space:nowrap; width:100px;">Pert:</td>
-                            <td style="text-align:right; padding:4px 0;">${pertStatus}</td>
-                        </tr>`;
-                }
-                // Renk ve Badge Oluşturma Fonksiyonu (Tekrarı önlemek için)
-                const createBadge = (text, color) => {
-                    return `
-                        <span style="
-                            background: ${color}22;
-                            color: ${color};
-                            border: 1px solid ${color}44;
-                            padding: 1px 6px;
-                            border-radius: ${config.borderRadius};
-                            font-size: 10px;
-                            font-weight: bold;
-                            white-space: nowrap;
-                            display: inline-block;
-                            vertical-align: middle;
-                        ">
-                            ${text.toUpperCase()}
-                        </span>`;
+            function makeBadge(text, color, borderRadius, fontSize = '10px') {
+                return `<span style="
+                    background:${color}22;
+                    color:${color};
+                    border:1px solid ${color}44;
+                    padding:1px 6px;
+                    border-radius:${borderRadius};
+                    font-size:${fontSize};
+                    font-weight:bold;
+                    white-space:nowrap;
+                    display:inline-block;
+                    vertical-align:middle;
+                    text-transform:uppercase;
+                ">${text}</span>`;
+            }
+            function safeVal(el) {
+                if (!el) return ''; return (el.value !== undefined ? el.value : el.textContent || '').trim();
+            }
+            function safeDateOf(id) {
+                try { const d = getDate(id); return (d instanceof Date && !isNaN(d)) ? d : null; } catch (_) { return null; }
+            }
+            function safeNum(id) {
+                try { return parseNum(id) || 0; } catch (_) { return 0; }
+            }
+            function median(arr) {
+                if (!arr.length) return 0;
+                const s = [...arr].sort((a, b) => a - b);
+                const m = Math.floor(s.length / 2);
+                return s.length % 2 !== 0 ? s[m] : Math.round((s[m - 1] + s[m]) / 2);
+            }
+            // ─── DOM ÖNBELLEKLEME ────────────────────────────────────────
+            function gatherDOMRefs() {
+                return {
+                    sigortaSekli: document.getElementById('SIGORTA_SEKLI'),
+                    rucu1: document.getElementById('RUCU1'),
+                    rucu0: document.getElementById('RUCU0'),
+                    pert: document.getElementById('pert'),
+                    ihbarEl: document.getElementById('KAZA_IHBAR_TURU'),
+                    hasarEl: document.getElementById('HASAR_SEKLI'),
+                    servisAdEl: document.getElementById('SERVIS_ADI'),
+                    yetkiliEl: document.getElementsByName('SERVIS_TUR_ID1')[0],
+                    anlasmaliEl: document.getElementById('ANLASMALI1'),
+                    panelContent: document.getElementById('panelContent'),
+                    resBox: document.getElementById('shb-res-box'),
+                    btnAnaliz: document.getElementById('btn-auto-analiz'),
+                    btnLook: document.getElementById('btn-auto-look'),
                 };
-                if (ANALIZPANEL_hsr && !magdurpanel) {
-                    const ihbarElement = document.getElementById('KAZA_IHBAR_TURU');
-                    const hasarElement = document.getElementById('HASAR_SEKLI');
-                    // --- 1. MANTIK: İHBAR TÜRÜ ---
-                    if (ihbarElement && ihbarElement.value !== "" && ihbarElement.value !== "-1") {
-                        let selectedText = ihbarElement.options[ihbarElement.selectedIndex]?.text || "";
-                        let selectedValue = ihbarElement.value;
-                        let ihbarColor = "#bdc3c7"; // Varsayılan Gri
-                        switch (selectedValue) {
-                            case "1": ihbarColor = "#2ecc71"; break; // Anlaşmalı
-                            case "2": ihbarColor = "#f1c40f"; break; // Beyan
-                            case "3": ihbarColor = "#3498db"; break; // Karakol
-                            case "4": ihbarColor = "#ff4d4d"; break; // Trafik
-                            case "5": ihbarColor = "#9b59b6"; break; // Savcılık
-                            case "6": ihbarColor = "#e67e22"; break; // İtfaiye
+            }
+            // ─── ANA FONKSİYON ──────────────────────────────────────────
+            function updatePanel() {
+                const dom = gatherDOMRefs();
+                const isTrafik = dom.sigortaSekli?.value === "1";
+                const br = config.borderRadius;
+                let html = '<table style="width:100%;border-collapse:collapse;font-size:13px;color:white;">';
+                // ── 1. POLİÇE / HASAR TARİH KONTROLÜ ───────────────────
+                if (ANALIZPANEL_pol && !magdurpanel) {
+                    try {
+                        const hasar = safeDateOf('HASAR_TARIHI');
+                        const bas = safeDateOf('SB_POLICE_BAS');
+                        const bitis = safeDateOf('SB_POLICE_BITIS');
+                        if (hasar && bas && bitis) {
+                            [hasar, bas, bitis].forEach(d => d.setHours(0, 0, 0, 0));
+                            html += `<tr><td colspan="2" style="text-align:center;padding:10px;">
+                                <div class="ks-tooltip-container">`;
+                            if (hasar >= bas && hasar <= bitis) {
+                                const diffBas = Math.floor((hasar - bas) / 86400000);
+                                const diffBit = Math.floor((bitis - hasar) / 86400000);
+                                if (diffBas <= 3) {
+                                    html += `<b style="color:#ff4444;font-size:14px;">🚨 KRİTİK: YENİ POLİÇE HASARI</b><br>
+                                        <span style="color:#ff4444;">Poliçe başladıktan sadece <b>${diffBas} gün</b> sonra kaza gerçekleşmiş!</span>`;
+                                } else if (diffBas <= 7) {
+                                    html += `<b style="color:${SUCCESS_COLOR}">✔️ Poliçe İçinde</b><br>
+                                        <span style="color:#ffcc00">⚠️ Dikkat: İlk hafta içinde hasar (${diffBas}. gün)</span>`;
+                                } else if (diffBit <= 7) {
+                                    html += `<b style="color:${SUCCESS_COLOR}">✔️ Poliçe İçinde</b><br>
+                                        <span style="color:#ffcc00">⚠️ Dikkat: Poliçe bitimine yakın (${diffBit} gün kaldı)</span>`;
+                                } else {
+                                    html += `<b style="color:${SUCCESS_COLOR};font-size:14px;">✅ Poliçe İçinde (Sorunsuz)</b>`;
+                                }
+                            } else {
+                                const diff = hasar < bas
+                                    ? Math.floor((bas - hasar) / 86400000)
+                                    : Math.floor((hasar - bitis) / 86400000);
+                                const yon = hasar < bas ? 'ÖNCE' : 'SONRA';
+                                html += `<b style="color:#ff0000;font-size:16px;">❌ POLİÇE DIŞI HASAR</b><br>
+                                    <span style="background:red;color:white;padding:2px 5px;border-radius:${br};">
+                                        Vade ${yon} ${diff} gün fark var!
+                                    </span>`;
+                            }
+                            html += `<div class="ks-tooltip-box">Hasar ile Poliçe arasındaki gün farkını kontrol eder.</div>
+                                </div></td></tr>`;
                         }
-                        html += `
-                            <tr style="border-bottom: 1px solid #333;">
-                                <td style="padding:4px 0; white-space:nowrap; width:100px;">İhbar Türü:</td>
-                                <td style="text-align:right; padding:4px 0; white-space:nowrap;">
-                                    ${createBadge(selectedText, ihbarColor)}
-                                </td>
-                            </tr>`;
+                    } catch (err) {
+                        console.warn('[updatePanel] Tarih kontrolü hatası:', err);
                     }
-                    // --- 2. MANTIK: HASAR ŞEKLİ (Bağımsız If) ---
-                    if (hasarElement && hasarElement.value !== "" && hasarElement.value !== "-1") {
-                        let selectedText = hasarElement.options[hasarElement.selectedIndex]?.text || "";
-                        let selectedValue = hasarElement.value;
-                        let hasarColor = "#00d4ff"; // Hasar şekli için genel mavi
-                        if (["1", "5", "18"].includes(selectedValue)) hasarColor = "#ff4d4d"; // Hırsızlık: Kırmızı
-                        if (selectedValue === "28") hasarColor = "#9c88ff"; // Değer Kaybı: Mor
-                        html += `
-                            <tr style="border-bottom: 1px solid #333;">
-                                <td style="padding:4px 0; white-space:nowrap; width:100px;">Hasar Şekli:</td>
-                                <td style="text-align:right; padding:4px 0; white-space:nowrap;">
-                                    ${createBadge(selectedText, hasarColor)}
-                                </td>
+                    html += `<tr><td colspan="2"><hr class="custom-line"></td></tr>`;
+                }
+                // ── 2. SİGORTA ŞEKLİ BADGE ──────────────────────────────
+                let dynamicLabel = (magdurpanel || isTrafik) ? 'Mağdur Araç :' : 'Sigortalı/Kaskolu Araç :';
+                let sigortaBadge = '';
+                if (dom.sigortaSekli) {
+                    try {
+                        const selIdx = dom.sigortaSekli.selectedIndex;
+                        const selectedText = dom.sigortaSekli.options[selIdx]?.text || 'Bilinmiyor';
+                        const upText = selectedText.toUpperCase();
+                        const isTrafikSel = upText.includes('TRAFİK');
+                        const sigortaColor = isTrafikSel ? '#00d4ff'
+                            : upText.includes('KASKO') ? '#a29bfe'
+                                : '#ff9500';
+                        if (magdurpanel || isTrafikSel) dynamicLabel = 'Mağdur Araç :';
+                        else if (upText.includes('KASKO')) dynamicLabel = 'Sigortalı Araç :';
+                        sigortaBadge = makeBadge(selectedText, sigortaColor, br);
+                        if (ANALIZPANEL_sgs && !magdurpanel) {
+                            html += `<tr style="border-bottom:1px solid #333;">
+                                <td style="padding:4px 0;">Sigorta Şekli:</td>
+                                <td style="text-align:right;padding:4px 0;">${sigortaBadge}</td>
                             </tr>`;
+                        }
+                    } catch (err) {
+                        console.warn('[updatePanel] Sigorta şekli hatası:', err);
                     }
                 }
+                // ── 3. RÜCU ─────────────────────────────────────────────
+                if (ANALIZPANEL_rc && !magdurpanel) {
+                    const rucuVar = dom.rucu1?.checked;
+                    const rucuYok = dom.rucu0?.checked;
+                    const rucuStatus = rucuVar ? makeBadge('VAR 🔴', '#ff4d4d', br)
+                        : rucuYok ? makeBadge('YOK 🟢', '#2ecc71', br)
+                            : makeBadge('BELİRSİZ 🔘', '#ff9500', br);
+                    html += `<tr style="border-bottom:1px solid #333;">
+                        <td style="white-space:nowrap;width:100px;">Rücu:</td>
+                        <td style="text-align:right;padding:4px 0;">${rucuStatus}</td>
+                    </tr>`;
+                }
+                // ── 4. PERT ──────────────────────────────────────────────
+                if (ANALIZPANEL_pert && !magdurpanel) {
+                    const pertVar = dom.pert?.checked || false;
+                    const pertStatus = pertVar ? makeBadge('VAR 🔴', '#ff4d4d', br)
+                        : makeBadge('YOK 🟢', '#2ecc71', br);
+                    html += `<tr style="border-bottom:1px solid #333;">
+                        <td style="white-space:nowrap;width:100px;">Pert:</td>
+                        <td style="text-align:right;padding:4px 0;">${pertStatus}</td>
+                    </tr>`;
+                }
+                // ── 5. İHBAR TÜRÜ & HASAR ŞEKLİ ────────────────────────
+                if (ANALIZPANEL_hsr && !magdurpanel) {
+                    const IHBAR_COLORS = { '1': '#2ecc71', '2': '#f1c40f', '3': '#3498db', '4': '#ff4d4d', '5': '#9b59b6', '6': '#e67e22' };
+                    try {
+                        if (dom.ihbarEl && dom.ihbarEl.value !== '' && dom.ihbarEl.value !== '-1') {
+                            const txt = dom.ihbarEl.options[dom.ihbarEl.selectedIndex]?.text || '';
+                            const color = IHBAR_COLORS[dom.ihbarEl.value] || '#bdc3c7';
+                            html += `<tr style="border-bottom:1px solid #333;">
+                                <td style="padding:4px 0;white-space:nowrap;width:100px;">İhbar Türü:</td>
+                                <td style="text-align:right;padding:4px 0;white-space:nowrap;">${makeBadge(txt, color, br)}</td>
+                            </tr>`;
+                        }
+                    } catch (err) { console.warn('[updatePanel] İhbar türü hatası:', err); }
+                    try {
+                        if (dom.hasarEl && dom.hasarEl.value !== '' && dom.hasarEl.value !== '-1') {
+                            const txt = dom.hasarEl.options[dom.hasarEl.selectedIndex]?.text || '';
+                            const v = dom.hasarEl.value;
+                            const color = ['1', '5', '18'].includes(v) ? '#ff4d4d'
+                                : v === '28' ? '#9c88ff'
+                                    : '#00d4ff';
+                            html += `<tr style="border-bottom:1px solid #333;">
+                                <td style="padding:4px 0;white-space:nowrap;width:100px;">Hasar Şekli:</td>
+                                <td style="text-align:right;padding:4px 0;white-space:nowrap;">${makeBadge(txt, color, br)}</td>
+                            </tr>`;
+                        }
+                    } catch (err) { console.warn('[updatePanel] Hasar şekli hatası:', err); }
+                }
+                // ── 6. SERVİS TİPİ ──────────────────────────────────────
                 if (ANALIZPANEL_srtp && !magdurpanel) {
-                    const servisAdi = getValue('SERVIS_ADI');
-                    if (servisAdi) {
-                        const isYetkili = document.getElementsByName('SERVIS_TUR_ID1')[0]?.checked;
-                        const isAnlasmali = document.getElementById('ANLASMALI1')?.checked;
-                        // Stil Fonksiyonu (Kod tekrarını önlemek için)
-                        const getBadge = (text, isPositive) => {
-                            const color = isPositive ? "#00d4ff" : "#ff9500";
-                            return `<span style="background:${color}15; color:${color}; border:1px solid ${color}44; padding:1px 4px; border-radius: ${config.borderRadius}; font-weight:bold; font-size:10px; white-space:nowrap;">${text.toUpperCase()}</span>`;
-                        };
-                        const turBadge = getBadge(isYetkili ? "Yetkili" : "Yetkisiz", isYetkili);
-                        const anlasmaBadge = getBadge(isAnlasmali ? "Anlaşmalı" : "Anlaşmasız", isAnlasmali);
-                        html += `
-                            <tr style="border-bottom:1px solid #333;">
-                                <td style=" white-space:nowrap; width:100px;">Servis Tipi:</td>
-                                <td style="text-align:right; padding:4px 0; white-space:nowrap;">
-                                    ${turBadge} <span style="color:#444; margin:0 1px;">|</span> ${anlasmaBadge}
+                    try {
+                        const servisAdi = getValue('SERVIS_ADI');
+                        if (servisAdi) {
+                            const isYetkili = dom.yetkiliEl?.checked;
+                            const isAnlasmali = dom.anlasmaliEl?.checked;
+                            const turBadge = makeBadge(isYetkili ? 'Yetkili' : 'Yetkisiz', isYetkili ? '#00d4ff' : '#ff9500', br);
+                            const anlasmaBadge = makeBadge(isAnlasmali ? 'Anlaşmalı' : 'Anlaşmasız', isAnlasmali ? '#00d4ff' : '#ff9500', br);
+                            html += `<tr style="border-bottom:1px solid #333;">
+                                <td style="white-space:nowrap;width:100px;">Servis Tipi:</td>
+                                <td style="text-align:right;padding:4px 0;white-space:nowrap;">
+                                    ${turBadge} <span style="color:#444;margin:0 1px;">|</span> ${anlasmaBadge}
                                 </td>
                             </tr>`;
-                    }
-                    html += `<tr><td colspan="2"><hr style="border:0; border-top:1px solid #444; margin:2px 0;"></td></tr>`;
+                        }
+                    } catch (err) { console.warn('[updatePanel] Servis tipi hatası:', err); }
+                    html += `<tr><td colspan="2"><hr class="custom-line"></td></tr>`;
                 }
-                const tahminiHasar = parseNum('TAHMINI_HASAR');
-                const hasPiyasa = parseNum(typeof magdurpanel !== 'undefined' && magdurpanel ? 'PIYASA' : 'HAS_PIYASA');
-                const ssTahmini = parseNum('SS_TAHMINI_HASAR');
-                const formatTramer = (str) => {
-                    if (!str || str.toString().trim() === "") return '-';
+                // ── 7. ALAN LİSTESİ (Servis, Tramer, Sigortalı, Araç) ───
+                const tahminiHasar = safeNum('TAHMINI_HASAR');
+                const hasPiyasa = safeNum(magdurpanel ? 'PIYASA' : 'HAS_PIYASA');
+                const ssTahmini = safeNum('SS_TAHMINI_HASAR');
+                const formatTramer = str => {
+                    if (!str?.toString().trim()) return '-';
                     return str.toString().replace(/\s/g, '').replace(/(.{3})/g, '$1 ').trim();
                 };
                 const formatText = (str, limit = 25) => {
                     if (!str) return '-';
-                    let cleanStr = str.replace(/^\(\s*.*?\s*\)\s*/, '');
-                    return cleanStr.length > limit ? cleanStr.substring(0, limit) + '...' : cleanStr;
+                    const clean = str.replace(/^\(\s*.*?\s*\)\s*/, '');
+                    return clean.length > limit ? clean.substring(0, limit) + '…' : clean;
                 };
                 const fields = [
-                    { label: 'Servis :', id: "SERVIS_ADI", condition: ANALIZPANEL_srad && !magdurpanel },
-                    { label: 'Tramer :', id: "TRAMER_IHBAR_NO", condition: ANALIZPANEL_tra && !magdurpanel },
-                    { label: (magdurpanel || isTrafik) ? 'Mağdur :' : 'Sigortalı :', id: (magdurpanel || isTrafik) ? "MAGDUR_AD_SOYAD" : "HAS_ARAC_SAHIBI", condition: ANALIZPANEL_sad },
-                    { label: dynamicLabel, id: (magdurpanel || isTrafik) ? "MODEL_ADI" : "HAS_MODEL_ADI", condition: ANALIZPANEL_aad }
+                    { label: 'Servis :', id: 'SERVIS_ADI', condition: ANALIZPANEL_srad && !magdurpanel },
+                    { label: 'Tramer :', id: 'TRAMER_IHBAR_NO', condition: ANALIZPANEL_tra && !magdurpanel },
+                    {
+                        label: (magdurpanel || isTrafik) ? 'Mağdur :' : 'Sigortalı :',
+                        id: (magdurpanel || isTrafik) ? 'MAGDUR_AD_SOYAD' : 'HAS_ARAC_SAHIBI',
+                        condition: ANALIZPANEL_sad
+                    },
+                    {
+                        label: dynamicLabel, id: (magdurpanel || isTrafik) ? 'MODEL_ADI' : 'HAS_MODEL_ADI',
+                        condition: ANALIZPANEL_aad
+                    },
                 ];
                 fields.forEach(f => {
-                    if (f.condition) {
-                        let raw = "";
-                        let element = document.getElementById(f.id) || document.getElementsByName(f.id)[0];
-                        if (magdurpanel) {
-                            if (f.id === "MAGDUR_AD_SOYAD") {
-                                const ad = document.getElementById('MAGDUR_AD')?.value || "";
-                                const soyad = document.getElementById('MAGDUR_SOYAD')?.value || "";
-                                raw = `${ad} ${soyad}`.trim();
-                            } else {
-                                raw = (element?.value || element?.innerText || "").trim();
-                            }
+                    if (!f.condition) return;
+                    try {
+                        let raw = '';
+                        const el = document.getElementById(f.id) || document.getElementsByName(f.id)[0];
+                        if (magdurpanel && f.id === 'MAGDUR_AD_SOYAD') {
+                            const ad = document.getElementById('MAGDUR_AD')?.value || '';
+                            const soyad = document.getElementById('MAGDUR_SOYAD')?.value || '';
+                            raw = `${ad} ${soyad}`.trim();
                         } else if (isTrafik) {
                             const marker = document.querySelector('input[name="MAGDUR_MARKA_ID"]');
                             const targetRow = marker?.parentElement?.closest('tr');
                             if (targetRow) {
                                 const cells = targetRow.querySelectorAll('td.acik');
-                                if (f.id.includes("MODEL_ADI")) raw = cells[2]?.innerText;
-                                else if (f.id === "MAGDUR_AD_SOYAD") raw = cells[6]?.innerText;
-                                else if (f.id === "HAS_ARAC_SAHIBI") raw = cells[2]?.innerText;
+                                if (f.id.includes('MODEL_ADI')) raw = cells[2]?.innerText || '';
+                                else if (f.id === 'MAGDUR_AD_SOYAD') raw = cells[6]?.innerText || '';
+                                else if (f.id === 'HAS_ARAC_SAHIBI') raw = cells[2]?.innerText || '';
                             }
                         }
-                        if (!raw && element) {
-                            raw = (element.value !== undefined ? element.value : element.textContent || "").trim();
-                        }
+                        if (!raw && el) raw = safeVal(el);
                         let status = raw !== '' ? '✅' : '❌';
                         let valStr = '-';
-                        let color = "white";
+                        let color = 'white';
                         if (raw !== '') {
-                            if (f.id === 'HAS_PIYASA' || f.id === 'PIYASA') {
+                            if (['HAS_PIYASA', 'PIYASA'].includes(f.id)) {
                                 valStr = hasPiyasa.toLocaleString('tr-TR');
-                                status = (hasPiyasa < 1000) ? '⚠️' : '✅';
-                                color = (hasPiyasa < 1000) ? '#ff9500' : '#00d4ff';
+                                status = hasPiyasa < 1000 ? '⚠️' : '✅';
+                                color = hasPiyasa < 1000 ? '#ff9500' : '#00d4ff';
                             } else if (f.id === 'TRAMER_IHBAR_NO') {
                                 valStr = formatTramer(raw);
                             } else if (['SERVIS_ADI', 'HAS_ARAC_SAHIBI', 'MAGDUR_AD_SOYAD', 'HAS_MODEL_ADI', 'MODEL_ADI'].includes(f.id)) {
                                 valStr = formatText(raw, 22);
                                 status = ' ';
-                            } else { valStr = raw; }
+                            } else {
+                                valStr = raw;
+                            }
                         }
                         html += `<tr>
-                                    <td style="color:white; padding: 4px 0; white-space:nowrap;">${f.label}</td>
-                                    <td style="text-align:right; color:${color}; font-weight:bold;">${valStr}<span style="margin-left:5px;">${status}</span></td>
-                                </tr>`;
+                            <td style="color:white;padding:4px 0;white-space:nowrap;">${f.label}</td>
+                            <td style="text-align:right;color:${color};font-weight:bold;">
+                                ${valStr}<span style="margin-left:5px;">${status}</span>
+                            </td>
+                        </tr>`;
+                    } catch (err) {
+                        console.warn(`[updatePanel] Alan hatası (${f.id}):`, err);
                     }
                 });
-                if ((ANALIZPANEL_mull || ANALIZPANEL_ryc || ANALIZPANEL_rycorn) && !magdurpanel) { html += `<tr><td colspan="2"><hr style="border:0; border-top:1px solid #444; margin:2px 0;"></td></tr>`; }
-                // 1. Hesaplama ve Durum Belirleme
-                const getStatusBadge = (text, color) => {
-                    return `<span style="background:${color}15; color:${color}; border:1px solid ${color}44; padding:1px 4px; border-radius:${config.borderRadius}; font-weight:bold; font-size:10px; white-space:nowrap; vertical-align:middle; margin-left:4px;">${text.toUpperCase()}</span>`;
-                };
+                // ── 8. MUALLAK / PİYASA / EKSPER ORAN TABLOSU ───────────
+                if ((ANALIZPANEL_mull || ANALIZPANEL_ryc || ANALIZPANEL_rycorn) && !magdurpanel) {
+                    html += `<tr><td colspan="2"><hr class="custom-line"></td></tr>`;
+                }
                 const oran = hasPiyasa > 0 ? (tahminiHasar / hasPiyasa) * 100 : 0;
-                let durumMetni = 'BELİRSİZ';
-                let durumColor = "#aaa";
+                let durumMetni = 'BELİRSİZ', durumColor = '#aaa';
                 if (hasPiyasa >= 1000) {
                     if (oran <= 30) { durumMetni = '✅ UYGUN'; durumColor = SUCCESS_COLOR; }
                     else if (oran <= 60) { durumMetni = '🟠 %30 ÜZERİ'; durumColor = '#ffa500'; }
                     else { durumMetni = '🔴 %60 ÜZERİ'; durumColor = '#ff4d4d'; }
                 }
-                const pertUyari = (oran >= 60 && !document.getElementById('pert')?.checked)
-                    ? `<div style="color:#ff4d4d; font-weight:bold; font-size:10px; animation:ksBlink 1s infinite; margin-top:2px; text-align:right;">⚠️ DİKKAT: PERT SEÇİLMELİ!</div>`
-                    : "";
-                html += `<style>@keyframes ksBlink { 0%{opacity:1} 50%{opacity:0.3} 100%{opacity:1} }</style>`;
-                html += `<table style="width:100%; border-collapse:collapse; font-size:12px; color:white; line-height:1.2;">`;
+                const pertUyari = (oran >= 60 && !dom.pert?.checked)
+                    ? `<div style="color:#ff4d4d;font-weight:bold;font-size:10px;animation:ksBlink 1s infinite;margin-top:2px;text-align:right;">⚠️ DİKKAT: PERT SEÇİLMELİ!</div>`
+                    : '';
+
+                html += `<style>@keyframes ksBlink{0%{opacity:1}50%{opacity:0.3}100%{opacity:1}}</style>
+                    <table style="width:100%;border-collapse:collapse;font-size:12px;color:white;line-height:1.2;">`;
                 if (ANALIZPANEL_mull && !magdurpanel) {
-                    html += `
-                    <tr>
-                        <td style="width:100px; padding:4px 0;">Sigorta Muallak:</td>
-                        <td style="text-align:right; padding:4px 0;">
-                            <b>${ssTahmini.toLocaleString()} ₺</b>
-                        </td>
+                    html += `<tr>
+                        <td style="width:100px;padding:4px 0;">Sigorta Muallak:</td>
+                        <td style="text-align:right;padding:4px 0;"><b>${ssTahmini.toLocaleString()} ₺</b></td>
                     </tr>`;
                 }
                 if (ANALIZPANEL_ryc) {
-                    html += `
-                    <tr style="border-top:1px solid #333;">
-                        <td style="width:100px; padding:4px 0;">Piyasa / Rayiç :</td>
-                        <td style="text-align:right; padding:4px 0;">
-                            <b style="color:#00d4ff">${hasPiyasa.toLocaleString('tr-TR')} ₺</b>
-                        </td>
+                    html += `<tr style="border-top:1px solid #333;">
+                        <td style="width:100px;padding:4px 0;">Piyasa / Rayiç :</td>
+                        <td style="text-align:right;padding:4px 0;"><b style="color:#00d4ff">${hasPiyasa.toLocaleString('tr-TR')} ₺</b></td>
                     </tr>`;
                 }
                 if (ANALIZPANEL_rycorn && !magdurpanel) {
-                    html += `
-                        <tr>
-                            <td style="width:100px; padding:4px 0;">Eksper Muallak:</td>
-                            <td style="text-align:right; padding:4px 0;">
-                                <b style="color:${durumColor}">${tahminiHasar.toLocaleString()} ₺</b>
-                                ${getStatusBadge(durumMetni, durumColor)}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td colspan="2" style="padding:4px 0;">
-                                <div class="ks-tooltip-container" style="width:100%;">
-                                    <div style="display: flex; align-items: center; gap: 6px;">
-                                        <div style="background:#222; flex-grow:1; height:6px; border-radius:4px; overflow:hidden; border:1px solid #444;">
-                                            <div style="background:${durumColor}; width:${Math.min(oran, 100)}%; height:100%;"></div>
-                                        </div>
-                                        <span style="color:${config.Color}; font-size:12px; min-width:25px;">%${oran.toFixed(0)}</span>
+                    html += `<tr>
+                        <td style="width:100px;padding:4px 0;">Eksper Muallak:</td>
+                        <td style="text-align:right;padding:4px 0;">
+                            <b style="color:${durumColor}">${tahminiHasar.toLocaleString()} ₺</b>
+                            ${makeBadge(durumMetni, durumColor, br)}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" style="padding:4px 0;">
+                            <div class="ks-tooltip-container" style="width:100%;">
+                                <div style="display:flex;align-items:center;gap:6px;">
+                                    <div style="background:#222;flex-grow:1;height:6px;border-radius:4px;overflow:hidden;border:1px solid #444;">
+                                        <div style="background:${durumColor};width:${Math.min(oran, 100)}%;height:100%;"></div>
                                     </div>
-                                    ${pertUyari}
-                                    <div class="ks-tooltip-box">Eksper hasar tutarının piyasa değerine oranını gösterir.</div>
+                                    <span style="color:${config.Color};font-size:12px;min-width:25px;">%${oran.toFixed(0)}</span>
                                 </div>
-                            </td>
-                        </tr>`;
+                                ${pertUyari}
+                                <div class="ks-tooltip-box">Eksper hasar tutarının piyasa değerine oranını gösterir.</div>
+                            </div>
+                        </td>
+                    </tr>`;
                 }
                 html += `</table>`;
-                function buildTargetUrl() {
-                    const extractYear = (str) => {
-                        const match = String(str).match(/\b(19|20)\d{2}\b/);
-                        return match ? match[0] : "";
-                    };
-                    let m = "", yRaw = "", kStr = "0";
+                // ── DOM YAZ ─────────────────────────────────────────────
+                if (dom.panelContent) dom.panelContent.innerHTML = html;
+                // ── 9. BUTON OLAY DİNLEYİCİLERİ ────────────────────────
+                if (dom.btnAnaliz) dom.btnAnaliz.onclick = () => startAutomatedSearch(true, dom);
+                if (dom.btnLook) dom.btnLook.onclick = () => startAutomatedSearch(false, dom);
+            }
+            // ─── HEDEF URL OLUŞTURUCU ────────────────────────────────────
+            function buildTargetUrl() {
+                try {
+                    const extractYear = str => (String(str).match(/\b(19|20)\d{2}\b/) || [])[0] || '';
+                    const cleanModel = str => str
+                        .replace(/\d{2}\/\d{2}\/\d{4}.*/g, '')
+                        .replace(/\(\s*\d+\s*\)/g, '')
+                        .replace(/\s+/g, ' ')
+                        .trim();
+                    let m = '', yRaw = '', kStr = '0';
+                    const isTrafik = document.getElementById('SIGORTA_SEKLI')?.value === '1';
                     if (magdurpanel) {
-                        m = document.getElementById('MODEL_ADI')?.value || document.getElementById('MODEL_ADI')?.innerText || "";
-                        yRaw = document.getElementById('MODEL_YILI')?.value || document.getElementById('MODEL_YILI')?.innerText || "";
-                        kStr = document.getElementById('KM')?.value || document.getElementById('KM')?.innerText || "0";
+                        m = safeVal(document.getElementById('MODEL_ADI'));
+                        yRaw = safeVal(document.getElementById('MODEL_YILI'));
+                        kStr = safeVal(document.getElementById('KM')) || '0';
                     } else if (isTrafik) {
                         const hiddenInput = document.querySelector('input[name="MAGDUR_MARKA_ID"]');
-                        const dataRow = hiddenInput ? hiddenInput.nextElementSibling : document.querySelector('td.acik')?.closest('tr');
-                        if (dataRow && dataRow.tagName === 'TR') {
-                            const cells = dataRow.querySelectorAll('td.acik');
-                            m = cells[2]?.innerText || "";
-                            yRaw = cells[3]?.innerText || "";
-                        } else {
-                            const backupRow = document.querySelector('td.acik')?.closest('tr');
-                            if (backupRow) {
-                                const cells = backupRow.querySelectorAll('td.acik');
-                                m = cells[2]?.innerText || "";
-                                yRaw = cells[3]?.innerText || "";
-                            }
+                        const row = hiddenInput?.parentElement?.closest('tr')
+                            || document.querySelector('td.acik')?.closest('tr');
+                        if (row) {
+                            const cells = row.querySelectorAll('td.acik');
+                            m = cells[2]?.innerText || '';
+                            yRaw = cells[3]?.innerText || '';
                         }
                     } else {
-                        const mInput = document.getElementById('HAS_MODEL_ADI') || document.getElementById('MODEL_ADI');
-                        const yInput = document.getElementById('HAS_MODEL_YILI') || document.getElementById('MODEL_YILI');
-                        m = mInput ? (mInput.value || mInput.innerText || "") : "";
-                        yRaw = yInput ? (yInput.value || yInput.innerText || "") : "";
+                        m = safeVal(document.getElementById('HAS_MODEL_ADI') || document.getElementById('MODEL_ADI'));
+                        yRaw = safeVal(document.getElementById('HAS_MODEL_YILI') || document.getElementById('MODEL_YILI'));
+                        kStr = safeVal(document.getElementById('HAS_KM')) || '0';
                     }
-                    if (!magdurpanel) {
-                        kStr = document.getElementById('HAS_KM')?.value || document.getElementById('HAS_KM')?.innerText || "0";
-                    }
-                    m = m.replace(/\d{2}\/\d{2}\/\d{4}.*/g, '').replace(/\(\s*\d+\s*\)/g, '').replace(/\s+/g, ' ').trim();
+                    m = cleanModel(m);
                     const y = extractYear(yRaw);
-                    const k = parseInt(kStr.replace(/\D/g, '')) || 0;
-                    const result = m ? {
+                    const k = parseInt(kStr.replace(/\D/g, ''), 10) || 0;
+                    if (!m) return null;
+                    return {
                         model: m,
                         year: y,
                         kmMin: k >= 100 ? Math.floor(k * 0.85) : null,
-                        kmMax: k >= 100 ? Math.ceil(k * 1.15) : null
-                    } : null;
-                    return result;
+                        kmMax: k >= 100 ? Math.ceil(k * 1.15) : null,
+                    };
+                } catch (err) {
+                    console.warn('[buildTargetUrl] Hata:', err);
+                    return null;
                 }
-
-                async function startAutomatedSearch(isAnalyze) {
-                    const resBox = document.getElementById('shb-res-box');
+            }
+            // ─── OTOMATİK ARAMA ─────────────────────────────────────────
+            function startAutomatedSearch(isAnalyze, dom) {
+                const resBox = dom?.resBox || document.getElementById('shb-res-box');
+                try {
                     const data = buildTargetUrl();
-                    if (!data) { if (isAnalyze) resBox.innerHTML = "❌ Veri hatası!"; return; }
-                    if (isAnalyze) {
-                        resBox.style.marginBottom = "10px";
-                        resBox.innerHTML = `<span style="color:#fff; font-size:13px; opacity:0.8;">🔍 Filtreleniyor...</span>`;
+                    if (!data) {
+                        if (isAnalyze && resBox) resBox.innerHTML = '❌ Araç verisi okunamadı!';
+                        return;
+                    }
+                    if (isAnalyze && resBox) {
+                        resBox.style.marginBottom = '10px';
+                        resBox.innerHTML = `<span style="color:#fff;font-size:13px;opacity:0.8;">🔍 Filtreleniyor…</span>`;
                     }
                     const googleQuery = `site:sahibinden.com "${data.model}" ${data.year}`;
                     const googleUrl = `https://www.google.com/search?q=${encodeURIComponent(googleQuery)}`;
                     GM_xmlhttpRequest({
-                        method: "GET",
+                        method: 'GET',
                         url: googleUrl,
-                        headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/124.0.0.0" },
-                        onload: function (gRes) {
-                            const gDoc = new DOMParser().parseFromString(gRes.responseText, "text/html");
-                            const links = [...gDoc.querySelectorAll('a')];
-                            const target = links.find(a => a.href.includes("sahibinden.com/") && !a.href.includes("/ilan listelendi/") && !a.href.includes("/detay"));
-                            if (!target) { if (isAnalyze) resBox.innerHTML = "⚠️ Kategori bulunamadı."; return; }
-                            let shbUrlString = "";
+                        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/124.0.0.0' },
+                        onload(gRes) {
                             try {
-                                const urlObj = new URL(target.href);
-                                shbUrlString = urlObj.pathname === "/url" ? urlObj.searchParams.get("q").split('&')[0] : target.href.split('&')[0];
-                            } catch (e) { shbUrlString = target.href; }
-                            const finalUrl = new URL(shbUrlString);
-                            finalUrl.searchParams.set("pagingSize", "50");
-                            finalUrl.searchParams.set("sorting", "km-nu_asc");
-                            if (data.year) {
-                                finalUrl.searchParams.set("a5_min", data.year);
-                                finalUrl.searchParams.set("a5_max", data.year);
-                                finalUrl.searchParams.set("a90178_min", data.year);
-                                finalUrl.searchParams.set("a90178_max", data.year);
+                                const gDoc = new DOMParser().parseFromString(gRes.responseText, 'text/html');
+                                const target = [...gDoc.querySelectorAll('a')].find(
+                                    a => a.href.includes('sahibinden.com/')
+                                        && !a.href.includes('/ilan listelendi/')
+                                        && !a.href.includes('/detay')
+                                );
+                                if (!target) {
+                                    if (isAnalyze && resBox) resBox.innerHTML = '⚠️ Kategori bulunamadı.';
+                                    return;
+                                }
+                                let shbStr = '';
+                                try {
+                                    const urlObj = new URL(target.href);
+                                    shbStr = urlObj.pathname === '/url'
+                                        ? urlObj.searchParams.get('q').split('&')[0]
+                                        : target.href.split('&')[0];
+                                } catch (_) { shbStr = target.href; }
+
+                                const finalUrl = new URL(shbStr);
+                                finalUrl.searchParams.set('sorting', 'km-nu_asc');
+                                if (data.year) {
+                                    finalUrl.searchParams.set('a5_min', data.year);
+                                    finalUrl.searchParams.set('a5_max', data.year);
+                                    finalUrl.searchParams.set('a90178_min', data.year);
+                                    finalUrl.searchParams.set('a90178_max', data.year);
+                                }
+                                if (data.kmMin > 1000) {
+                                    finalUrl.searchParams.set('a4_min', data.kmMin);
+                                    finalUrl.searchParams.set('a4_max', data.kmMax);
+                                    finalUrl.searchParams.set('a90180_min', data.kmMin);
+                                    finalUrl.searchParams.set('a90180_max', data.kmMax);
+                                }
+                                if (isAnalyze) fetchPricesFromShb(finalUrl.toString(), resBox);
+                                else unsafeWindow.open(finalUrl.toString(), '_blank');
+                            } catch (err) {
+                                console.warn('[startAutomatedSearch] Google parse hatası:', err);
+                                if (isAnalyze && resBox) resBox.innerHTML = '❌ Google yanıtı işlenemedi.';
                             }
-                            if (data.kmMin > 1000) {
-                                finalUrl.searchParams.set("a4_min", data.kmMin);
-                                finalUrl.searchParams.set("a4_max", data.kmMax);
-                                finalUrl.searchParams.set("a90180_min", data.kmMin);
-                                finalUrl.searchParams.set("a90180_max", data.kmMax);
-                            }
-                            if (isAnalyze) fetchPricesFromShb(finalUrl.toString());
-                            else unsafeWindow.open(finalUrl.toString(), '_blank');
+                        },
+                        onerror(err) {
+                            console.warn('[startAutomatedSearch] İstek hatası:', err);
+                            if (isAnalyze && resBox) resBox.innerHTML = '❌ Ağ hatası oluştu.';
                         }
                     });
+                } catch (err) {
+                    console.warn('[startAutomatedSearch] Genel hata:', err);
+                    if (isAnalyze && resBox) resBox.innerHTML = '❌ Beklenmeyen hata.';
                 }
-
-                function fetchPricesFromShb(url) {
-                    const resBox = document.getElementById('shb-res-box');
-                    GM_xmlhttpRequest({
-                        method: "GET",
-                        url: url,
-                        headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/124.0.0.0" },
-                        onload: function (res) {
-                            const sDoc = new DOMParser().parseFromString(res.responseText, "text/html");
+            }
+            // ─── FİYAT VERİSİ ÇEKME & GELİŞMİŞ İSTATİSTİK ─────────────
+            function fetchPricesFromShb(url, resBox) {
+                if (!resBox) resBox = document.getElementById('shb-res-box');
+                GM_xmlhttpRequest({
+                    method: 'GET',
+                    url: url,
+                    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/124.0.0.0' },
+                    onload(res) {
+                        try {
+                            const sDoc = new DOMParser().parseFromString(res.responseText, 'text/html');
                             const rows = [...sDoc.querySelectorAll('tr.searchResultsItem')];
-                            const dataList = [];
-                            rows.forEach(tr => {
+
+                            const dataList = rows.reduce((acc, tr) => {
                                 const titleEl = tr.querySelector('.classifiedTitle');
                                 const priceEl = tr.querySelector('.searchResultsPriceValue');
                                 const attrEls = tr.querySelectorAll('.searchResultsAttributeValue');
+
                                 if (titleEl && priceEl && attrEls.length >= 2) {
-                                    const price = parseInt(priceEl.innerText.replace(/\D/g, '')) || 0;
-                                    if (price > 100000) {
-                                        dataList.push({
+                                    const price = parseInt(priceEl.innerText.replace(/\D/g, ''), 10) || 0;
+                                    if (price > 100_000) {
+                                        acc.push({
                                             id: tr.getAttribute('data-id') || Math.random(),
-                                            title: titleEl.title.substring(0, 20),
-                                            link: "https://www.sahibinden.com" + titleEl.getAttribute('href'),
+                                            title: (titleEl.title || '').substring(0, 20),
+                                            link: 'https://www.sahibinden.com' + titleEl.getAttribute('href'),
                                             year: attrEls[0].innerText.trim(),
                                             km: attrEls[1].innerText.trim(),
-                                            price: price
+                                            price,
                                         });
                                     }
                                 }
-                            });
-                            if (dataList.length > 0) {
-                                const avg = Math.round(dataList.reduce((a, b) => a + b.price, 0) / dataList.length);
-                                const sortedHigh = [...dataList].sort((a, b) => b.price - a.price);
-                                const sortedLow = [...dataList].sort((a, b) => a.price - b.price);
-                                const nearAvg = [...dataList].sort((a, b) => Math.abs(a.price - avg) - Math.abs(b.price - avg));
-                                let displaySet = new Set(); let displayList = [];
-                                const addToDisplay = (item, color) => {
-                                    if (item && !displaySet.has(item.id) && displayList.length < 5) {
-                                        displayList.push({ ...item, color }); displaySet.add(item.id);
-                                    }
-                                };
-                                addToDisplay(sortedHigh[0], "#27fdf9");
-                                addToDisplay(sortedHigh[1], "#26f885");
-                                addToDisplay(nearAvg[0], "#d3ff73");
-                                addToDisplay(nearAvg[1], "#d3ff73");
-                                addToDisplay(sortedLow[0], "#fff8b7");
-                                let html = `<style>
-               								    .shb-link { color: #42c6ff !important; text-decoration: underline !important; transition: all 0.2s !important; }
-               								    .shb-link:hover { color: #aeffe8 !important; opacity: 0.8; }
-               								    .shb-link:active { color: #ffeb3b !important; }
-               								</style>`;
-                                html += `<div style="background: rgba(200, 200, 200, 0.11); border: 1px solid #444; border-radius: 6px; padding: 5px; color: white; width: 100%; box-sizing: border-box;">`;
-                                const roundedAvg = Math.round(avg / 5000) * 5000;
-                                html += `<div style="display:flex; justify-content:space-between; margin-bottom:4px; border-bottom:1px solid #555; padding-bottom:8px; font-size:11px;"><b>Ort: ${roundedAvg.toLocaleString('tr-TR')} TL</b>
-								<span style="color:#00ff88; font-weight:bold;">${dataList.length} İlan</span></div>`;
-                                html += `<table style="width:100%; border-collapse:collapse; font-size:10px;">`;
-                                displayList.forEach(item => {
-                                    html += `<tr style="border-bottom: 1px solid #222;">
-                    					     <td style="padding:3px 0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-                    					         <a href="${item.link}" target="_blank" class="shb-link" style="display: inline-block !important;">${item.title}</a>
-                    					     </td>
-                    					     <td style="color: white; width:30px; text-align:right;">${item.year}</td>
-                    					     <td style="color: white; width:50px; text-align:right;">${item.km}</td>
-                    					     <td style="color:${item.color}; width:80px; text-align:right; font-weight:bold;">${item.price.toLocaleString('tr-TR')}</td>
-                    					 </tr>`;
-                                });
-                                html += `</table></div>`;
-                                resBox.innerHTML = html;
-                            } else {
-                                resBox.innerHTML = `<br><a href="${url}" target="_blank" style="color:#27fdf9; font-size:13px;">Buraya Tıkla!</a><br>Sonuç bulunamadı adresi kontrol et.<center style="font-size:11px;">Bot engeline takılmış olabilir.</center>`;
+                                return acc;
+                            }, []);
+                            if (!dataList.length) {
+                                resBox.innerHTML = `<br>
+                                    <a href="${url}" target="_blank" style="color:#27fdf9;font-size:13px;">Buraya Tıkla!</a><br>
+                                    Sonuç bulunamadı, adresi kontrol et.
+                                    <center style="font-size:11px;">Bot engeline takılmış olabilir.</center>`;
+                                return;
                             }
+                            // ── İSTATİSTİK HESAPLAMALARI ───────────────
+                            const prices = dataList.map(d => d.price);
+                            const minPrice = Math.min(...prices);
+                            const maxPrice = Math.max(...prices);
+                            const avgPrice = Math.round(prices.reduce((a, b) => a + b, 0) / prices.length);
+                            const medPrice = median(prices);
+                            const round5k = v => Math.round(v / 5000) * 5000;
+                            // ── SEÇİLECEK İLANLAR ────────────────────
+                            const byPrice = (a, b) => a.price - b.price;
+                            const byAbsAvg = (a, b) => Math.abs(a.price - medPrice) - Math.abs(b.price - medPrice);
+                            const sortedLow = [...dataList].sort(byPrice);
+                            const sortedHigh = [...dataList].sort((a, b) => -byPrice(a, b));
+                            const nearMed = [...dataList].sort(byAbsAvg);
+                            const displaySet = new Set();
+                            const displayList = [];
+                            const addItem = (item, color) => {
+                                if (item && !displaySet.has(item.id) && displayList.length < 5) {
+                                    displayList.push({ ...item, color });
+                                    displaySet.add(item.id);
+                                }
+                            };
+                            addItem(sortedHigh[0], '#27fdf9'); // En pahalı
+                            addItem(sortedHigh[1], '#26f885'); // 2. pahalı
+                            addItem(nearMed[0], '#d3ff73'); // Medyana yakın
+                            addItem(nearMed[1], '#d3ff73'); // Medyana yakın
+                            addItem(sortedLow[0], '#fff8b7'); // En ucuz
+                            // ── HTML OLUŞTURMA ────────────────────────
+                            let html = `<style>
+                                .shb-link{color:#42c6ff!important;text-decoration:underline!important;transition:all .2s!important}
+                                .shb-link:hover{color:#aeffe8!important;opacity:.8}
+                                .shb-link:active{color:#ffeb3b!important}
+                                .shb-stat-row{display:flex;justify-content:space-between;align-items:center;padding:2px 0;}
+                                .shb-stat-label{font-size:9px;color:#aaa;}
+                                .shb-stat-val{font-size:10px;font-weight:bold;}
+                            </style>`;
+                            html += `<div style="padding:4px;color:white;width:100%;box-sizing:border-box;">`;
+                            // — Özet istatistik satırı —
+                            html += `
+                            <div style="background:#1a1a2e;border:1px solid #333;border-radius:6px;padding:6px 8px;margin-bottom:6px;">
+                                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;border-bottom:1px solid #333;padding-bottom:3px;">
+                                    <span style="font-size:10px;color:#aaa;">${dataList.length} ilan</span>
+                                    <span style="font-size:10px;font-weight:bold;color:#00ff88;">${dataList.length} İlan</span>
+                                </div>
+                                <div class="shb-stat-row">
+                                    <span class="shb-stat-label">🔻 Minimum</span>
+                                    <span class="shb-stat-val" style="color:#fff8b7;">${minPrice.toLocaleString('tr-TR')} ₺</span>
+                                </div>
+                                <div class="shb-stat-row">
+                                    <span class="shb-stat-label">〰 Medyan</span>
+                                    <span class="shb-stat-val" style="color:#d3ff73;">${round5k(medPrice).toLocaleString('tr-TR')} ₺</span>
+                                </div>
+                                <div class="shb-stat-row">
+                                    <span class="shb-stat-label">📊 Ortalama</span>
+                                    <span class="shb-stat-val" style="color:#00d4ff;">${round5k(avgPrice).toLocaleString('tr-TR')} ₺</span>
+                                </div>
+                                <div class="shb-stat-row">
+                                    <span class="shb-stat-label">🔺 Maksimum</span>
+                                    <span class="shb-stat-val" style="color:#27fdf9;">${maxPrice.toLocaleString('tr-TR')} ₺</span>
+                                </div>
+                                <!-- Mini fiyat bandı -->
+                                <div style="margin-top:5px;position:relative;background:#222;height:4px;border-radius:3px;overflow:hidden;border:1px solid #333;">
+                                    <!-- medyan çizgisi -->
+                                    <div style="
+                                        position:absolute;
+                                        left:${((medPrice - minPrice) / (maxPrice - minPrice || 1) * 100).toFixed(1)}%;
+                                        width:2px; height:100%;
+                                        background:#d3ff73;
+                                        z-index:2;
+                                    "></div>
+                                    <!-- ortalama çizgisi -->
+                                    <div style="
+                                        position:absolute;
+                                        left:${((avgPrice - minPrice) / (maxPrice - minPrice || 1) * 100).toFixed(1)}%;
+                                        width:2px; height:100%;
+                                        background:#00d4ff;
+                                        z-index:2;
+                                    "></div>
+                                    <!-- dolu bant -->
+                                    <div style="width:100%;height:100%;background:linear-gradient(90deg,#fff8b720,#27fdf940);"></div>
+                                </div>
+                                <div style="display:flex;justify-content:space-between;font-size:8px;color:#666;margin-top:2px;">
+                                    <span>Min</span><span style="color:#d3ff73;">Med</span><span style="color:#00d4ff;">Ort</span><span>Max</span>
+                                </div>
+                            </div>`;
+                            // — İlan tablosu —
+                            html += `<table style="width:100%;border-collapse:collapse;font-size:9px;table-layout:fixed;">
+                                <colgroup>
+                                    <col style="width:auto;">
+                                    <col style="width:32px;">
+                                    <col style="width:52px;">
+                                    <col style="width:72px;">
+                                </colgroup>`;
+                            displayList.forEach(item => {
+                                html += `<tr>
+                                    <td style="padding:2px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                                        <a href="${item.link}" target="_blank" class="shb-link" style="display:inline-block!important;">${item.title}</a>
+                                    </td>
+                                    <td style="color:white;text-align:right;">${item.year}</td>
+                                    <td style="color:white;text-align:right;">${item.km}</td>
+                                    <td style="color:${item.color};text-align:right;font-weight:bold;">${item.price.toLocaleString('tr-TR')}</td>
+                                </tr>`;
+                            });
+                            html += `</table></div>`;
+                            resBox.innerHTML = html;
+                        } catch (err) {
+                            console.warn('[fetchPricesFromShb] Parse hatası:', err);
+                            if (resBox) resBox.innerHTML = '❌ Fiyat verisi işlenemedi.';
                         }
-                    });
-                }
-                document.getElementById('btn-auto-analiz').onclick = () => startAutomatedSearch(true);
-                document.getElementById('btn-auto-look').onclick = () => startAutomatedSearch(false);
-                document.getElementById('panelContent').innerHTML = html;
+                    },
+                    onerror(err) {
+                        console.warn('[fetchPricesFromShb] İstek hatası:', err);
+                        if (resBox) resBox.innerHTML = '❌ Sahibinden.com\'a bağlanılamadı.';
+                    }
+                });
             }
             /* ===== 5. OTOMATİK SEÇİM BUTONU ===== */
             document.getElementById('autoSelectBtn').addEventListener('click', (e) => {
@@ -1924,7 +2010,7 @@
             setInterval(updatePanel, 1500);
         }
     }
-    // Hızlı Donanım girişis
+    // Hızlı Donanım girişi
     if (KS_SYSTEM && DONANIM && location.href.includes("otohasar") && /eks_(magdur_arac_donanim|arac_donanim)/.test(location.href)) {
         function initPanel() {
             if (document.getElementById('donanim-panel') || !document.body.innerText.toLowerCase().includes("donanim")) return;
@@ -3264,8 +3350,8 @@
         if (!panel) return;
         panel.style.setProperty('width', config.width);
         panel.style.setProperty('min-width', config.width);
-		// bi sorun var ama yakalayamadım nedense
-		if (document.body.classList.contains('ks-panel-open')) { document.body.style.marginRight = config.width; }
+        // bi sorun var ama yakalayamadım nedense
+        if (document.body.classList.contains('ks-panel-open')) { document.body.style.marginRight = config.width; }
         const panelContent = panel ? panel.querySelector('.ks-content') : null;
         if (panel && panelContent) {
             const headerTitle = panel.querySelector('.ks-header h4');
@@ -3703,12 +3789,15 @@
     // Sahibinden Ortalama KM Piyasa sorgusu
     if (KS_SYSTEM && SAHIBINDEN && location.href.includes("sahibinden.com") && !location.pathname.includes("/ilan/") && !location.pathname.includes("/kategori/")) {
         if (!location.search.includes("pagingSize=50")) {
-            const url = new URL(location.href);
-            url.searchParams.set("pagingSize", "50");
-            location.replace(url.href);
+            const url = new URL(location.href); url.searchParams.set("pagingSize", "50"); location.replace(url.href);
         }
-        config.width = '200px';
+        config.width = '150px';
         initPanel();
+        const panel = document.getElementById('ks-master-panel');
+        if (!panel) return;
+        panel.style.setProperty('width', config.width);
+        panel.style.setProperty('min-width', config.width);
+        if (document.body.classList.contains('ks-panel-open')) { document.body.style.marginRight = config.width; }
         const contentArea = document.querySelector('.ks-content');
         let lastState = "";
         if (contentArea) {
@@ -4307,5 +4396,93 @@
                 console.log("Toast Observer aktif edildi.");
             }
         }, 2000);
+    }
+    // Quick - Corpus - Anadolu Sigorta
+    if (KS_SYSTEM && QCASIGORTA && /quicksigorta\.com|anadolusigorta\.com|corpussigorta\.com/.test(location.href)) {
+        const format = v => {
+            v = v.replace(/\D/g, '').substring(0, 8);
+            return v.length > 4 ? v.slice(0, 2) + '.' + v.slice(2, 4) + '.' + v.slice(4) : (v.length > 2 ? v.slice(0, 2) + '.' + v.slice(2) : v);
+        };
+        const lockValue = (input, val) => {
+            let _v = val;
+            const desc = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
+            Object.defineProperty(input, 'value', {
+                get: () => _v,
+                set: (nv) => { if (/^\d{2}\.\d{2}\.\d{4}$/.test(nv)) _v = nv; },
+                configurable: true
+            });
+            desc.set.call(input, val);
+        };
+        const destroyPicker = (input) => {
+            if (input._flatpickr) try { input._flatpickr.destroy(); } catch (e) { }
+            if (window.jQuery) try { window.jQuery(input).datepicker('destroy'); } catch (e) { }
+            document.querySelectorAll('.datepicker, .datepicker-dropdown, .flatpickr-calendar').forEach(el => el.remove());
+        };
+        const applyDateLogic = (input) => {
+            if (input.dataset.ksHandled) return;
+            input.dataset.ksHandled = 'true';
+            setTimeout(() => (input._flatpickr || (window.jQuery && window.jQuery(input).data('datepicker'))) && destroyPicker(input), 800);
+            input.addEventListener('input', (e) => {
+                const pos = input.selectionStart, oldLen = input.value.length;
+                input.value = format(input.value);
+                const move = input.value.length - oldLen;
+                input.setSelectionRange(pos + move, pos + move);
+            }, true);
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === 'Tab') {
+                    e.stopImmediatePropagation();
+                    if (e.key === 'Enter') e.preventDefault();
+                    const f = format(input.value);
+                    if (f.length === 10) {
+                        lockValue(input, f);
+                        destroyPicker(input);
+                        ['input', 'change'].forEach(t => input.dispatchEvent(new Event(t, { bubbles: true })));
+                    }
+                    if (e.key === 'Enter') {
+                        const nodes = [...document.querySelectorAll('input:not([disabled]):not([readonly])')];
+                        const next = nodes[nodes.indexOf(input) + 1];
+                        if (next) next.focus();
+                    }
+                }
+            }, true);
+            input.addEventListener('blur', () => {
+                if (/^\d{2}\.\d{2}\.\d{4}$/.test(input.value)) {
+                    const s = input.value;
+                    [0, 50].forEach(t => setTimeout(() => input.value !== s && lockValue(input, s), t));
+                }
+            }, true);
+        };
+        const handleAutoFill = () => {
+            const field = (id) => document.getElementById(id);
+            const ev = (el) => ['input', 'change'].forEach(t => el.dispatchEvent(new Event(t, { bubbles: true })));
+            const target = field('insuredVehicleOwner'), n = field('insuredName'), s = field('insuredSurname');
+            if (target && n && s && !target.dataset.l) {
+                target.dataset.l = "1";
+                target.addEventListener('focus', () => {
+                    const full = (n.value + ' ' + s.value).trim();
+                    if (full.length > 1) { target.value = full; ev(target); }
+                });
+            }
+            const rep = field('cdExpertOfficeReportNo'), dat = field('cdAssignDate');
+            if (rep && dat && !rep.dataset.l) {
+                rep.dataset.l = "1";
+                rep.addEventListener('focus', () => {
+                    if (!rep.value && dat.value.length >= 4) { rep.value = dat.value.substring(dat.value.length - 4); ev(rep); }
+                });
+            }
+            [['cdExpertiseLocationLatitude', '36'], ['cdExpertiseLocationLongitude', '42']].forEach(([id, val]) => {
+                const el = field(id);
+                if (el && !el.dataset.l) {
+                    el.dataset.l = "1";
+                    el.addEventListener('focus', () => { if (el.value === "0,000000" || !el.value) { el.value = val; ev(el); } });
+                }
+            });
+        };
+        const run = () => {
+            document.querySelectorAll('input.inputDate, input[name*="date" i], input[id*="Date" i]').forEach(applyDateLogic);
+            handleAutoFill();
+        };
+        new MutationObserver(run).observe(document.body, { childList: true, subtree: true });
+        run();
     }
 })();
