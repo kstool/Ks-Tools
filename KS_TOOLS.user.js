@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KS TOOLS PANEL
 // @namespace    KS_TOOLS_PANEL
-// @version      1.52
+// @version      1.53
 // @license      GPL-3.0
 // @description  OtoHasar Dinamik Form Panel / Parça - Manuel ve Çoklu ekleme / Donanim Panel / SBM Tramer no ayırma ve resim indirme / Wp resim indirme
 // @author       Saygın
@@ -23,7 +23,7 @@
 // ==/UserScript==
 (function () {
     'use strict';
-    /* ---Eklenecekler
+        /* ---Eklenecekler
         *** paneller düzenlenecek; genişlikleri, kaydırma oranı, görünümü vs.
         sağ üste danseden doge
         Gerekli evrak gösteren panel - duruma bağlı
@@ -75,8 +75,18 @@
         style.innerHTML = `
             @import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;700&display=swap');
             :root { --fontier: 'Exo 2', sans-serif !important; }
-            body { transition: margin-right 0.4s cubic-bezier(0.4,0,0.2,1) !important; }
-            body.ks-panel-open { margin-right: ${config.width}; overflow-x: hidden !important; }
+            /*body { transition: margin-right 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important; }
+            body.ks-panel-open {
+                margin-right: ${config.width} !important;
+                width: calc(100% - ${config.width}) !important;
+                overflow-x: hidden !important;
+            }*/
+			body:not(.ks-panel-open) {
+			    margin-right: 0 !important;
+			    width: 100% !important;
+			    overflow-x: auto !important;
+			    transition: margin-right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+			}
             /* ── Panel ── */
             .ks-draggable-panel {
                 position: fixed !important;
@@ -219,15 +229,15 @@
             }
             /* ── İçerik ── */
             .ks-content {
-                flex: 1; overflow-y: auto; overflow-x: hidden;
+                overflow-y: auto; overflow-x: hidden;
                 padding: 6px; display: flex; flex-direction: column; gap: 4px;
                 color: ${config.Color}; box-sizing: border-box;
                 position: relative; z-index: 1;
                 scrollbar-width: thin;
-                scrollbar-color: ${config.themeColor}33 transparent;
+                scrollbar-color: color-mix(in srgb, ${config.themeColor}80, white 5%)  transparent;
             }
             .ks-content::-webkit-scrollbar { width: 2px; }
-            .ks-content::-webkit-scrollbar-thumb { background: ${config.themeColor}44; }
+            .ks-content::-webkit-scrollbar-thumb { background: color-mix(in srgb, ${config.themeColor}44, white 5%); }
             .ks-content * { max-width: 100% !important; box-sizing: border-box !important; }
             /* ── Butonlar ── */
             .ks-btn {
@@ -317,11 +327,22 @@
     };
     const initPanel = () => {
         if (document.getElementById('ks-master-panel')) return;
-        const bodyStyle = `body.ks-panel-open {
+        const bodyStyle = `
+        body.ks-panel-open {
         margin-right: ${config.width};
         overflow-x: hidden !important;
         transition: margin-right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    	}`;
+    	}
+            #ks-content {
+                max-height: calc(100vh - 60px);
+                overflow-y: auto;
+                scrollbar-width: thin;
+                scrollbar-color: #333 #1a1a2e;
+            }
+            #ks-content::-webkit-scrollbar { width: 5px; }
+            #ks-content::-webkit-scrollbar-track { background: #1a1a2e; }
+            #ks-content::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+        `;
         injectStyles(bodyStyle);
         const isCollapsedSaved = localStorage.getItem('ks-panel-collapsed') === 'true';
         const panel = document.createElement('div');
@@ -331,7 +352,7 @@
         panel.innerHTML = `
             <div class="ks-scanline"></div>
             <div class="ks-corner-br"></div>
-            <div class="ks-header" id="ks-header">
+            <div class="ks-header" id="ks-header" style="cursor: pointer;">
                 <div class="ks-title-diamond"></div>
                 <div class="ks-title-wrap">
                     <span class="ks-title-text" id="ks-panel-title">KS TOOLS</span>
@@ -351,21 +372,54 @@
         `;
         document.body.appendChild(panel);
         document.body.appendChild(toggleBtn);
+        const content = document.getElementById('ks-content');
+        let isScrolling = false, startY, scrollStart;
+
+        content.addEventListener('mousedown', (e) => {
+            isScrolling = true;
+            startY = e.pageY - content.offsetTop;
+            scrollStart = content.scrollTop;
+            content.style.cursor = 'grabbing';
+            content.style.userSelect = 'none';
+        });
+        document.addEventListener('mousemove', (e) => {
+            if (!isScrolling) return;
+            e.preventDefault();
+            const y = e.pageY - content.offsetTop;
+            const walk = (y - startY) * 1.5;
+            content.scrollTop = scrollStart - walk;
+        });
+        document.addEventListener('mouseup', () => {
+            isScrolling = false;
+            content.style.cursor = 'default';
+            content.style.userSelect = 'auto';
+        });
         const applyState = (collapsed) => {
             panel.classList.toggle('collapsed', collapsed);
             toggleBtn.classList.toggle('ks-closed', collapsed);
             document.body.classList.toggle('ks-panel-open', !collapsed);
-            /* toggle right: panel açıkken panel genişliği, kapalıyken 0 */
             toggleBtn.style.right = collapsed ? '0px' : config.width;
+
+            // Margin'i config.width'den dinamik oku
+            if (!collapsed) {
+                document.body.style.marginRight = config.width;
+                document.body.style.width = `calc(100% - ${config.width})`;
+            } else {
+                document.body.style.marginRight = '0px';
+                document.body.style.width = '100%';
+                setTimeout(() => {
+                    window.scrollTo({ left: 0, behavior: 'smooth' });
+                    document.documentElement.scrollLeft = 0;
+                    document.body.scrollLeft = 0;
+                }, 400);
+            }
+
             localStorage.setItem('ks-panel-collapsed', String(collapsed));
         };
         applyState(isCollapsedSaved);
         toggleBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             applyState(!panel.classList.contains('collapsed'));
-        });
-        document.getElementById('ks-header').addEventListener('click', () => {
-            //applyState(!panel.classList.contains('collapsed'));
         });
     };
     /* ── Tooltip sistemi — .ks-tooltip-box içindeki HTML'i okur ── */
@@ -1879,20 +1933,20 @@
                                 .shb-link:hover{color:#aeffe8!important;opacity:.8}
                                 .shb-link:active{color:#ffeb3b!important}
                                 .shb-stat-row{display:flex;justify-content:space-between;align-items:center;padding:2px 0;}
-                                .shb-stat-label{font-size:9px;color:#aaa;}
+                                .shb-stat-label{font-size:9px;color:#fff;}
                                 .shb-stat-val{font-size:10px;font-weight:bold;}
                             </style>`;
-                            html += `<div style="padding:4px;color:white;width:100%;box-sizing:border-box;">`;
+                            html += `<div style="color:white;width:100%;">`;
                             // — Özet istatistik satırı —
                             html += `
-                            <div style="background:#1a1a2e;border:1px solid #333;border-radius:6px;padding:6px 8px;margin-bottom:6px;">
+                            <div style="background:#1a1a2e;padding:2px 2px;margin-bottom:6px;">
                                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;border-bottom:1px solid #333;padding-bottom:3px;">
-                                    <span style="font-size:10px;color:#aaa;">${dataList.length} ilan</span>
+                                    <span>Piyasa / Rayiç</span>
                                     <span style="font-size:10px;font-weight:bold;color:#00ff88;">${dataList.length} İlan</span>
                                 </div>
                                 <div class="shb-stat-row">
-                                    <span class="shb-stat-label">🔻 Minimum</span>
-                                    <span class="shb-stat-val" style="color:#fff8b7;">${minPrice.toLocaleString('tr-TR')} ₺</span>
+                                    <span class="shb-stat-label">🔺 Maksimum</span>
+                                    <span class="shb-stat-val" style="color:#27fdf9;">${maxPrice.toLocaleString('tr-TR')} ₺</span>
                                 </div>
                                 <div class="shb-stat-row">
                                     <span class="shb-stat-label">〰 Medyan</span>
@@ -1903,36 +1957,26 @@
                                     <span class="shb-stat-val" style="color:#00d4ff;">${round5k(avgPrice).toLocaleString('tr-TR')} ₺</span>
                                 </div>
                                 <div class="shb-stat-row">
-                                    <span class="shb-stat-label">🔺 Maksimum</span>
-                                    <span class="shb-stat-val" style="color:#27fdf9;">${maxPrice.toLocaleString('tr-TR')} ₺</span>
+                                    <span class="shb-stat-label">🔻 Minimum</span>
+                                    <span class="shb-stat-val" style="color:#fff8b7;">${minPrice.toLocaleString('tr-TR')} ₺</span>
                                 </div>
                                 <!-- Mini fiyat bandı -->
                                 <div style="margin-top:5px;position:relative;background:#222;height:4px;border-radius:3px;overflow:hidden;border:1px solid #333;">
                                     <!-- medyan çizgisi -->
-                                    <div style="
-                                        position:absolute;
-                                        left:${((medPrice - minPrice) / (maxPrice - minPrice || 1) * 100).toFixed(1)}%;
-                                        width:2px; height:100%;
-                                        background:#d3ff73;
-                                        z-index:2;
-                                    "></div>
+                                    <div style=" position:absolute; width:4px; height:100%; background:#d3ff73; z-index:2;
+                                        left:${((medPrice - minPrice) / (maxPrice - minPrice || 1) * 100).toFixed(1)}%; "></div>
                                     <!-- ortalama çizgisi -->
-                                    <div style="
-                                        position:absolute;
-                                        left:${((avgPrice - minPrice) / (maxPrice - minPrice || 1) * 100).toFixed(1)}%;
-                                        width:2px; height:100%;
-                                        background:#00d4ff;
-                                        z-index:2;
-                                    "></div>
+                                    <div style=" position:absolute; width:3px; height:100%; background:#00d4ff; z-index:2;
+                                        left:${((avgPrice - minPrice) / (maxPrice - minPrice || 1) * 100).toFixed(1)}%; "></div>
                                     <!-- dolu bant -->
                                     <div style="width:100%;height:100%;background:linear-gradient(90deg,#fff8b720,#27fdf940);"></div>
                                 </div>
                                 <div style="display:flex;justify-content:space-between;font-size:8px;color:#666;margin-top:2px;">
-                                    <span>Min</span><span style="color:#d3ff73;">Med</span><span style="color:#00d4ff;">Ort</span><span>Max</span>
+                                    <span style="color:#fff;">Min</span><span style="color:#00d4ff;">Ort</span><span style="color:#d3ff73;">Med</span><span style="color:#fff;">Max</span>
                                 </div>
                             </div>`;
                             // — İlan tablosu —
-                            html += `<table style="width:100%;border-collapse:collapse;font-size:9px;table-layout:fixed;">
+                            html += `<table style="width:100%;border-collapse:collapse;font-size:8px;table-layout:fixed;">
                                 <colgroup>
                                     <col style="width:auto;">
                                     <col style="width:32px;">
@@ -1941,7 +1985,7 @@
                                 </colgroup>`;
                             displayList.forEach(item => {
                                 html += `<tr>
-                                    <td style="padding:2px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                                    <td style="padding:1px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
                                         <a href="${item.link}" target="_blank" class="shb-link" style="display:inline-block!important;">${item.title}</a>
                                     </td>
                                     <td style="color:white;text-align:right;">${item.year}</td>
@@ -2168,190 +2212,135 @@
     }
     // Hızlı Referans açma Otohasar
     if (KS_SYSTEM && REFERANS && location.href.includes("otohasar") && location.href.includes("eks_hasar_yp_list_yp_talep.php")) {
-        config.width = '200px';
+        config.width = '150px';
         initPanel();
         const panel = document.getElementById('ks-master-panel');
-        const panelContent = panel ? panel.querySelector('.ks-content') : null;
-        if (panel && panelContent) {
-            const headerTitle = panel.querySelector('.ks-header h4');
-            if (headerTitle) headerTitle.innerText = "Excell Panel";
+        if (!panel) return;
+        panel.style.setProperty('width', config.width);
+        panel.style.setProperty('min-width', config.width);
+        if (panel) {
+            const hTitle = panel.querySelector('.ks-header h4');
+            if (hTitle) hTitle.innerText = "Excell Panel";
         }
         const contentArea = document.querySelector('.ks-content');
         if (contentArea) {
-            contentArea.innerHTML = `<div style="text-align:center; padding-bottom:5px; font-size:12px;">Excel için Referanslar kopyala butonu ile kopyalanabilir.<br>Excel'den kopyalanan satırlar yapıştır ile sıralı şekilde yapıştırılabilir.</div>`;
-            contentArea.style.display = "flex";
-            contentArea.style.gap = "5px";
+            contentArea.innerHTML = `<div style="text-align:center;padding-bottom:5px;font-size:11px;">Excel İşlemleri</div>`;
+            Object.assign(contentArea.style, { display: "flex", flexDirection: "column", gap: "4px", padding: "5px" });
+            const btnStyle = "width:100%; padding:4px 2px; font-size:11px; min-height:24px;";
             const btnPaste = document.createElement('button');
             btnPaste.className = 'ks-btn';
+            btnPaste.style.cssText = btnStyle;
             btnPaste.innerText = "📋 YAPIŞTIR";
             btnPaste.onclick = async () => {
                 try {
                     const text = await navigator.clipboard.readText();
                     const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l !== "");
-                    let availableFields = [];
+                    let fields = [];
                     for (let j = 1; j <= 20; j++) {
-                        let field = document.all(`YP_AD_${j}`);
-                        if (!field || field.offsetParent === null) {
-                            const alternativeField = document.all(`YP_AD_DIGER_${j}`);
-                            if (alternativeField) { field = alternativeField; }
-                        }
-                        if (field) { availableFields.push(field); }
+                        let f = document.all(`YP_AD_${j}`) || document.all(`YP_AD_DIGER_${j}`);
+                        if (f) fields.push(f);
                     }
-                    const inputCount = availableFields.length;
-                    const lineCount = lines.length;
-                    if (lineCount !== inputCount && lineCount > 0) {
-                        const confirmAction = confirm(`Dikkat: Sayı Uyuşmazlığı!\n\nExcel'den gelen satır: ${lineCount}\nSayfadaki kutu sayısı: ${inputCount}\n\nYine de devam etmek istiyor musunuz?`);
-                        if (!confirmAction) return;
+                    if (lines.length !== fields.length && lines.length > 0) {
+                        if (!confirm(`Sayı Uyuşmazlığı!\nExcel: ${lines.length}\nKutu: ${fields.length}\nDevam?`)) return;
                     }
                     lines.forEach((line, i) => {
-                        if (i < inputCount) {
-                            availableFields[i].value = line;
-                            availableFields[i].dispatchEvent(new Event('input', { bubbles: true }));
+                        if (i < fields.length) {
+                            fields[i].value = line;
+                            fields[i].dispatchEvent(new Event('input', { bubbles: true }));
                         }
                     });
                     btnPaste.innerText = "✔️ OK";
-                    btnPaste.style.backgroundColor = "#28a745";
-                    setTimeout(() => {
-                        btnPaste.innerText = "📋 YAPIŞTIR";
-                        btnPaste.style.backgroundColor = "";
-                    }, 2000);
-                } catch (err) {
-                    alert("Pano erişim hatası veya kutular bulunamadı!");
-                    console.error(err);
-                }
+					setTimeout(() => { btnPaste.innerText = "📋 YAPIŞTIR"; }, 2000);
+                } catch (err) { console.error(err); }
             };
             const btnCopy = document.createElement('button');
             btnCopy.className = 'ks-btn';
+            btnCopy.style.cssText = btnStyle;
             btnCopy.innerText = "📤 KOPYALA";
             btnCopy.onclick = async () => {
-                try {
-                    const rows = Array.from(document.querySelectorAll('tr')).filter(tr => {
-                        const firstTd = tr.querySelector('td');
-                        return firstTd && firstTd.classList.contains('acik') && tr.querySelectorAll('td').length >= 6;
-                    });
-                    let excelData = rows.map(tr => {
-                        const tds = Array.from(tr.querySelectorAll('td.acik'));
-                        const rowData = tds.slice(0, 6).map(td => td.innerText.trim());
-                        return rowData.join('\t');
-                    }).join('\n');
-                    if (excelData) {
-                        await navigator.clipboard.writeText(excelData);
-                        btnCopy.innerText = "✔️ KOPYALANDI";
-                        setTimeout(() => { btnCopy.innerText = "📤 KOPYALA"; }, 2000);
-                    } else { alert("Kopyalanacak veri bulunamadı."); }
-                } catch (err) { alert("Kopyalama hatası: " + err); }
+                const rows = Array.from(document.querySelectorAll('tr')).filter(tr => tr.querySelector('td')?.classList.contains('acik') && tr.querySelectorAll('td').length >= 6);
+                let data = rows.map(tr => Array.from(tr.querySelectorAll('td.acik')).slice(0, 6).map(td => td.innerText.trim()).join('\t')).join('\n');
+                if (data) {
+                    await navigator.clipboard.writeText(data);
+                    btnCopy.innerText = "✔️ OK";
+                    setTimeout(() => {btnCopy.innerText = "📤 KOPYALA";}, 2000);
+                }
             };
-            const btnFillAll = document.createElement('button');
-            btnFillAll.className = 'ks-btn';
-            btnFillAll.innerText = "🚗 TÜMÜNÜ GRUPLANDIR - Hepiyi";
-            btnFillAll.onclick = async () => {
-                try {
-                    const grupSelects = document.querySelectorAll('select[name^="YP_GRUP_ID_"]');
-                    if (grupSelects.length === 0) return alert("Seçilecek kutu bulunamadı!");
-                    let count = 0;
-                    const promises = Array.from(grupSelects).map(async (grupSelect) => {
-                        const index = grupSelect.name.split('_').pop();
-                        grupSelect.value = "2";
-                        grupSelect.dispatchEvent(new Event('change', { bubbles: true }));
-                        await new Promise(r => setTimeout(r, 500));
-                        const altSelect = document.querySelector(`select[name="YP_ID_${index}"]`);
-                        if (altSelect) {
-                            altSelect.value = "0";
-                            altSelect.dispatchEvent(new Event('change', { bubbles: true }));
-                            count++;
-                        }
-                    });
-                    await Promise.all(promises);
-                    if (count > 0) {
-                        btnFillAll.innerText = `✔️ ${count} SATIR HAZIR`;
-                        btnFillAll.style.backgroundColor = "#28a745";
-                        setTimeout(() => {
-                            btnFillAll.innerText = "🚗 TÜMÜNÜ SEÇ";
-                            btnFillAll.style.cssText = "";
-                        }, 2000);
-                    }
-                } catch (err) { console.error("Toplu seçim hatası:", err); }
+            const btnFill = document.createElement('button');
+            btnFill.className = 'ks-btn';
+            btnFill.style.cssText = btnStyle;
+            btnFill.innerText = "🚗 GRUPLA";
+            btnFill.onclick = async () => {
+                const selects = document.querySelectorAll('select[name^="YP_GRUP_ID_"]');
+                for (let s of selects) {
+                    const idx = s.name.split('_').pop();
+                    s.value = "2";
+                    s.dispatchEvent(new Event('change', { bubbles: true }));
+                    await new Promise(r => setTimeout(r, 200));
+                    const alt = document.querySelector(`select[name="YP_ID_${idx}"]`);
+                    if (alt) { alt.value = "0"; alt.dispatchEvent(new Event('change', { bubbles: true })); }
+                }
+                btnFill.innerText = "✔️ BİTTİ";
+                setTimeout(() => {btnFill.innerText = "🚗 GRUPLA";}, 2000);
             };
-            contentArea.appendChild(btnPaste);
-            contentArea.appendChild(btnCopy);
-            contentArea.appendChild(btnFillAll);
+            contentArea.append(btnPaste, btnCopy, btnFill);
         }
     }
     if (KS_SYSTEM && REFERANS && location.href.includes("otohasar") && location.href.includes("talep_yp_giris.php")) {
-        config.width = '200px';
+        config.width = '150px';
         initPanel();
         const panel = document.getElementById('ks-master-panel');
-        const panelContent = panel ? panel.querySelector('.ks-content') : null;
-        if (panel && panelContent) {
-            // Başlığı güncellemek isterseniz:
-            const headerTitle = panel.querySelector('.ks-header h4');
-            if (headerTitle) headerTitle.innerText = "Excell Panel";
-        }
-        const contentArea = document.querySelector('.ks-content');
+        if (!panel) return;
+
+        panel.style.setProperty('width', config.width, 'important');
+        panel.style.setProperty('min-width', config.width, 'important');
+        panel.style.setProperty('display', 'block', 'important');
+
+        const hTitle = panel.querySelector('.ks-header h4');
+        if (hTitle) hTitle.innerText = "Excell Panel";
+
+        panel.querySelector('.ks-toggle')?.style.setProperty('display', 'block', 'important');
+
+        const contentArea = panel.querySelector('.ks-content');
         if (contentArea) {
-            contentArea.innerHTML = `<div style="text-align:center; padding-bottom:5px; font-size:12px;">Excel'den kopyalanan satırlar yapıştır ile sıralı şekilde yapıştırılabilir. Fiyat kolonu seçilmediyse 1 olarak girilir. Değer küsüratları " . " olarak girilmeli.</div>`;
-            contentArea.style.display = "flex";
-            contentArea.style.gap = "5px";
-            // --- 1. BUTON: EXCEL'DEN YAPIŞTIR ---
+            contentArea.innerHTML = `<div style="text-align:center;padding-bottom:5px;font-size:11px;width:100%;">Veri Girişi</div>`;
+
+            Object.assign(contentArea.style, {
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "6px",
+                padding: "8px",
+                width: "100%",
+                boxSizing: "border-box"
+            });
+
             const btnPaste = document.createElement('button');
             btnPaste.className = 'ks-btn';
+            btnPaste.style.cssText = "width:100%; padding:4px 2px; font-size:11px; min-height:24px;";
             btnPaste.innerText = "📋 YAPIŞTIR";
             btnPaste.onclick = async () => {
                 try {
                     const text = await navigator.clipboard.readText();
                     const rows = text.split(/\r?\n/).filter(line => line.trim() !== "");
-                    let availableRows = [];
+                    let av = [];
                     for (let j = 0; j < 50; j++) {
-                        const kodField = document.querySelector(`input[name="kod[${j}]"]`);
-                        const adField = document.querySelector(`input[name="ad[${j}]"]`);
-                        const fiyatField = document.querySelector(`input[name="fiyat[${j}]"]`);
-                        if (kodField || adField) {
-                            availableRows.push({ kod: kodField, ad: adField, fiyat: fiyatField });
+                        const k = document.querySelector(`input[name="kod[${j}]"]`),
+                              a = document.querySelector(`input[name="ad[${j}]"]`),
+                              f = document.querySelector(`input[name="fiyat[${j}]"]`);
+                        if (k || a) av.push({ k, a, f });
                         }
-                    }
-                    const maxInputs = availableRows.length;
-                    const rowCount = rows.length;
-                    if (rowCount > maxInputs) {
-                        const confirmAction = confirm(`Dikkat: ${rowCount} satır kopyaladınız ama sayfada sadece ${maxInputs} giriş alanı var. \n\nDevam edilsin mi?`);
-                        if (!confirmAction) return;
-                    }
-                    rows.forEach((row, index) => {
-                        if (index < maxInputs) {
-                            // Excel verisi sütunları Tab (\t) ile ayrılır
-                            const columns = row.split('\t');
-                            const valKod = columns[0] ? columns[0].trim() : "";
-                            const valAd = columns[1] ? columns[1].trim() : "";
-                            // Eğer 3. sütun varsa onu al, yoksa "1" yaz
-                            const valFiyat = (columns[2] && columns[2].trim() !== "") ? columns[2].trim() : "1";
-                            if (availableRows[index].kod) {
-                                availableRows[index].kod.value = valKod;
-                                availableRows[index].kod.dispatchEvent(new Event('input', { bubbles: true }));
-                            }
-                            if (availableRows[index].ad) {
-                                availableRows[index].ad.value = valAd;
-                                availableRows[index].ad.dispatchEvent(new Event('input', { bubbles: true }));
-                            }
-                            if (availableRows[index].fiyat) {
-                                availableRows[index].fiyat.value = valFiyat;
-                                availableRows[index].fiyat.dispatchEvent(new Event('input', { bubbles: true }));
-                                if (typeof number_format === "function") {
-                                    availableRows[index].fiyat.dispatchEvent(new Event('keyup', { bubbles: true }));
-                                }
-                            }
+                    rows.forEach((row, i) => {
+                        if (i < av.length) {
+                            const cols = row.split('\t');
+                            if (av[i].k) { av[i].k.value = cols[0]?.trim() || ""; av[i].k.dispatchEvent(new Event('input', { bubbles: true })); }
+                            if (av[i].a) { av[i].a.value = cols[1]?.trim() || ""; av[i].a.dispatchEvent(new Event('input', { bubbles: true })); }
+                            if (av[i].f) { av[i].f.value = (cols[2] && cols[2].trim() !== "") ? cols[2].trim() : "1"; av[i].f.dispatchEvent(new Event('input', { bubbles: true })); }
                         }
                     });
-                    btnPaste.innerText = "✔️ BAŞARIYLA DOLDURULDU";
-                    btnPaste.style.backgroundColor = "#28a745";
-                    btnPaste.style.color = "#fff";
-                    setTimeout(() => {
-                        btnPaste.innerText = "📋 EXCEL'DEN YAPIŞTIR";
-                        btnPaste.style.cssText = "";
-                    }, 2000);
-
-                } catch (err) {
-                    alert("Pano erişim hatası! Lütfen tarayıcı izinlerini kontrol edin.");
-                    console.error(err);
-                }
+                    btnPaste.innerText = "✔️ OK";
+                    setTimeout(() => { btnPaste.innerText = "📋 YAPIŞTIR"; }, 2000);
+                } catch (err) { console.error(err); }
             };
             contentArea.appendChild(btnPaste);
         }
@@ -2360,49 +2349,33 @@
         config.width = '150px';
         initPanel();
         const panel = document.getElementById('ks-master-panel');
+        if (!panel) return;
+        panel.style.setProperty('width', config.width);
+        panel.style.setProperty('min-width', config.width);
         if (panel) {
-            const headerTitle = panel.querySelector('.ks-header h4');
-            if (headerTitle) headerTitle.innerText = "Excell Panel";
+            panel.querySelector('.ks-header h4').innerText = "Excell Panel";
         }
         const contentArea = document.querySelector('.ks-content');
         if (contentArea) {
-            contentArea.innerHTML = `<div style="text-align:center; padding-bottom:5px; font-size:12px;">Tablodaki verileri Excel'e yapıştırmak için kopyalar.</div>`;
-            Object.assign(contentArea.style, { display: "flex", flexDirection: "column", gap: "5px" });
-            // --- 1. BUTON: LİSTEYİ KOPYALA ---
+            contentArea.innerHTML = `<div style="text-align:center;padding-bottom:5px;font-size:11px;">Liste Kopyala</div>`;
+            Object.assign(contentArea.style, { display: "flex", flexDirection: "column", gap: "4px", padding: "5px" });
             const btnCopy = document.createElement('button');
             btnCopy.className = 'ks-btn';
-            btnCopy.innerText = "📂 LİSTEYİ KOPYALA";
-            btnCopy.style.cursor = "pointer";
+            btnCopy.style.cssText = "width:100%; padding:4px 2px; font-size:11px; min-height:24px;";
+            btnCopy.innerText = "📂 KOPYALA";
             btnCopy.onclick = async () => {
-                try {
-                    const uniqueLines = new Set();
-                    const rows = document.querySelectorAll('tr');
-                    rows.forEach(row => {
+                const unique = new Set();
+                document.querySelectorAll('tr').forEach(row => {
                         const cells = row.querySelectorAll('td.acik, td.koyu');
                         if (cells.length >= 4) {
-                            const parcaKodu = cells[1].innerText.trim();
-                            const parcaAdi = cells[2].innerText.trim();
-                            const parcaFiyati = cells[3].innerText.trim();
-                            const isValidPartCode = /^[a-zA-Z0-9-]+$/.test(parcaKodu);
-                            const isScientific = parcaKodu.includes('E+');
-                            const isHeader = parcaKodu === "Parça Kodu";
-                            if (isValidPartCode && !isScientific && !isHeader) {
-                                uniqueLines.add(`${parcaKodu}\t${parcaAdi}\t${parcaFiyati}`);
-                            }
+                        const kod = cells[1].innerText.trim(), ad = cells[2].innerText.trim(), fiy = cells[3].innerText.trim();
+                        if (/^[a-zA-Z0-9-]+$/.test(kod) && !kod.includes('E+') && kod !== "Parça Kodu") unique.add(`${kod}\t${ad}\t${fiy}`);
                         }
                     });
-                    const excelData = Array.from(uniqueLines);
-                    if (!excelData.length) return alert("Kopyalanacak geçerli parça bulunamadı!");
-                    await navigator.clipboard.writeText(excelData.join('\n'));
-                    btnCopy.innerText = "✔️ LİSTE HAZIR";
-                    Object.assign(btnCopy.style, { backgroundColor: "#28a745", color: "#fff" });
-                    setTimeout(() => {
-                        btnCopy.innerText = "📂 LİSTEYİ KOPYALA";
-                        btnCopy.style.backgroundColor = "";
-                        btnCopy.style.color = "";
-                    }, 2000);
-                } catch (err) {
-                    alert("Kopyalama başarısız!");
+                if (unique.size > 0) {
+                    await navigator.clipboard.writeText(Array.from(unique).join('\n'));
+                    btnCopy.innerText = "✔️ OK";
+                    setTimeout(() => {btnCopy.innerText = "📂 KOPYALA";}, 2000);
                 }
             };
             contentArea.appendChild(btnCopy);
@@ -3144,6 +3117,121 @@
         const style = document.createElement('style');
         style.innerHTML = ``;
         document.head.appendChild(style);
+		// ── ÖNIZLEME DÜZELTME: Canvas'ları küçült + tıklayınca büyük aç ──
+        function fixPreviews() {
+            if (!document.getElementById('ks-preview-style')) {
+                const s = document.createElement('style');
+                s.id = 'ks-preview-style';
+                s.innerHTML = `
+                    tr.template-upload td:first-child {
+                        height: auto !important;
+                        vertical-align: top !important;
+                        padding-top: 6px !important;
+                        width: 110px !important;
+                        min-width: 110px !important;
+                        max-width: 110px !important;
+                    }
+                    span.preview canvas {
+                        width: 100px !important;
+                        height: auto !important;
+                        max-width: 100px !important;
+                        display: block !important;
+                        cursor: pointer !important;
+                        border: 2px solid #ccc !important;
+                        border-radius: 4px !important;
+                    }
+                    span.preview canvas:hover {
+                        border-color: #3498db !important;
+                    }
+                `;
+                document.head.appendChild(s);
+            }
+
+            document.querySelectorAll('tr.template-upload').forEach(tr => {
+                const canvas = tr.querySelector('span.preview canvas');
+                if (!canvas || canvas.hasAttribute('data-click-fixed')) return;
+                canvas.setAttribute('data-click-fixed', 'true');
+
+                // Dosya adını tr'den al
+                const fileName = tr.getAttribute('fileuploadsatir');
+
+                canvas.addEventListener('click', () => {
+                    // jQuery FileUpload plugin'in data'sını bul
+                    // Plugin, input[type=file]'a bağlı — global fileupload data'sında File nesneleri var
+                    // Alternatif: sayfadaki tüm File nesnelerini tara
+                    let fileObj = null;
+
+                    // Yöntem 1: jQuery data üzerinden
+                    try {
+                        const $table = window.jQuery && jQuery('table.table');
+                        if ($table && $table.length) {
+                            const data = $table.fileupload && $table.data('blueimp-fileupload');
+                            if (data) {
+                                // deneme
+                            }
+                        }
+                    } catch(e) {}
+
+                    // Yöntem 2: input[type=file] üzerinden File listesini tara
+                    if (!fileObj) {
+                        document.querySelectorAll('input[type=file]').forEach(inp => {
+                            if (inp.files) {
+                                Array.from(inp.files).forEach(f => {
+                                    if (f.name === fileName) fileObj = f;
+                                });
+                            }
+                        });
+                    }
+
+                    // Yöntem 3: Global _ksFiles cache'inden al (aşağıda doldurulacak)
+                    if (!fileObj && window._ksFiles && window._ksFiles[fileName]) {
+                        fileObj = window._ksFiles[fileName];
+                    }
+
+                    if (fileObj) {
+                        // Orijinal dosyayı FileReader ile oku — tam boyut
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const url = e.target.result;
+                            const win = window.open('', '_blank');
+                            if (!win) return;
+                            win.document.write(`<!DOCTYPE html><html><head><title>${fileName}</title>
+                            <style>*{margin:0;padding:0;}body{background:#1a1a1a;display:flex;
+                            align-items:center;justify-content:center;min-height:100vh;}
+                            img{max-width:98vw;max-height:98vh;object-fit:contain;}</style>
+                            </head><body><img src="${url}"></body></html>`);
+                            win.document.close();
+                        };
+                        reader.readAsDataURL(fileObj);
+                    } else {
+                        // Fallback: canvas'tan al (küçük ama bir şey)
+                        const dataUrl = canvas.toDataURL('image/png');
+                        const win = window.open('', '_blank');
+                        if (!win) return;
+                        win.document.write(`<!DOCTYPE html><html><head><title>${fileName}</title>
+                        <style>*{margin:0;padding:0;}body{background:#1a1a1a;display:flex;
+                        align-items:center;justify-content:center;min-height:100vh;}
+                        img{max-width:98vw;max-height:98vh;object-fit:contain;}</style>
+                        </head><body><img src="${dataUrl}"></body></html>`);
+                        win.document.close();
+                    }
+                });
+
+                // Büyüt etiketi
+                const span = canvas.closest('span.preview');
+                if (span && !span.querySelector('.preview-hint')) {
+                    span.style.display = 'block';
+                    const hint = document.createElement('div');
+                    hint.className = 'preview-hint';
+                    hint.innerText = '🔍 Büyüt';
+                    Object.assign(hint.style, {
+                        fontSize: '9px', color: '#888', textAlign: 'center',
+                        marginTop: '2px', userSelect: 'none', pointerEvents: 'none'
+                    });
+                    span.appendChild(hint);
+                }
+            });
+        }
         // 1. SAĞ ÜST MİNİ PANEL
         function initGeneralPanel() {
             const panel = document.getElementById('ks-master-panel');
@@ -3331,9 +3419,25 @@
                 }
             });
         }
+		// Dosya seçilince File nesnesini global cache'e kaydet
+		if (!window._ksFiles) {
+		    window._ksFiles = {};
+		    document.addEventListener('change', (e) => {
+		        if (e.target && e.target.type === 'file' && e.target.files) {
+		            Array.from(e.target.files).forEach(f => {
+		                window._ksFiles[f.name] = f;
+		            });
+		        }
+		    }, true);
+		    // Sayfa açıldığında zaten seçili dosyaları da yakala
+		    document.querySelectorAll('input[type=file]').forEach(inp => {
+		        if (inp.files) Array.from(inp.files).forEach(f => { window._ksFiles[f.name] = f; });
+		    });
+		}
         function start() {
             initGeneralPanel();
             injectRowPanels();
+            fixPreviews();
         }
         setTimeout(start, 500);
         setInterval(start, 2500);
@@ -3356,6 +3460,11 @@
     	        <div id="panelContent" style="color:#fff; text-align:center; padding:2px; background:rgba(0,0,0,0.2); border-radius:5px; margin-bottom:8px; font-size:11px; font-weight:bold; border:1px solid rgba(255,255,255,0.1);">DURUM TARANIYOR</div>
     	        <div class="ks-grid-container" style="display: grid; grid-template-columns: 1fr; gap: 2px; width: 100%;">
     	            <div style="color:#aaa; font-size:10px; text-align:center;">Tablo verileri bekleniyor...</div>
+    	        </div>
+    	        <hr class="custom-line">
+    	        <div class="ks-tooltip-container" style="width:100%; display:block;">
+    	            <button id="btn-toplu-sil" class="ks-btn" style="background:#c0392b; border:0; border-radius:4px; cursor:pointer; padding:3px 4px; font-size:11px; width:100%; display:block; box-sizing:border-box;">🗑️ TÜMÜNÜ SİL</button>
+    	            <div class="ks-tooltip-box" style="display:none; border-color:#c0392b;"><strong>Toplu Silme</strong><br>Sayfadaki tüm kayıtları tek onay ile siler.</div>
     	        </div>
     	    `;
         }
@@ -3432,7 +3541,49 @@
             });
         }
         const runner = setInterval(() => { if (document.querySelector('table')) updatePanel(); }, 2000);
-        document.addEventListener('input', e => {
+
+            // Buton eventi
+            document.addEventListener('click', (e) => {
+                if (e.target.id !== 'btn-toplu-sil') return;
+
+                const silLinks = Array.from(
+                    document.querySelectorAll('a[href*="photo_sil.php"]')
+                );
+
+                if (!silLinks.length) {
+                    alert('Silinecek kayıt bulunamadı!');
+                    return;
+                }
+
+                if (!confirm(`Toplam ${silLinks.length} kayıt silinecek. Emin misiniz?`)) return;
+
+                let tamamlanan = 0;
+                const toplam = silLinks.length;
+
+               silLinks.forEach(link => {
+                   const href = link.getAttribute('href');
+                   const match = href.match(/photo_sil\.php\?ID=(\d+)/);
+                   if (!match) { tamamlanan++; return; }
+
+                   const id = match[1];
+                   const xhttp = new XMLHttpRequest();
+                   xhttp.open('POST', '/pic_db/photo_sil.php', true);
+                   xhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                   xhttp.onload = () => {
+                       tamamlanan++;
+                       const row = link.closest('tr');
+                       if (row) row.remove();
+                       if (tamamlanan === toplam) {
+                           alert(`${toplam} kayıt silindi.`);
+                           location.reload();
+                       }
+                   };
+                   xhttp.onerror = () => { tamamlanan++; };
+                   xhttp.send(`id=${id}&btnEVET=EVET`);
+               });
+            });
+
+            document.addEventListener('input', e => {
             if (['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
                 const s = e.target.selectionStart, n = e.target.selectionEnd;
                 e.target.value = e.target.value.toLocaleUpperCase('tr-TR');
